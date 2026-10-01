@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentación Interactiva: Fotosíntesis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .slide-deck-container {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 45px -10px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+    }
+    .deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .deck-nav-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .deck-tab-btn {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #64748b;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .deck-tab-btn:hover {
+      border-color: #4f46e5;
+      color: #4f46e5;
+    }
+    .deck-tab-btn.active {
+      background: #4f46e5;
+      border-color: #4f46e5;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+    .deck-body {
+      padding: 2.2rem;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #ffffff;
+    }
+    .slide-h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .slide-desc {
+      font-size: 1.05rem;
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 1.8rem;
+    }
+    .slide-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+    @media (max-width: 640px) {
+      .slide-cards-grid { grid-template-columns: 1fr; }
+    }
+    .concept-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 1.4rem;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .concept-card:hover {
+      transform: translateY(-3px);
+      border-color: #6366f1;
+      box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.12);
+    }
+    .concept-card h4 {
+      font-size: 1.15rem;
+      margin-bottom: 0.45rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .concept-card p {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    .funfact-banner {
+      margin-top: 1.5rem;
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem 1.3rem;
+      border-radius: 8px;
+      color: #92400e;
+      font-size: 0.98rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-top: 1px solid #fef3c7;
+      border-right: 1px solid #fef3c7;
+      border-bottom: 1px solid #fef3c7;
+    }
+    .deck-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .btn-nav {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn-nav:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    .btn-nav-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      border-color: #4f46e5;
+      color: #ffffff;
+    }
+    .btn-nav-primary:hover {
+      background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+    }
+    .progress-track {
+      flex: 1;
+      max-width: 280px;
+      margin: 0 1.5rem;
+      text-align: center;
+    }
+    .progress-bar-bg {
+      background: #e2e8f0;
+      height: 8px;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #06b6d4);
+      transition: width 0.35s ease;
+    }
+    .progress-txt {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-top: 5px;
+      display: inline-block;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slide-deck-container">
+    <header class="deck-header">
+      <div class="deck-nav-tabs">
+        <button class="deck-tab-btn active" onclick="goToSlide(1)">1. Fundamentos</button>
+        <button class="deck-tab-btn" onclick="goToSlide(2)">2. Ecuación</button>
+        <button class="deck-tab-btn" onclick="goToSlide(3)">3. Ecología</button>
+        <button class="deck-tab-btn" onclick="goToSlide(4)">4. Síntesis</button>
+      </div>
+      <span style="font-size:0.82rem; background:#e0e7ff; color:#4338ca; border:1px solid #c7d2fe; padding:4px 12px; border-radius:9999px; font-weight:700;">🌱 Módulo 1: Presentación</span>
+    </header>
+
+    <main class="deck-body" id="deck-body">
+      <!-- Injected via JS -->
+    </main>
+
+    <footer class="deck-footer">
+      <button class="btn-nav" onclick="changeSlide(-1)"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+
+      <div class="progress-track">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill" style="width: 25%;"></div>
+        </div>
+        <span class="progress-txt" id="progress-txt">Diapositiva 1 de 4</span>
+      </div>
+
+      <button class="btn-nav btn-nav-primary" onclick="changeSlide(1)">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+    </footer>
+  </div>
+
+  <script>
+    const SLIDES = [
+      {
+        title: '🌱 Fotosíntesis: La Fábrica Verde del Planeta',
+        desc: 'Las plantas transforman la energía lumínica en energía química mediante la clorofila en los cloroplastos, absorbiendo dióxido de carbono (CO₂) y agua para sintetizar glucosa y liberar oxígeno vital.',
+        card1Title: '☀️ Fase Lumínica',
+        card1Color: '#0284c7',
+        card1Desc: 'Ocurre en las membranas tilacoides. La luz descompone el agua, liberando O₂ gaseoso y generando moléculas energéticas (ATP y NADPH).',
+        card2Title: '🔄 Ciclo de Calvin',
+        card2Color: '#16a34a',
+        card2Desc: 'Ocurre en el estroma. Utiliza la energía química generada para fijar el carbono inorgánico en azúcares y glucosa nutritiva.',
+        funFact: 'Más del 70% del oxígeno libre en la atmósfera terrestre es producido por el fitoplancton en los océanos.'
+      },
+      {
+        title: '💧 Ecuación Química y Balance Vital',
+        desc: 'Fórmula global: 6 CO₂ + 6 H₂O + Energía Lumínica ➔ C₆H₁₂O₆ (Glucosa) + 6 O₂. Un proceso termodinámico que sostiene la cadena de vida terrestre.',
+        card1Title: '🌿 Absorción Radicular',
+        card1Color: '#d97706',
+        card1Desc: 'Las raíces absorben agua y sales minerales del suelo, conduciéndolas por los vasos del xilema hasta el parénquima foliar.',
+        card2Title: '🍃 Estomas y Transpiración',
+        card2Color: '#db2777',
+        card2Desc: 'Microscópicos poros en el envés de las hojas que regulan el intercambio de gases y la evaporación hídrica según la humedad.',
+        funFact: 'Un solo roble maduro puede transpirar más de 400 litros de agua en un día de verano, enfriando el aire circundante.'
+      },
+      {
+        title: '🌍 Impacto en el Clima y Sumideros de Carbono',
+        desc: 'Los bosques, selvas y algas marinas son los principales reguladores climáticos del planeta al capturar miles de millones de toneladas de CO₂.',
+        card1Title: '🌳 Sumideros Naturales',
+        card1Color: '#0891b2',
+        card1Desc: 'El carbono fijado forma la madera y biomasa vegetal durante siglos, mitigando directamente el calentamiento global.',
+        card2Title: '🔄 Base de la Cadena Trófica',
+        card2Color: '#9333ea',
+        card2Desc: 'Como productores primarios indispensables, proveen toda la energía calórica y biomolecular consumida por los herbívoros y carnívoros.',
+        funFact: 'Proteger 1 hectárea de selva nativa retiene el carbono equivalente a las emisiones anuales de más de 150 automóviles.'
+      },
+      {
+        title: '🏆 Síntesis Interactiva de Aprendizaje',
+        desc: '¡Has completado el recorrido conceptual! Con este formato de presentación interactiva, los alumnos adquieren control de ritmo y retención activa.',
+        card1Title: '✅ Conceptos Asimilados',
+        card1Color: '#059669',
+        card1Desc: 'Diferenciación de fases fotosintéticas, reactivos de entrada, productos orgánicos y el papel ecológico de la clorofila.',
+        card2Title: '🚀 Aplicación en el Taller',
+        card2Color: '#4f46e5',
+        card2Desc: 'Crea este mismo recurso adaptado a tu asignatura usando la plantilla de prompts del Módulo 4 de Inteligencia Artificial.',
+        funFact: '¡Felicitaciones! Recurso interactivo completado al 100% con éxito pedagógico.'
+      }
+    ];
+
+    let currentSlide = 1;
+
+    function renderSlide() {
+      const s = SLIDES[currentSlide - 1];
+      const body = document.getElementById('deck-body');
+      body.innerHTML = `
+        <h2 class="slide-h2">${s.title}</h2>
+        <p class="slide-desc">${s.desc}</p>
+        <div class="slide-cards-grid">
+          <div class="concept-card">
+            <h4 style="color: ${s.card1Color};"><i class="fa-solid fa-sparkles"></i> ${s.card1Title}</h4>
+            <p>${s.card1Desc}</p>
+          </div>
+          <div class="concept-card">
+            <h4 style="color: ${s.card2Color};"><i class="fa-solid fa-circle-nodes"></i> ${s.card2Title}</h4>
+            <p>${s.card2Desc}</p>
+          </div>
+        </div>
+        <div class="funfact-banner">
+          <i class="fa-solid fa-lightbulb" style="color: #d97706; font-size:1.2rem;"></i>
+          <span><strong>Dato Clave:</strong> ${s.funFact}</span>
+        </div>
+      `;
+
+      // Update tabs
+      document.querySelectorAll('.deck-tab-btn').forEach((btn, idx) => {
+        if (idx + 1 === currentSlide) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Update progress
+      document.getElementById('progress-fill').style.width = (currentSlide * 25) + '%';
+      document.getElementById('progress-txt').innerText = `Diapositiva ${currentSlide} de ${SLIDES.length}`;
+    }
+
+    function goToSlide(n) {
+      currentSlide = n;
+      renderSlide();
+    }
+
+    function changeSlide(delta) {
+      currentSlide = Math.max(1, Math.min(SLIDES.length, currentSlide + delta));
+      renderSlide();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderSlide);
+  </script>
+</body>
+</html>

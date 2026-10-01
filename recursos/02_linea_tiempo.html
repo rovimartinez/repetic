@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Línea de Tiempo Interactiva: Historia de la IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .timeline-container {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+    }
+    .timeline-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .timeline-header h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.4rem;
+    }
+    .timeline-header p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+    .timeline-track-wrap {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2.5rem 1.5rem;
+    }
+    .timeline-line-bg {
+      position: absolute;
+      top: 50%;
+      left: 5%;
+      right: 5%;
+      height: 5px;
+      background: #e2e8f0;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    .timeline-node-btn {
+      position: relative;
+      z-index: 2;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 4px solid #cbd5e1;
+      color: #64748b;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+    .timeline-node-btn:hover {
+      transform: scale(1.1);
+      border-color: #4f46e5;
+      color: #4f46e5;
+    }
+    .timeline-node-btn.active {
+      background: #4f46e5;
+      border-color: #6366f1;
+      color: #ffffff;
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+    }
+    .timeline-card-detail {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 1.8rem;
+      margin-top: 1.5rem;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .card-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #4f46e5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #e0e7ff;
+      color: #4338ca;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+    .card-desc {
+      font-size: 0.98rem;
+      color: #475569;
+      line-height: 1.65;
+      margin-bottom: 1.2rem;
+    }
+    .card-impact {
+      background: #ffffff;
+      border-left: 4px solid #4f46e5;
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      font-size: 0.92rem;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="timeline-container">
+    <div class="timeline-header">
+      <h2><i class="fa-solid fa-timeline" style="color: #4f46e5;"></i> Hitos de la Inteligencia Artificial</h2>
+      <p>Haz clic en los nodos cronológicos para explorar los momentos clave de la revolución tecnológica.</p>
+    </div>
+
+    <div class="timeline-track-wrap">
+      <div class="timeline-line-bg"></div>
+      <button class="timeline-node-btn active" onclick="selectNode(1)">1950</button>
+      <button class="timeline-node-btn" onclick="selectNode(2)">1997</button>
+      <button class="timeline-node-btn" onclick="selectNode(3)">2017</button>
+      <button class="timeline-node-btn" onclick="selectNode(4)">2024</button>
+    </div>
+
+    <div class="timeline-card-detail" id="timeline-card">
+      <!-- Injected via JS -->
+    </div>
+  </div>
+
+  <script>
+    const NODES = [
+      {
+        year: '1950',
+        title: 'Test de Turing y el Nacimiento de la IA',
+        badge: 'Hito Fundacional',
+        icon: 'fa-microchip',
+        desc: 'Alan Turing publica su célebre artículo "¿Pueden pensar las máquinas?", proponiendo el Juego de la Imitación (Test de Turing) para medir el comportamiento inteligente en sistemas computacionales.',
+        impact: 'Estableció las bases epistemológicas de la computación cognitiva y definió las metas del procesamiento de lenguaje natural que aún rigen hoy.'
+      },
+      {
+        year: '1997',
+        title: 'Deep Blue derrota a Garry Kasparov',
+        badge: 'Cálculo Heurístico',
+        icon: 'fa-chess',
+        desc: 'Por primera vez en la historia, la supercomputadora de IBM vence al campeón mundial de ajedrez en una serie reglamentaria de 6 partidas, calculando más de 200 millones de posiciones por segundo.',
+        impact: 'Demostró el poder del procesamiento paralelo masivo y algoritmos de optimización para la resolución de problemas de altísima complejidad.'
+      },
+      {
+        year: '2017',
+        title: 'Arquitectura Transformer (Google Research)',
+        badge: 'Revolución Neuronal',
+        icon: 'fa-network-wired',
+        desc: 'Investigadores de Google presentan el paper "Attention Is All You Need", introduciendo el mecanismo de auto-atención que permite a las redes procesar relaciones contextuales de largo alcance.',
+        impact: 'Fue el catalizador directo que hizo posible el desarrollo de ChatGPT, Claude, Gemini, DeepSeek y toda la era moderna de modelos fundacionales.'
+      },
+      {
+        year: '2024',
+        title: 'IA Generativa & Copilotos Pedagógicos',
+        badge: 'Era Docente Actual',
+        icon: 'fa-wand-magic-sparkles',
+        desc: 'La Inteligencia Artificial se democratiza y se integra como copiloto en el aula de clases, permitiendo a los educadores crear simuladores, objetos interactivos y rúbricas sin escribir código.',
+        impact: 'Transformación del rol docente: de consumidor de recursos digitales a creador autónomo de experiencias interactivas personalizadas.'
+      }
+    ];
+
+    function selectNode(n) {
+      document.querySelectorAll('.timeline-node-btn').forEach((b, i) => {
+        if (i + 1 === n) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+
+      const node = NODES[n - 1];
+      document.getElementById('timeline-card').innerHTML = `
+        <div class="card-top-row">
+          <div class="card-title"><i class="fa-solid ${node.icon}"></i> ${node.year}: ${node.title}</div>
+          <span class="card-badge">${node.badge}</span>
+        </div>
+        <p class="card-desc">${node.desc}</p>
+        <div class="card-impact">
+          <strong>🎯 Impacto en la Educación:</strong> ${node.impact}
+        </div>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => selectNode(1));
+  </script>
+</body>
+</html>

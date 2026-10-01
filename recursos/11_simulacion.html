@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Interactivo: Estados de la Materia (Agua - H₂O)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .sim-container {
+      width: 100%;
+      max-width: 1240px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 2rem 2.2rem;
+      box-shadow: 0 25px 50px -10px rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .header h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0284c7;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    /* GRID PRINCIPAL: PANEL IZQ (280px), CANVAS COMPACTO (320px), PANEL DER AMPLIO (1fr) */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 280px 320px 1fr;
+      gap: 1.4rem;
+      align-items: stretch;
+      width: 100%;
+    }
+    @media (max-width: 1060px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* PANEL DE CONTROLES (IZQUIERDA) */
+    .panel-card {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      justify-content: space-between;
+      min-height: 460px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.6rem;
+    }
+    .panel-title span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-mode {
+      background: #e0f2fe;
+      color: #0284c7;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 12px;
+      min-width: 58px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      background: #ffffff;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+    .control-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #334155;
+    }
+    .control-val-tag {
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #0284c7;
+      background: #f0f9ff;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid #bae6fd;
+      min-width: 76px;
+      text-align: center;
+      display: inline-block;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: #0284c7;
+      cursor: pointer;
+      height: 6px;
+    }
+
+    /* SELECTOR DE ESTADOS DIRECTOS */
+    .state-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .btn-state {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #475569;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 9px 6px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-state i { font-size: 1.1rem; }
+    .btn-state.active, .btn-state:hover {
+      border-color: #0284c7;
+      color: #0284c7;
+      background: #f0f9ff;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+    }
+    .btn-state.active-solid {
+      background: #38bdf8;
+      border-color: #0284c7;
+      color: #0f172a;
+    }
+    .btn-state.active-liquid {
+      background: #0284c7;
+      border-color: #0369a1;
+      color: #ffffff;
+    }
+    .btn-state.active-gas {
+      background: #f97316;
+      border-color: #ea580c;
+      color: #ffffff;
+    }
+
+    /* BOTONES DE APLICAR CALOR / FRÍO */
+    .heat-cold-row {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-heat-action {
+      flex: 1;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-cool-down {
+      background: #38bdf8;
+      color: #0f172a;
+    }
+    .btn-cool-down:hover { background: #0ea5e9; color: #fff; }
+    .btn-heat-up {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .btn-heat-up:hover { background: #dc2626; }
+
+    /* COLUMNA CENTRAL: VISUALIZADOR MOLECULAR EN CANVAS COMPACTO */
+    .container-canvas-card {
+      background: #090d16;
+      border-radius: 18px;
+      padding: 1rem 0.8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+      min-height: 460px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .state-banner-pill {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 4px 12px;
+      border-radius: 20px;
+      color: #38bdf8;
+      font-size: 0.78rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(6px);
+      z-index: 10;
+      white-space: nowrap;
+    }
+    .state-banner-pill .dot {
+      width: 8px;
+      height: 8px;
+      background: #38bdf8;
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: pulseDot 1.2s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+    }
+    #simCanvas {
+      width: 100%;
+      max-width: 290px;
+      height: 380px;
+      display: block;
+    }
+
+    /* COLUMNA DERECHA: PROPIEDADES TERMODINÁMICAS */
+    .metrics-panel {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      justify-content: space-between;
+      min-height: 460px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+    .kpi-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .kpi-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .kpi-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .state-hero-box {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1.5px solid #bae6fd;
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      text-align: center;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .state-hero-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #0369a1;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      line-height: 1;
+    }
+    .state-hero-val {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0284c7;
+      line-height: 1.2;
+      display: block;
+    }
+    .state-hero-sub {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #075985;
+      line-height: 1.2;
+      display: block;
+    }
+
+    /* DESCRIPCIÓN MOLECULAR */
+    .micro-desc-box {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0.85rem 0.95rem;
+      font-size: 0.84rem;
+      color: #334155;
+      line-height: 1.5;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .micro-desc-title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .micro-desc-text {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #334155;
+      line-height: 1.45;
+    }
+    .micro-desc-box strong {
+      color: #0f172a;
+      font-weight: 800;
+      display: inline;
+    }
+
+    /* FOOTER */
+    .sim-footer {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1.2rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .sim-tip {
+      font-size: 0.86rem;
+      color: #64748b;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-reset {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #475569;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-reset:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sim-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-water"></i> Simulador Molecular: Estados del Agua (H₂O)</h2>
+      <p>Observa en tiempo real cómo cambia la energía cinética, cohesión y estructura molecular según la temperatura.</p>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- PANEL 1: CONTROLES DE TEMPERATURA Y PRESETS -->
+      <div class="panel-card">
+        <div class="panel-title">
+          <span><i class="fa-solid fa-fire-burner"></i> Control Térmico</span>
+          <span class="badge-mode">H₂O</span>
+        </div>
+
+        <!-- TEMPERATURA -->
+        <div class="control-group">
+          <div class="control-label-row">
+            <span><i class="fa-solid fa-temperature-half" style="color:#0284c7;"></i> Temperatura</span>
+            <span class="control-val-tag" id="temp-val">25 °C</span>
+          </div>
+          <input type="range" id="temp-slider" min="-30" max="150" value="25" oninput="onTempChange()">
+        </div>
+
+        <!-- SELECTOR RÁPIDO DE LOS 3 ESTADOS -->
+        <div style="font-size:0.8rem; font-weight:800; color:#64748b; margin-top:2px;">ESTADOS FUNDAMENTALES:</div>
+        <div class="state-buttons">
+          <button type="button" class="btn-state" id="btnSolid" onclick="setExactState(-15)">
+            <i class="fa-regular fa-snowflake" style="color:#0284c7;"></i>
+            <span>Sólido</span>
+            <small style="font-size:0.7rem; color:#64748b;">(Hielo &lt; 0°C)</small>
+          </button>
+          <button type="button" class="btn-state active-liquid" id="btnLiquid" onclick="setExactState(25)">
+            <i class="fa-solid fa-droplet" style="color:#0ea5e9;"></i>
+            <span>Líquido</span>
+            <small style="font-size:0.7rem; color:#64748b;">(0°C - 100°C)</small>
+          </button>
+          <button type="button" class="btn-state" id="btnGas" onclick="setExactState(120)">
+            <i class="fa-solid fa-smog" style="color:#f97316;"></i>
+            <span>Gaseoso</span>
+            <small style="font-size:0.7rem; color:#64748b;">(Vapor &gt; 100°C)</small>
+          </button>
+        </div>
+
+        <!-- APLICAR CALOR O FRÍO PASO A PASO -->
+        <div class="heat-cold-row">
+          <button type="button" class="btn-heat-action btn-cool-down" onclick="adjustTemp(-15)">
+            <i class="fa-solid fa-minus"></i> Enfriar (-15°C)
+          </button>
+          <button type="button" class="btn-heat-action btn-heat-up" onclick="adjustTemp(15)">
+            <i class="fa-solid fa-plus"></i> Calentar (+15°C)
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 2: CONTENEDOR Y MOLÉCULAS EN CANVAS -->
+      <div class="container-canvas-card">
+        <div class="state-banner-pill">
+          <div class="dot" id="stateDot"></div>
+          <span id="stateBannerText">ESTADO LÍQUIDO (AGUA)</span>
+        </div>
+        <canvas id="simCanvas" width="800" height="780"></canvas>
+      </div>
+
+      <!-- PANEL 3: TELEMETRÍA Y PROPIEDADES -->
+      <div class="metrics-panel">
+        <div class="panel-title">
+          <span><i class="fa-solid fa-atom"></i> Nivel Molecular</span>
+          <span class="badge-mode" id="badgePhase" style="background:#e0f2fe; color:#0369a1;">Fluido</span>
+        </div>
+
+        <!-- ESTADO HERO -->
+        <div class="state-hero-box" id="stateHeroBox">
+          <div class="state-hero-label">Fase de la Materia</div>
+          <div class="state-hero-val" id="state-title">LÍQUIDO</div>
+          <div class="state-hero-sub" id="transition-desc">Flujo y volumen constante</div>
+        </div>
+
+        <!-- PROPIEDADES TERMODINÁMICAS -->
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <div class="kpi-label"><i class="fa-solid fa-gauge-high"></i> Presión Vapor</div>
+            <div class="kpi-value" id="kpi-press">1.0 <span style="font-size:0.75rem; font-weight:600; color:#64748b;">atm</span></div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label"><i class="fa-solid fa-bolt"></i> Energía Cinética</div>
+            <div class="kpi-value" id="kpi-energy">Media</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label"><i class="fa-solid fa-link"></i> Cohesión H₂O</div>
+            <div class="kpi-value" id="kpi-cohesion">Alta</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label"><i class="fa-solid fa-arrows-up-down-left-right"></i> Densidad</div>
+            <div class="kpi-value" id="kpi-density">1.00 <span style="font-size:0.75rem; font-weight:600; color:#64748b;">g/cm³</span></div>
+          </div>
+        </div>
+
+        <!-- EXPLICACIÓN DINÁMICA -->
+        <div class="micro-desc-box" id="microDesc">
+          <div class="micro-desc-title"><i class="fa-solid fa-atom"></i> Comportamiento de las moléculas:</div>
+          <p id="microText" class="micro-desc-text">Las moléculas de H₂O están unidas por puentes de hidrógeno pero tienen libertad de deslizarse unas sobre otras, adaptándose a la forma del vaso.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="sim-footer">
+      <div class="sim-tip">
+        <i class="fa-solid fa-lightbulb" style="color:#0284c7;"></i>
+        <span><strong>Puntos de cambio de fase:</strong> 0°C (Punto de Fusión/Congelación) y 100°C (Punto de Ebullición/Vaporización).</span>
+      </div>
+      <button type="button" class="btn-reset" onclick="setExactState(25)">
+        <i class="fa-solid fa-rotate-left"></i> Temperatura Ambiente (25°C)
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let temp = 25;
+    const NUM_MOLECULES = 54;
+    let molecules = [];
+
+    // Inicializar moléculas de agua H₂O (1 átomo oxígeno grande rojo/azul + 2 hidrógenos blancos)
+    function initMolecules() {
+      molecules = [];
+      const boxW = 460;
+      const boxH = 460;
+      const startX = 170;
+      const startY = 170;
+
+      for (let i = 0; i < NUM_MOLECULES; i++) {
+        // Asignar posiciones base ordenadas para el cristal de hielo
+        const col = i % 9;
+        const row = Math.floor(i / 9);
+        const crystalX = startX + 40 + col * 46;
+        const crystalY = startY + boxH - 50 - row * 46;
+
+        molecules.push({
+          x: crystalX + (Math.random() - 0.5) * 8,
+          y: crystalY,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
+          crystalX: crystalX,
+          crystalY: crystalY,
+          angle: Math.random() * Math.PI * 2,
+          vAngle: (Math.random() - 0.5) * 0.05
+        });
+      }
+    }
+
+    function onTempChange() {
+      temp = parseInt(document.getElementById('temp-slider').value);
+      updateDashboard();
+    }
+
+    function adjustTemp(delta) {
+      temp = Math.max(-30, Math.min(150, temp + delta));
+      document.getElementById('temp-slider').value = temp;
+      updateDashboard();
+    }
+
+    function setExactState(targetTemp) {
+      temp = targetTemp;
+      document.getElementById('temp-slider').value = temp;
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      document.getElementById('temp-val').innerText = `${temp} °C`;
+
+      const btnSolid = document.getElementById('btnSolid');
+      const btnLiquid = document.getElementById('btnLiquid');
+      const btnGas = document.getElementById('btnGas');
+      const stateBannerText = document.getElementById('stateBannerText');
+      const stateDot = document.getElementById('stateDot');
+      const stateTitle = document.getElementById('stateTitle') || document.getElementById('state-title');
+      const transDesc = document.getElementById('transition-desc');
+      const kpiPress = document.getElementById('kpi-press');
+      const kpiEnergy = document.getElementById('kpi-energy');
+      const kpiCohesion = document.getElementById('kpi-cohesion');
+      const kpiDensity = document.getElementById('kpi-density');
+      const microText = document.getElementById('microText');
+      const badgePhase = document.getElementById('badgePhase');
+      const heroBox = document.getElementById('stateHeroBox');
+
+      btnSolid.className = 'btn-state';
+      btnLiquid.className = 'btn-state';
+      btnGas.className = 'btn-state';
+
+      if (temp <= 0) {
+        // ESTADO SÓLIDO (HIELO)
+        btnSolid.classList.add('active-solid');
+        stateBannerText.innerText = 'ESTADO SÓLIDO (HIELO)';
+        stateDot.style.background = '#38bdf8';
+        stateTitle.innerText = 'SÓLIDO (HIELO)';
+        stateTitle.style.color = '#0284c7';
+        transDesc.innerText = 'Estructura cristalina fija y rígida';
+        badgePhase.innerText = 'Cristal';
+        badgePhase.style.background = '#e0f2fe';
+        badgePhase.style.color = '#0284c7';
+        heroBox.style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+        heroBox.style.borderColor = '#bae6fd';
+
+        kpiPress.innerHTML = `0.006 <span style="font-size:0.75rem; font-weight:600; color:#64748b;">atm</span>`;
+        kpiEnergy.innerText = 'Baja';
+        kpiEnergy.style.color = '#0284c7';
+        kpiCohesion.innerText = 'Máxima';
+        kpiDensity.innerHTML = `0.92 <span style="font-size:0.75rem; font-weight:600; color:#64748b;">g/cm³</span>`;
+        microText.innerHTML = `Las moléculas de agua forman una <strong>red hexagonal rígida</strong> mediante enlaces de hidrógeno. Solo vibran en sus posiciones sin desplazarse.`;
+
+      } else if (temp < 100) {
+        // ESTADO LÍQUIDO (AGUA)
+        btnLiquid.classList.add('active-liquid');
+        stateBannerText.innerText = 'ESTADO LÍQUIDO (AGUA)';
+        stateDot.style.background = '#0ea5e9';
+        stateTitle.innerText = 'LÍQUIDO (AGUA)';
+        stateTitle.style.color = '#0284c7';
+        transDesc.innerText = 'Fluidez con volumen definido';
+        badgePhase.innerText = 'Fluido';
+        badgePhase.style.background = '#e0f2fe';
+        badgePhase.style.color = '#0369a1';
+        heroBox.style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+        heroBox.style.borderColor = '#bae6fd';
+
+        const pVal = (0.006 + (temp / 100) * 0.994).toFixed(2);
+        kpiPress.innerHTML = `${pVal} <span style="font-size:0.75rem; font-weight:600; color:#64748b;">atm</span>`;
+        kpiEnergy.innerText = 'Moderada';
+        kpiEnergy.style.color = '#0284c7';
+        kpiCohesion.innerText = 'Media';
+        kpiDensity.innerHTML = `1.00 <span style="font-size:0.75rem; font-weight:600; color:#64748b;">g/cm³</span>`;
+        microText.innerHTML = `Las moléculas tienen suficiente energía para romper enlaces transitorios y <strong>deslizarse unas sobre otras</strong>, adoptando la forma del recipiente.`;
+
+      } else {
+        // ESTADO GASEOSO (VAPOR)
+        btnGas.classList.add('active-gas');
+        stateBannerText.innerText = 'ESTADO GASEOSO (VAPOR)';
+        stateDot.style.background = '#f97316';
+        stateTitle.innerText = 'GAS (VAPOR)';
+        stateTitle.style.color = '#ea580c';
+        transDesc.innerText = 'Expansión libre y colisiones caóticas';
+        badgePhase.innerText = 'Gas';
+        badgePhase.style.background = '#ffedd5';
+        badgePhase.style.color = '#ea580c';
+        heroBox.style.background = 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)';
+        heroBox.style.borderColor = '#fed7aa';
+
+        const pVal = (1.0 + ((temp - 100) * 0.04)).toFixed(1);
+        kpiPress.innerHTML = `${pVal} <span style="font-size:0.75rem; font-weight:600; color:#64748b;">atm</span>`;
+        kpiEnergy.innerText = 'Alta';
+        kpiEnergy.style.color = '#ea580c';
+        kpiCohesion.innerText = 'Nula';
+        kpiDensity.innerHTML = `0.0006 <span style="font-size:0.75rem; font-weight:600; color:#64748b;">g/cm³</span>`;
+        microText.innerHTML = `Las moléculas poseen <strong>alta energía cinética</strong>. Vencieron toda fuerza de cohesión, chocando elásticamente a gran velocidad contra las paredes del recipiente.`;
+      }
+    }
+
+    // RENDERIZADO Y FÍSICA EN CANVAS
+    function drawCanvas() {
+      const canvas = document.getElementById('simCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Dimensiones del vaso / recipiente
+      const beakerX = 170;
+      const beakerY = 160;
+      const beakerW = 460;
+      const beakerH = 480;
+      const radius = 24;
+
+      // 1. RECIPIENTE DE CRISTAL / TERMOPILOTO
+      // Sombra exterior
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.beginPath();
+      ctx.roundRect(beakerX, beakerY, beakerW, beakerH, [0, 0, radius, radius]);
+      ctx.fill();
+
+      // Borde de vidrio brillante
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(beakerX, beakerY, beakerW, beakerH, [0, 0, radius, radius]);
+      ctx.stroke();
+
+      // Líneas de graduación volumétrica en el vidrio
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 2;
+      for (let y = beakerY + 80; y <= beakerY + beakerH - 60; y += 70) {
+        ctx.beginPath();
+        ctx.moveTo(beakerX + 10, y);
+        ctx.lineTo(beakerX + 35, y);
+        ctx.stroke();
+      }
+
+      // Tapa superior cuando es gas o contenedor cerrado
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(beakerX - 10, beakerY - 16, beakerW + 20, 18, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      // 2. COMPORTAMIENTO FÍSICO Y CINÉTICO DE LAS MOLÉCULAS DE H₂O
+      const isSolid = temp <= 0;
+      const isLiquid = temp > 0 && temp < 100;
+      const isGas = temp >= 100;
+
+      // Velocidad cinética en función de la temperatura absoluta (Kelvin)
+      const speedScale = Math.max(0.4, (temp + 50) / 75);
+
+      molecules.forEach((m, idx) => {
+        if (isSolid) {
+          // HIELO: Vibración armónica alrededor de su celda cristalina fija
+          const vibIntensity = Math.max(0.8, (temp + 35) * 0.08);
+          m.x = m.crystalX + Math.sin(Date.now() * 0.015 + idx) * vibIntensity;
+          m.y = m.crystalY + Math.cos(Date.now() * 0.015 + idx * 1.5) * vibIntensity;
+          m.angle = idx * 0.5;
+        } else if (isLiquid) {
+          // LÍQUIDO: Fluido gravitatorio en el fondo del recipiente
+          m.x += m.vx * speedScale;
+          m.y += m.vy * speedScale + 0.35; // Leve gravedad
+
+          // Límites dentro del fondo del vaso (volumen líquido)
+          const liquidSurface = beakerY + 160;
+          if (m.x < beakerX + 35) { m.x = beakerX + 35; m.vx *= -1; }
+          if (m.x > beakerX + beakerW - 35) { m.x = beakerX + beakerW - 35; m.vx *= -1; }
+          if (m.y < liquidSurface) { m.y = liquidSurface; m.vy *= -1; }
+          if (m.y > beakerY + beakerH - 35) { m.y = beakerY + beakerH - 35; m.vy *= -1; }
+
+          m.angle += m.vAngle * speedScale;
+        } else {
+          // GAS (VAPOR): Expansión total en todo el volumen con rebotes caóticos
+          m.x += m.vx * (speedScale * 1.8);
+          m.y += m.vy * (speedScale * 1.8);
+
+          if (m.x < beakerX + 30) { m.x = beakerX + 30; m.vx *= -1; }
+          if (m.x > beakerX + beakerW - 30) { m.x = beakerX + beakerW - 30; m.vx *= -1; }
+          if (m.y < beakerY + 30) { m.y = beakerY + 30; m.vy *= -1; }
+          if (m.y > beakerY + beakerH - 30) { m.y = beakerY + beakerH - 30; m.vy *= -1; }
+
+          m.angle += m.vAngle * 3;
+        }
+
+        // 3. DIBUJAR MOLÉCULA DE AGUA H₂O
+        // Átomo Central de Oxígeno (Rojo / Azul según temperatura)
+        ctx.save();
+        ctx.translate(m.x, m.y);
+        ctx.rotate(m.angle);
+
+        // Color del átomo de Oxígeno según energía
+        let oColor = '#0284c7'; // Azul
+        if (isSolid) oColor = '#38bdf8'; // Celeste hielo
+        if (isGas) oColor = '#ea580c'; // Naranja caliente
+
+        // Átomo Oxígeno (Radio 12px)
+        ctx.fillStyle = oColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // 2 Átomos de Hidrógeno (Radio 6.5px con ángulo de 104.5°)
+        const hDistance = 14;
+        const hAngle = 0.9; // ~104.5 grados en radianes divididos
+
+        // Hidrógeno 1
+        const h1x = Math.cos(hAngle) * hDistance;
+        const h1y = Math.sin(hAngle) * hDistance;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(h1x, h1y, 6.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Hidrógeno 2
+        const h2x = Math.cos(-hAngle) * hDistance;
+        const h2y = Math.sin(-hAngle) * hDistance;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(h2x, h2y, 6.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Enlaces de hidrógeno intermoleculares punteados en estado sólido
+        if (isSolid) {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(24, 0);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        ctx.restore();
+      });
+
+      // 4. MECHERO / BASE TÉRMICA INFERIOR
+      const burnerY = beakerY + beakerH + 15;
+      if (temp > 25) {
+        // Llama activa según temperatura
+        const flameHeight = Math.min(65, (temp - 25) * 0.55);
+        ctx.fillStyle = temp > 90 ? '#ef4444' : '#f59e0b';
+        ctx.beginPath();
+        ctx.moveTo(beakerX + beakerW / 2 - 45, burnerY + 30);
+        ctx.quadraticCurveTo(beakerX + beakerW / 2, burnerY + 30 - flameHeight, beakerX + beakerW / 2 + 45, burnerY + 30);
+        ctx.fill();
+
+        // Núcleo azul de la llama
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.moveTo(beakerX + beakerW / 2 - 20, burnerY + 30);
+        ctx.quadraticCurveTo(beakerX + beakerW / 2, burnerY + 30 - (flameHeight * 0.55), beakerX + beakerW / 2 + 20, burnerY + 30);
+        ctx.fill();
+      } else if (temp < 0) {
+        // Base de hielo / refrigerador
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+        ctx.beginPath();
+        ctx.roundRect(beakerX + 40, burnerY + 10, beakerW - 80, 16, 6);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(drawCanvas);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initMolecules();
+      updateDashboard();
+      requestAnimationFrame(drawCanvas);
+    });
+  </script>
+</body>
+</html>

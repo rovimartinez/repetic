@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tarjetas Didácticas Flashcards 3D</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .flashcard-container {
+      width: 100%;
+      max-width: 820px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 2.2rem 2.5rem;
+      box-shadow: 0 25px 50px -10px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .header {
+      margin-bottom: 1.5rem;
+    }
+    .header h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #7c3aed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 0.3rem;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    /* BARRA DE PROGRESO Y CONTADOR */
+    .progress-bar-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #475569;
+    }
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      margin: 0 1rem;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+      width: 20%;
+      transition: width 0.3s ease;
+      border-radius: 10px;
+    }
+
+    /* TARJETA 3D FLIP */
+    .card-scene {
+      width: 100%;
+      height: 320px;
+      perspective: 1200px;
+      margin: 0 auto 1.5rem auto;
+      cursor: pointer;
+    }
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(124, 58, 237, 0.12);
+    }
+    .flashcard-inner.flipped {
+      transform: rotateY(180deg);
+    }
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .card-front {
+      background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
+      border: 2px solid #ddd6fe;
+      color: #1e293b;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+      border: 2px solid #6d28d9;
+      color: #ffffff;
+      transform: rotateY(180deg);
+    }
+    .card-badge {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 14px;
+      border-radius: 20px;
+    }
+    .card-front .card-badge {
+      background: #ede9fe;
+      color: #7c3aed;
+    }
+    .card-back .card-badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+    .card-term {
+      font-size: 1.95rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .card-desc {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+    .card-hint {
+      font-size: 0.84rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-back .card-hint {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* CONTROLES INFERIORES */
+    .controls-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-card {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #334155;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn-card:hover {
+      border-color: #7c3aed;
+      color: #7c3aed;
+      background: #f5f3ff;
+      transform: translateY(-1px);
+    }
+    .btn-flip-action {
+      background: #7c3aed;
+      border-color: #7c3aed;
+      color: #ffffff;
+    }
+    .btn-flip-action:hover {
+      background: #6d28d9;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="flashcard-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-layer-group"></i> Tarjetas Didácticas 3D (Flashcards)</h2>
+      <p>Toca o haz clic sobre la tarjeta para girarla y repasar los conceptos fundamentales.</p>
+    </div>
+
+    <!-- PROGRESO -->
+    <div class="progress-bar-row">
+      <span id="counterText">Tarjeta 1 de 5</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span id="pctText">20%</span>
+    </div>
+
+    <!-- TARJETA 3D -->
+    <div class="card-scene" onclick="flipCard()">
+      <div class="flashcard-inner" id="cardInner">
+        <!-- FRENTE -->
+        <div class="card-face card-front">
+          <span class="card-badge" id="cardCategory">Concepto Clave</span>
+          <div class="card-term" id="cardFrontText">Prompt Engineering</div>
+          <div class="card-hint"><i class="fa-solid fa-arrows-rotate"></i> Haz clic para ver la definición</div>
+        </div>
+        <!-- DORSO -->
+        <div class="card-face card-back">
+          <span class="card-badge">Definición y Aplicación</span>
+          <div class="card-desc" id="cardBackText">Disciplina de diseñar, estructurar y refinar instrucciones precisas para que los modelos de Inteligencia Artificial generen exactamente el resultado educativo deseado.</div>
+          <div class="card-hint"><i class="fa-solid fa-arrows-rotate"></i> Haz clic para volver al frente</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROLES -->
+    <div class="controls-row">
+      <button type="button" class="btn-card" onclick="prevCard()"><i class="fa-solid fa-chevron-left"></i> Anterior</button>
+      <button type="button" class="btn-card btn-flip-action" onclick="flipCard()"><i class="fa-solid fa-rotate"></i> Voltear</button>
+      <button type="button" class="btn-card" onclick="nextCard()">Siguiente <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+  <script>
+    const flashcards = [
+      {
+        category: "Fundamento IA",
+        term: "Prompt Engineering",
+        desc: "Disciplina de diseñar, estructurar y refinar instrucciones precisas para que los modelos de Inteligencia Artificial generen exactamente el resultado educativo deseado."
+      },
+      {
+        category: "Arquitectura Web",
+        term: "Single-File HTML",
+        desc: "Estrategia de desarrollo donde el marcado (HTML), el diseño (CSS) y la interactividad (JavaScript) se empaquetan en un único archivo autónomo listo para ejecutarse sin servidor."
+      },
+      {
+        category: "Diseño Instruccional",
+        term: "Evaluación Formativa",
+        desc: "Proceso continuo de monitoreo del aprendizaje mediante retroalimentación inmediata, permitiendo al estudiante corregir y afianzar competencias en tiempo real."
+      },
+      {
+        category: "Gamificación",
+        term: "Bucle de Retroalimentación",
+        desc: "Mecanismo interactivo donde cada acción del usuario genera una respuesta audiovisual inmediata (vidas, puntos, sonidos), estimulando la motivación y persistencia."
+      },
+      {
+        category: "Tecnología Educativa",
+        term: "Accesibilidad Universal",
+        desc: "Diseño de recursos digitales perceptibles, operables y comprensibles para todos los estudiantes, independientemente de sus capacidades técnicas o dispositivos."
+      }
+    ];
+
+    let currentIndex = 0;
+    let isFlipped = false;
+
+    function renderCard() {
+      const card = flashcards[currentIndex];
+      document.getElementById('cardCategory').innerText = card.category;
+      document.getElementById('cardFrontText').innerText = card.term;
+      document.getElementById('cardBackText').innerText = card.desc;
+
+      const total = flashcards.length;
+      const pct = Math.round(((currentIndex + 1) / total) * 100);
+      document.getElementById('counterText').innerText = `Tarjeta ${currentIndex + 1} de ${total}`;
+      document.getElementById('pctText').innerText = `${pct}%`;
+      document.getElementById('progressFill').style.width = `${pct}%`;
+
+      // Regresar al frente si estaba volteada
+      isFlipped = false;
+      document.getElementById('cardInner').classList.remove('flipped');
+    }
+
+    function flipCard() {
+      isFlipped = !isFlipped;
+      document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+    }
+
+    function nextCard() {
+      currentIndex = (currentIndex + 1) % flashcards.length;
+      renderCard();
+    }
+
+    function prevCard() {
+      currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+      renderCard();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderCard);
+  </script>
+</body>
+</html>

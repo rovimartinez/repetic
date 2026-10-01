@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clasificador Interactivo Drag & Drop: Fuentes de Energía</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .classifier-container {
+      width: 100%;
+      max-width: 920px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 1.6rem;
+    }
+    .header h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #d97706;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    /* BANCO DE ELEMENTOS ARRASTRABLES */
+    .bank-header-label {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .items-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      padding: 1.4rem;
+      background: #f1f5f9;
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      margin-bottom: 2rem;
+      min-height: 90px;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .item-chip {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      color: #1e293b;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: grab;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .item-chip:hover {
+      transform: translateY(-3px);
+      border-color: #f59e0b;
+      box-shadow: 0 6px 14px rgba(245, 158, 11, 0.2);
+    }
+    .item-chip:active {
+      cursor: grabbing;
+    }
+    .item-chip.dragging {
+      opacity: 0.45;
+      transform: scale(0.95);
+      border-color: #f59e0b;
+    }
+    .item-chip.selected {
+      border-color: #f59e0b;
+      background: #fef3c7;
+      color: #92400e;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+      transform: scale(1.05);
+    }
+
+    /* ZONAS DE SOLTADO (DROP ZONES) */
+    .drop-zones-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 650px) {
+      .drop-zones-grid { grid-template-columns: 1fr; }
+    }
+    .drop-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 1.5rem;
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .drop-zone.drag-over {
+      transform: scale(1.02);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .zone-renovable {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+    .zone-renovable.drag-over {
+      background: #dcfce7;
+      border-color: #16a34a;
+      border-style: solid;
+    }
+
+    .zone-no-renovable {
+      background: #fef2f2;
+      border-color: #fca5a5;
+    }
+    .zone-no-renovable.drag-over {
+      background: #fee2e2;
+      border-color: #dc2626;
+      border-style: solid;
+    }
+
+    .zone-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .zone-desc {
+      font-size: 0.85rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .zone-box-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+      flex: 1;
+      align-content: flex-start;
+    }
+
+    .classified-tag {
+      background: #ffffff;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .status-footer {
+      margin-top: 1.8rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="classifier-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-arrows-split-up-and-left"></i> Clasificador Drag & Drop: Fuentes de Energía</h2>
+      <p>Arrastra y suelta (o haz clic) en cada ficha para depositarla en su categoría correspondiente.</p>
+    </div>
+
+    <div class="bank-header-label">
+      <i class="fa-solid fa-hand-fist"></i> Banco de Elementos Arrastrables:
+    </div>
+
+    <div class="items-bank" id="bank">
+      <div class="item-chip" draggable="true" data-name="☀️ Energía Solar" data-cat="renovable" id="item-1">
+        ☀️ Energía Solar
+      </div>
+      <div class="item-chip" draggable="true" data-name="🛢️ Petróleo" data-cat="no_renovable" id="item-2">
+        🛢️ Petróleo
+      </div>
+      <div class="item-chip" draggable="true" data-name="💨 Energía Eólica" data-cat="renovable" id="item-3">
+        💨 Energía Eólica
+      </div>
+      <div class="item-chip" draggable="true" data-name="⛏️ Carbón Mineral" data-cat="no_renovable" id="item-4">
+        ⛏️ Carbón Mineral
+      </div>
+      <div class="item-chip" draggable="true" data-name="🌊 Energía Hidráulica" data-cat="renovable" id="item-5">
+        🌊 Energía Hidráulica
+      </div>
+      <div class="item-chip" draggable="true" data-name="⛽ Gas Natural" data-cat="no_renovable" id="item-6">
+        ⛽ Gas Natural
+      </div>
+    </div>
+
+    <div class="drop-zones-grid">
+      <!-- Zona 1: Renovables -->
+      <div class="drop-zone zone-renovable" data-target-cat="renovable" id="zone-renovable">
+        <div class="zone-title" style="color: #15803d;"><i class="fa-solid fa-leaf"></i> Energías Renovables</div>
+        <div class="zone-desc" style="color:#166534;">Inagotables y de bajo impacto ecológico</div>
+        <div class="zone-box-items" id="items-renovables"></div>
+      </div>
+
+      <!-- Zona 2: No Renovables -->
+      <div class="drop-zone zone-no-renovable" data-target-cat="no_renovable" id="zone-no-renovable">
+        <div class="zone-title" style="color: #b91c1c;"><i class="fa-solid fa-smog"></i> Energías No Renovables</div>
+        <div class="zone-desc" style="color:#991b1b;">Recursos finitos y emisiones contaminantes</div>
+        <div class="zone-box-items" id="items-no-renovables"></div>
+      </div>
+    </div>
+
+    <div class="status-footer">
+      <span id="score-txt" style="color: #4f46e5;"><i class="fa-solid fa-star"></i> Puntuación: 0 / 6 clasificados</span>
+      <span id="feedback-msg" style="color: #64748b;"><i class="fa-solid fa-arrow-pointer"></i> Arrastra un elemento a su columna</span>
+    </div>
+  </div>
+
+  <script>
+    let draggedElement = null;
+    let selectedElement = null;
+    let score = 0;
+
+    // CONFIGURACIÓN DE ARRASTRAR (DRAG & DROP NATIVO HTML5)
+    document.querySelectorAll('.item-chip').forEach(chip => {
+      // 1. Iniciar arrastre
+      chip.addEventListener('dragstart', (e) => {
+        draggedElement = chip;
+        chip.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', chip.id);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      // 2. Finalizar arrastre
+      chip.addEventListener('dragend', () => {
+        chip.classList.remove('dragging');
+        draggedElement = null;
+        document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+      });
+
+      // 3. Soporte para Clic / Tap
+      chip.addEventListener('click', () => {
+        if (selectedElement === chip) {
+          selectedElement.classList.remove('selected');
+          selectedElement = null;
+          document.getElementById('feedback-msg').innerHTML = '<i class="fa-solid fa-arrow-pointer"></i> Arrastra un elemento a su columna';
+        } else {
+          document.querySelectorAll('.item-chip').forEach(c => c.classList.remove('selected'));
+          selectedElement = chip;
+          chip.classList.add('selected');
+          document.getElementById('feedback-msg').innerHTML = `👉 Haz clic en una columna para depositar: <strong>${chip.dataset.name}</strong>`;
+        }
+      });
+    });
+
+    // CONFIGURACIÓN DE LAS ZONAS DE DESTINO (DROP ZONES)
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+      // Arrastrar sobre la zona
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        zone.classList.add('drag-over');
+      });
+
+      // Salir de la zona
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('drag-over');
+      });
+
+      // Soltar en la zona
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (draggedElement) {
+          processPlacement(draggedElement, zone.dataset.targetCat);
+        }
+      });
+
+      // Clic en la zona (cuando se seleccionó previamente)
+      zone.addEventListener('click', () => {
+        if (selectedElement) {
+          processPlacement(selectedElement, zone.dataset.targetCat);
+        }
+      });
+    });
+
+    function processPlacement(chip, targetCat) {
+      const itemCat = chip.dataset.cat;
+      const itemName = chip.dataset.name;
+
+      if (itemCat === targetCat) {
+        // Acierto
+        const container = document.getElementById(targetCat === 'renovable' ? 'items-renovables' : 'items-no-renovables');
+        const color = targetCat === 'renovable' ? '#15803d' : '#b91c1c';
+        
+        container.innerHTML += `
+          <div class="classified-tag" style="color: ${color}; border-color: ${color}40;">
+            <i class="fa-solid fa-circle-check"></i> ${itemName}
+          </div>
+        `;
+        
+        chip.remove();
+        draggedElement = null;
+        selectedElement = null;
+        score++;
+        
+        document.getElementById('score-txt').innerHTML = `<i class="fa-solid fa-star" style="color:#f59e0b;"></i> Puntuación: ${score} / 6 clasificados`;
+        document.getElementById('feedback-msg').innerHTML = `🎉 <span style="color:#15803d; font-weight:800;">¡Excelente! ${itemName} está en el lugar correcto.</span>`;
+
+        if (score === 6) {
+          document.getElementById('feedback-msg').innerHTML = '🏆 <strong style="color:#15803d; font-size:1.05rem;">¡Magnífico! Has clasificado todos los elementos al 100%.</strong>';
+        }
+      } else {
+        // Error
+        document.getElementById('feedback-msg').innerHTML = `❌ <span style="color:#dc2626; font-weight:800;">Categoría incorrecta para ${itemName}. ¡Prueba en la otra columna!</span>`;
+        if (chip.classList.contains('selected')) {
+          chip.classList.remove('selected');
+          selectedElement = null;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

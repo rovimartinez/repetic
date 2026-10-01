@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ordenamiento Secuencial Interactivo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fira+Code:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .order-container {
+      width: 100%;
+      max-width: 820px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 2.2rem 2.5rem;
+      box-shadow: 0 25px 50px -10px rgba(0,0,0,0.08);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 1.8rem;
+    }
+    .header h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0284c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 0.3rem;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    /* LISTA DE ELEMENTOS PARA ORDENAR */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 1.8rem;
+    }
+    .step-item {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .step-item.selected {
+      border-color: #0284c7;
+      background: #f0f9ff;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.15);
+    }
+    .step-content {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+    }
+    .step-num-badge {
+      width: 36px;
+      height: 36px;
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-text {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.4;
+    }
+
+    /* BOTONES DE REORDENAMIENTO */
+    .step-controls {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-move {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      transition: all 0.15s ease;
+    }
+    .btn-move:hover:not(:disabled) {
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
+    }
+    .btn-move:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* FOOTER DE VERIFICACIÓN */
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1.2rem;
+      border-top: 1.5px solid #e2e8f0;
+      gap: 1rem;
+    }
+    .btn-verify {
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 12px 28px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+      transition: all 0.2s ease;
+    }
+    .btn-verify:hover {
+      background: #0369a1;
+      transform: translateY(-1px);
+    }
+    .btn-shuffle {
+      background: #ffffff;
+      color: #475569;
+      border: 1.5px solid #cbd5e1;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 11px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-shuffle:hover {
+      border-color: #0284c7;
+      color: #0284c7;
+      background: #f0f9ff;
+    }
+
+    /* MENSAJE DE RETROALIMENTACIÓN */
+    .feedback-banner {
+      display: none;
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      align-items: center;
+      gap: 10px;
+    }
+    .feedback-banner.success {
+      display: flex;
+      background: #ecfdf5;
+      border: 1.5px solid #a7f3d0;
+      color: #065f46;
+    }
+    .feedback-banner.error {
+      display: flex;
+      background: #fef2f2;
+      border: 1.5px solid #fecaca;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="order-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-arrow-down-1-9"></i> Ordenamiento Secuencial de Procesos</h2>
+      <p>Reordena las etapas del método científico utilizando las flechas arriba y abajo hasta lograr la secuencia correcta.</p>
+    </div>
+
+    <div class="feedback-banner" id="feedbackBanner"></div>
+
+    <div class="steps-list" id="stepsList"></div>
+
+    <div class="footer-actions">
+      <button type="button" class="btn-shuffle" onclick="shuffleSteps()"><i class="fa-solid fa-shuffle"></i> Mezclar de Nuevo</button>
+      <button type="button" class="btn-verify" onclick="verifyOrder()"><i class="fa-solid fa-check"></i> Comprobar Secuencia</button>
+    </div>
+  </div>
+
+  <script>
+    const correctSequence = [
+      { id: 1, text: "1. Observación y planteamiento del problema o pregunta de investigación." },
+      { id: 2, text: "2. Formulación de una hipótesis predictiva comprobable." },
+      { id: 3, text: "3. Diseño y ejecución de la experimentación controlada." },
+      { id: 4, text: "4. Registro, análisis de datos y procesamiento de resultados." },
+      { id: 5, text: "5. Conclusiones finales y comunicación de los hallazgos científicos." }
+    ];
+
+    let currentItems = [...correctSequence];
+
+    function shuffleSteps() {
+      // Barajar asegurando que no quede en orden
+      currentItems.sort(() => Math.random() - 0.5);
+      document.getElementById('feedbackBanner').className = 'feedback-banner';
+      document.getElementById('feedbackBanner').style.display = 'none';
+      renderList();
+    }
+
+    function renderList() {
+      const container = document.getElementById('stepsList');
+      container.innerHTML = '';
+
+      currentItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'step-item';
+        div.innerHTML = `
+          <div class="step-content">
+            <div class="step-num-badge">${index + 1}</div>
+            <div class="step-text">${item.text.replace(/^[0-9]+\.\s*/, '')}</div>
+          </div>
+          <div class="step-controls">
+            <button type="button" class="btn-move" onclick="moveUp(${index})" ${index === 0 ? 'disabled' : ''} title="Mover arriba">
+              <i class="fa-solid fa-arrow-up"></i>
+            </button>
+            <button type="button" class="btn-move" onclick="moveDown(${index})" ${index === currentItems.length - 1 ? 'disabled' : ''} title="Mover abajo">
+              <i class="fa-solid fa-arrow-down"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function moveUp(index) {
+      if (index === 0) return;
+      const temp = currentItems[index];
+      currentItems[index] = currentItems[index - 1];
+      currentItems[index - 1] = temp;
+      renderList();
+    }
+
+    function moveDown(index) {
+      if (index === currentItems.length - 1) return;
+      const temp = currentItems[index];
+      currentItems[index] = currentItems[index + 1];
+      currentItems[index + 1] = temp;
+      renderList();
+    }
+
+    function verifyOrder() {
+      let isCorrect = true;
+      for (let i = 0; i < currentItems.length; i++) {
+        if (currentItems[i].id !== correctSequence[i].id) {
+          isCorrect = false;
+          break;
+        }
+      }
+
+      const banner = document.getElementById('feedbackBanner');
+      if (isCorrect) {
+        banner.className = 'feedback-banner success';
+        banner.innerHTML = '<i class="fa-solid fa-circle-check" style="font-size:1.3rem;"></i> ¡Excelente! Has ordenado todas las etapas de forma cronológicamente correcta.';
+      } else {
+        banner.className = 'feedback-banner error';
+        banner.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="font-size:1.3rem;"></i> La secuencia aún no es correcta. Revisa el orden lógico e inténtalo de nuevo.';
+      }
+      banner.style.display = 'flex';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      shuffleSteps();
+    });
+  </script>
+</body>
+</html>

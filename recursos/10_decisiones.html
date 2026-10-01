@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toma de Decisiones: Caso de Ciberseguridad</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .decision-container {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 1.8rem;
+    }
+    .header h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #0f766e;
+      margin-bottom: 0.4rem;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+    .case-scenario-box {
+      background: #f0fdfa;
+      border-left: 5px solid #0d9488;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .case-scenario-box h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f766e;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .case-scenario-box p {
+      font-size: 1rem;
+      color: #134e4a;
+      line-height: 1.65;
+    }
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .decision-btn {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .decision-btn:hover {
+      border-color: #0d9488;
+      background: #f0fdfa;
+      transform: translateX(4px);
+    }
+    .outcome-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 1.5rem;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="decision-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-code-branch"></i> Estudio de Caso Ramificado</h2>
+      <p>Analiza el dilema profesional y elige la mejor ruta de acción.</p>
+    </div>
+
+    <div class="case-scenario-box">
+      <h3><i class="fa-solid fa-triangle-exclamation"></i> Situación de Emergencia: Fuga de Datos</h3>
+      <p>El equipo de soporte reporta actividad inusual y una posible intrusión no autorizada en el servidor principal de bases de datos a las 11:00 PM. Como Director de TI, ¿cuál es tu primera decisión?</p>
+    </div>
+
+    <div class="options-list">
+      <button class="decision-btn" onclick="makeChoice(1)">
+        <span style="color:#0d9488; font-weight:800; font-size:1.1rem;">A)</span> Aislar inmediatamente el servidor de la red pública y activar el plan de contingencia forense.
+      </button>
+      <button class="decision-btn" onclick="makeChoice(2)">
+        <span style="color:#0d9488; font-weight:800; font-size:1.1rem;">B)</span> Dejar el servidor conectado y esperar a la reunión del comité de dirección al día siguiente.
+      </button>
+      <button class="decision-btn" onclick="makeChoice(3)">
+        <span style="color:#0d9488; font-weight:800; font-size:1.1rem;">C)</span> Apagar bruscamente todos los equipos del edificio sin realizar copias ni análisis de logs.
+      </button>
+    </div>
+
+    <div class="outcome-box" id="outcome">
+      Selecciona una opción para observar el impacto pedagógico y las consecuencias formativas.
+    </div>
+  </div>
+
+  <script>
+    function makeChoice(opt) {
+      const box = document.getElementById('outcome');
+      if (opt === 1) {
+        box.style.borderColor = '#10b981';
+        box.style.background = '#f0fdf4';
+        box.innerHTML = '🎉 <strong>¡Decisión Correcta!</strong> Aislar el servidor cortó la comunicación con el atacante en tiempo real, protegió las copias de seguridad y permitió a los peritos preservar la evidencia forense sin comprometer a toda la institución.';
+      } else if (opt === 2) {
+        box.style.borderColor = '#ef4444';
+        box.style.background = '#fef2f2';
+        box.innerHTML = '❌ <strong>Consecuencia Crítica:</strong> La inacción permitió que el atacante extrajera información confidencial de clientes durante toda la noche, provocando pérdidas millonarias y sanciones legales.';
+      } else {
+        box.style.borderColor = '#f59e0b';
+        box.style.background = '#fffbeb';
+        box.innerHTML = '⚠️ <strong>Decisión Inadecuada:</strong> Apagar los equipos sin orden destruyó la memoria RAM volátil donde residía la firma del malware, impidiendo identificar cómo entraron al sistema.';
+      }
+    }
+  </script>
+</body>
+</html>

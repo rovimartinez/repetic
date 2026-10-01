@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruleta de Selección en Clase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fira+Code:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .wheel-container {
+      width: 100%;
+      max-width: 1200px; /* Contenedor mucho más amplio y espacioso */
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 2.8rem 3rem;
+      box-shadow: 0 25px 50px -10px rgba(0,0,0,0.09);
+      position: relative;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2.2rem;
+    }
+    .header h2 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #db2777;
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    /* LAYOUT PRINCIPAL */
+    .wheel-main-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+    @media (max-width: 960px) {
+      .wheel-main-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    /* SECCIÓN DE LA RULETA MÁS GRANDE */
+    .wheel-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      gap: 1.2rem;
+    }
+    .wheel-outer-wrapper {
+      position: relative;
+      width: 440px; /* Ruleta grande */
+      height: 440px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s ease;
+    }
+    .wheel-outer-wrapper:hover {
+      transform: scale(1.02);
+    }
+    .wheel-outer-wrapper:active {
+      transform: scale(0.99);
+    }
+
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      transition: transform 3.5s cubic-bezier(0.15, 0.9, 0.2, 1);
+    }
+    /* Puntero indicador */
+    .wheel-pointer {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 32px solid #e11d48;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.35));
+      z-index: 20;
+    }
+    .wheel-center-pin {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 54px;
+      height: 54px;
+      background: #ffffff;
+      border: 3.5px solid #0f172a;
+      border-radius: 50%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #e11d48;
+      font-size: 0.65rem;
+      font-weight: 800;
+      pointer-events: none;
+    }
+    .wheel-center-pin i {
+      font-size: 1.05rem;
+      margin-bottom: 1px;
+    }
+
+    /* BOTÓN EXPANDIR / MAXIMIZAR RULETA */
+    .btn-fullscreen-wheel {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1.5px solid #cbd5e1;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .btn-fullscreen-wheel:hover {
+      background: #ec4899;
+      color: #ffffff;
+      border-color: #ec4899;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(236, 72, 153, 0.3);
+    }
+
+    /* MODO MAXIMIZADO / PANTALLA COMPLETA SOLO RULETA */
+    body.wheel-max-mode {
+      overflow: hidden;
+    }
+    body.wheel-max-mode .header,
+    body.wheel-max-mode .names-panel,
+    body.wheel-max-mode .btn-fullscreen-wheel {
+      display: none !important;
+    }
+    body.wheel-max-mode .wheel-container {
+      max-width: 100vw;
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+    }
+    body.wheel-max-mode .wheel-main-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      gap: 0;
+    }
+    body.wheel-max-mode .wheel-section {
+      width: 100%;
+      height: 100%;
+    }
+    body.wheel-max-mode .wheel-outer-wrapper {
+      width: min(84vh, 84vw);
+      height: min(84vh, 84vw);
+    }
+    body.wheel-max-mode .wheel-center-pin {
+      width: min(90px, 11vw);
+      height: min(90px, 11vw);
+      font-size: 0.9rem;
+      border-width: 5px;
+    }
+    body.wheel-max-mode .wheel-center-pin i {
+      font-size: 1.5rem;
+    }
+    body.wheel-max-mode .wheel-pointer {
+      top: -20px;
+      border-left: 26px solid transparent;
+      border-right: 26px solid transparent;
+      border-top: 42px solid #e11d48;
+    }
+
+    /* BOTÓN PARA SALIR DEL MODO MAXIMIZADO */
+    .btn-exit-max {
+      display: none;
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #0f172a;
+      border: 2px solid #e2e8f0;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 10px 22px;
+      border-radius: 30px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      transition: all 0.2s ease;
+      align-items: center;
+      gap: 8px;
+    }
+    body.wheel-max-mode .btn-exit-max {
+      display: inline-flex;
+    }
+    .btn-exit-max:hover {
+      background: #e11d48;
+      color: #ffffff;
+      border-color: #e11d48;
+      transform: scale(1.05);
+    }
+
+    /* PANEL LATERAL DE NOMBRES */
+    .names-panel {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      height: 100%;
+      justify-content: center;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    .panel-header h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-count {
+      background: #e0e7ff;
+      color: #4338ca;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* MULTIPLICADOR DE REPETICIONES */
+    .multiplier-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 12px;
+      gap: 10px;
+    }
+    .multiplier-label {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .multiplier-buttons {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-multi {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-multi:hover {
+      border-color: #ec4899;
+      color: #ec4899;
+    }
+    .btn-multi.active {
+      background: #ec4899;
+      border-color: #ec4899;
+      color: #ffffff;
+    }
+
+    .names-textarea {
+      width: 100%;
+      height: 200px;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 0.95rem; /* Tamaño de letra controlado y cómodo */
+      font-weight: 600;
+      color: #1e293b;
+      resize: vertical;
+      outline: none;
+      line-height: 1.7;
+      transition: border-color 0.2s;
+    }
+    .names-textarea:focus {
+      border-color: #ec4899;
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.15);
+    }
+
+    /* BOTONES DEBAJO DEL INPUT */
+    .panel-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-update {
+      flex: 1.2;
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+    }
+    .btn-update:hover {
+      background: #334155;
+      transform: translateY(-1px);
+    }
+    .btn-example {
+      flex: 1;
+      background: #ffffff;
+      color: #475569;
+      border: 1.5px solid #cbd5e1;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-example:hover {
+      border-color: #ec4899;
+      color: #ec4899;
+      background: #fdf2f8;
+      transform: translateY(-1px);
+    }
+
+    /* VENTANA MODAL FLOTANTE DEL GANADOR */
+    .winner-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      animation: fadeInModal 0.25s ease forwards;
+    }
+    .winner-modal-overlay.active {
+      display: flex;
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .winner-modal-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 30px 70px -10px rgba(0,0,0,0.45);
+      border: 2px solid #fbcfe8;
+      animation: popWinner 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    @keyframes popWinner {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .winner-modal-icon {
+      font-size: 3.8rem;
+      margin-bottom: 0.8rem;
+      animation: bounceTrophy 1.2s infinite ease-in-out;
+    }
+    @keyframes bounceTrophy {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .winner-modal-tag {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #db2777;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: #fdf2f8;
+      padding: 5px 16px;
+      border-radius: 20px;
+      border: 1px solid #fbcfe8;
+      margin-bottom: 0.8rem;
+    }
+
+    .winner-modal-name {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 1.8rem;
+      word-break: break-word;
+    }
+
+    .btn-close-winner {
+      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+      color: #ffffff;
+      border: none;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 12px 36px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(236, 72, 153, 0.35);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-close-winner:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(236, 72, 153, 0.45);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wheel-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-arrows-spin"></i> Ruleta de Selección en Clase</h2>
+    </div>
+
+    <div class="wheel-main-grid">
+      <!-- COLUMNA IZQUIERDA: RULETA (TOCAR PARA GIRAR) -->
+      <div class="wheel-section">
+        <div class="wheel-outer-wrapper" onclick="spin()" title="¡Haz clic en la ruleta para girar!">
+          <div class="wheel-pointer"></div>
+          <canvas id="wheelCanvas" width="880" height="880"></canvas>
+          <div class="wheel-center-pin">
+            <i class="fa-solid fa-rotate"></i>
+            <span>GIRAR</span>
+          </div>
+        </div>
+        <button type="button" class="btn-fullscreen-wheel" onclick="toggleWheelFullscreen()">
+          <i class="fa-solid fa-expand"></i> Ver Ruleta al Máximo
+        </button>
+      </div>
+
+      <!-- BOTÓN FLOTANTE PARA SALIR DEL MODO MAXIMIZADO -->
+      <button type="button" class="btn-exit-max" onclick="toggleWheelFullscreen()">
+        <i class="fa-solid fa-compress"></i> Volver al Panel
+      </button>
+
+      <!-- COLUMNA DERECHA: PANEL DE NOMBRES Y MULTIPLICADOR -->
+      <div class="names-panel">
+        <div class="panel-header">
+          <h3><i class="fa-solid fa-users"></i> Lista de Participantes</h3>
+          <span class="badge-count" id="badgeCount">6 Opciones</span>
+        </div>
+
+        <!-- MULTIPLICADOR DE NOMBRES -->
+        <div class="multiplier-row">
+          <span class="multiplier-label"><i class="fa-solid fa-clone"></i> Repetir en ruleta:</span>
+          <div class="multiplier-buttons">
+            <button type="button" class="btn-multi active" onclick="setMultiplier(1, this)">1x</button>
+            <button type="button" class="btn-multi" onclick="setMultiplier(2, this)">2x</button>
+            <button type="button" class="btn-multi" onclick="setMultiplier(3, this)">3x</button>
+            <button type="button" class="btn-multi" onclick="setMultiplier(4, this)">4x</button>
+          </div>
+        </div>
+
+        <textarea class="names-textarea" id="namesInput" placeholder="Escribe un nombre por línea...">Camila Torres
+Andrés Morales
+Valentina Rios
+Mateo Castro
+Sofía Mendoza
+Santiago Gómez</textarea>
+
+        <!-- BOTONES DEBAJO DEL TEXTAREA -->
+        <div class="panel-actions">
+          <button type="button" class="btn-update" onclick="updateFromTextarea()">
+            <i class="fa-solid fa-arrows-rotate"></i> Actualizar Ruleta
+          </button>
+          <button type="button" class="btn-example" onclick="loadChallengesExample()">
+            <i class="fa-solid fa-lightbulb"></i> Cargar Desafíos
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENTANA FLOTANTE (MODAL POPUP) DEL GANADOR -->
+  <div class="winner-modal-overlay" id="winnerModal" onclick="closeWinnerModal(event)">
+    <div class="winner-modal-card" onclick="event.stopPropagation()">
+      <div class="winner-modal-icon">🎉 🏆</div>
+      <div class="winner-modal-tag"><i class="fa-solid fa-star"></i> Seleccionado</div>
+      <div class="winner-modal-name" id="modalWinnerName">Nombre del Ganador</div>
+      <button type="button" class="btn-close-winner" onclick="closeWinnerModalDirect()">
+        <i class="fa-solid fa-check"></i> ¡Excelente! Continuar
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // WEB AUDIO API PARA EFECTOS DE SONIDO NATIVOS
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+
+      if (type === 'tick') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      } else if (type === 'win') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.12);
+        osc.frequency.setValueAtTime(783.99, now + 0.24);
+        osc.frequency.setValueAtTime(1046.50, now + 0.36);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+        osc.start(now);
+        osc.stop(now + 0.8);
+      }
+    }
+
+    // PALETA DE COLORES VIBRANTES PARA LOS GAJOS DE LA RULETA
+    const SECTOR_COLORS = [
+      '#f43f5e', '#ec4899', '#8b5cf6', '#6366f1',
+      '#0ea5e9', '#10b981', '#f59e0b', '#f97316',
+      '#14b8a6', '#a855f7', '#3b82f6', '#84cc16'
+    ];
+
+    let baseItems = [
+      'Camila Torres',
+      'Andrés Morales',
+      'Valentina Rios',
+      'Mateo Castro',
+      'Sofía Mendoza',
+      'Santiago Gómez'
+    ];
+
+    let multiplier = 1;
+    let wheelSectors = [];
+    let currentRotation = 0;
+    let isSpinning = false;
+
+    function setMultiplier(multi, btn) {
+      multiplier = multi;
+      document.querySelectorAll('.btn-multi').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      drawWheel();
+    }
+
+    function buildWheelSectors() {
+      wheelSectors = [];
+      for (let m = 0; m < multiplier; m++) {
+        baseItems.forEach(item => wheelSectors.push(item));
+      }
+    }
+
+    function drawWheel() {
+      buildWheelSectors();
+
+      const canvas = document.getElementById('wheelCanvas');
+      const ctx = canvas.getContext('2d');
+      const numItems = wheelSectors.length;
+      const arc = (2 * Math.PI) / numItems;
+      const radius = canvas.width / 2;
+      const center = radius;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      wheelSectors.forEach((item, i) => {
+        const angle = i * arc;
+        ctx.beginPath();
+        ctx.fillStyle = SECTOR_COLORS[i % SECTOR_COLORS.length];
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, angle, angle + arc);
+        ctx.lineTo(center, center);
+        ctx.fill();
+
+        // Borde blanco sutil
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Texto del gajo: Comienza desde cerca del centro hacia el exterior (el inicio del nombre SIEMPRE es visible)
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        
+        let fontSize = 32;
+        if (numItems > 24) fontSize = 19;
+        else if (numItems > 16) fontSize = 23;
+        else if (numItems > 10) fontSize = 27;
+        else if (numItems > 6) fontSize = 29;
+        
+        ctx.font = `800 ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
+
+        // Comienza a 75px del centro (fuera del botón central)
+        const maxLen = numItems > 16 ? 16 : 22;
+        const label = item.length > maxLen ? item.substring(0, maxLen - 2) + '...' : item;
+        ctx.fillText(label, 75, 0);
+        ctx.restore();
+      });
+
+      document.getElementById('badgeCount').innerText = `${wheelSectors.length} Sectores (${multiplier}x)`;
+    }
+
+    function updateFromTextarea() {
+      const text = document.getElementById('namesInput').value;
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 2) {
+        alert('Por favor escribe al menos 2 nombres o desafíos.');
+        return;
+      }
+      baseItems = lines;
+      drawWheel();
+    }
+
+    function loadChallengesExample() {
+      const challenges = [
+        'Explica en 30s',
+        'Defiende lo Opuesto',
+        'Formula 1 Pregunta',
+        'Dibuja una Analogía',
+        'Puntos Extra',
+        'Pasa la Voz a un Par'
+      ];
+      document.getElementById('namesInput').value = challenges.join('\n');
+      baseItems = challenges;
+      drawWheel();
+    }
+
+    function spin() {
+      if (isSpinning || wheelSectors.length < 2) return;
+      isSpinning = true;
+
+      const numItems = wheelSectors.length;
+      const arcDegrees = 360 / numItems;
+
+      // Elegir ganador al azar
+      const winnerIndex = Math.floor(Math.random() * numItems);
+
+      // Calcular ángulo exacto para que el puntero (arriba a 270 grados / -90 grados) apunte al ganador
+      const extraSpins = 360 * (5 + Math.floor(Math.random() * 3));
+      const targetDegreeInWheel = (winnerIndex * arcDegrees) + (arcDegrees / 2);
+      const stopAngle = 270 - targetDegreeInWheel;
+
+      // Nueva rotación acumulada
+      currentRotation += extraSpins + (stopAngle - (currentRotation % 360) + 360) % 360;
+
+      const canvas = document.getElementById('wheelCanvas');
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      // Sonidos de tick durante el giro
+      let tickCount = 0;
+      const tickInterval = setInterval(() => {
+        playSound('tick');
+        tickCount++;
+        if (tickCount >= 18) clearInterval(tickInterval);
+      }, 160);
+
+      setTimeout(() => {
+        clearInterval(tickInterval);
+        playSound('win');
+        const winner = wheelSectors[winnerIndex];
+        
+        // Abrir ventanita flotante en el centro
+        document.getElementById('modalWinnerName').innerText = winner;
+        document.getElementById('winnerModal').classList.add('active');
+
+        isSpinning = false;
+      }, 3500);
+    }
+
+    function toggleWheelFullscreen() {
+      document.body.classList.toggle('wheel-max-mode');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.body.classList.contains('wheel-max-mode')) {
+        document.body.classList.remove('wheel-max-mode');
+      }
+    });
+
+    function closeWinnerModalDirect() {
+      document.getElementById('winnerModal').classList.remove('active');
+    }
+
+    function closeWinnerModal(e) {
+      if (e.target.id === 'winnerModal') {
+        closeWinnerModalDirect();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', drawWheel);
+  </script>
+</body>
+</html>

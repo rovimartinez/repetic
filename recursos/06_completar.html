@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Completar Texto: Ciclo Hidrológico</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .cloze-container {
+      width: 100%;
+      max-width: 920px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 1.8rem;
+    }
+    .header h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #d97706;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.98rem;
+    }
+
+    /* PÁRRAFO CON ESPACIOS DE ESCRITURA */
+    .paragraph-box {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 2.2rem;
+      font-size: 1.18rem;
+      line-height: 2.8;
+      color: #1e293b;
+      margin-bottom: 1.8rem;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    /* INPUTS PARA ESCRIBIR DIRECTAMENTE */
+    .cloze-input {
+      display: inline-block;
+      width: 175px;
+      height: 42px;
+      padding: 0 14px;
+      margin: 0 6px;
+      vertical-align: middle;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 10px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #0f172a;
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .cloze-input:focus {
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
+    .cloze-input.correct {
+      border-color: #10b981;
+      background: #ecfdf5;
+      color: #065f46;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+    .cloze-input.incorrect {
+      border-color: #ef4444;
+      background: #fef2f2;
+      color: #991b1b;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+
+    /* BANCO DE PALABRAS DE REFERENCIA */
+    .bank-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      padding: 1.2rem;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      margin-bottom: 1.8rem;
+    }
+    .word-chip-ref {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #334155;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+      user-select: all;
+      cursor: default;
+    }
+
+    /* ACCIONES Y BOTÓN DE VERIFICACIÓN */
+    .actions-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .btn-verify {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: none;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 12px 30px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28);
+      transition: all 0.22s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-verify:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.38);
+    }
+    .btn-reset {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-reset:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .feedback-row {
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cloze-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-font"></i> Completar Texto: Ciclo Hidrológico</h2>
+      <p>Escribe la palabra correcta en cada casilla y pulsa "Verificar Respuestas".</p>
+    </div>
+
+    <!-- PÁRRAFO EDUCATIVO CON CASILLAS DE ESCRITURA -->
+    <div class="paragraph-box">
+      El agua líquida de océanos y ríos se calienta con la radiación solar y pasa a estado gaseoso mediante la 
+      <input type="text" class="cloze-input" id="input-1" placeholder="Escribe aquí..." autocomplete="off" autocorrect="off" spellcheck="false">. 
+      Al ascender a zonas frías de la atmósfera, se condensa formando 
+      <input type="text" class="cloze-input" id="input-2" placeholder="Escribe aquí..." autocomplete="off" autocorrect="off" spellcheck="false">, 
+      las cuales al saturarse liberan el agua líquida o sólida en forma de 
+      <input type="text" class="cloze-input" id="input-3" placeholder="Escribe aquí..." autocomplete="off" autocorrect="off" spellcheck="false">.
+    </div>
+
+    <!-- BANCO DE PALABRAS DE REFERENCIA / PISTAS -->
+    <div class="bank-title">
+      <i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i> Banco de Palabras Disponibles (Pistas):
+    </div>
+    <div class="word-bank">
+      <span class="word-chip-ref">💨 Evaporación</span>
+      <span class="word-chip-ref">☁️ Nubes</span>
+      <span class="word-chip-ref">🌧️ Precipitación</span>
+      <span class="word-chip-ref">🔥 Combustión</span>
+      <span class="word-chip-ref">⚡ Electricidad</span>
+    </div>
+
+    <!-- BOTONES DE ACCIÓN -->
+    <div class="actions-row">
+      <button class="btn-verify" onclick="verifyAnswers()">
+        <i class="fa-solid fa-circle-check"></i> Verificar Respuestas
+      </button>
+      <button class="btn-reset" onclick="resetActivity()">
+        <i class="fa-solid fa-rotate-left"></i> Limpiar
+      </button>
+    </div>
+
+    <div class="feedback-row" id="feedback">
+      <span style="color:#64748b;"><i class="fa-solid fa-pencil"></i> Rellena los 3 espacios y haz clic en Verificar</span>
+    </div>
+  </div>
+
+  <script>
+    // Función de normalización para comparar texto ignorando tildes y mayúsculas
+    function normalize(text) {
+      return text.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    const CORRECT_ANSWERS = {
+      1: 'evaporacion',
+      2: 'nubes',
+      3: 'precipitacion'
+    };
+
+    function verifyAnswers() {
+      const in1 = document.getElementById('input-1');
+      const in2 = document.getElementById('input-2');
+      const in3 = document.getElementById('input-3');
+
+      const val1 = normalize(in1.value);
+      const val2 = normalize(in2.value);
+      const val3 = normalize(in3.value);
+
+      if (!val1 && !val2 && !val3) {
+        document.getElementById('feedback').innerHTML = '<span style="color:#d97706;"><i class="fa-solid fa-triangle-exclamation"></i> Por favor, escribe en las casillas antes de verificar.</span>';
+        return;
+      }
+
+      let correctCount = 0;
+
+      // Evaluar casilla 1
+      if (val1 === CORRECT_ANSWERS[1]) {
+        in1.className = 'cloze-input correct';
+        correctCount++;
+      } else {
+        in1.className = 'cloze-input incorrect';
+      }
+
+      // Evaluar casilla 2
+      if (val2 === CORRECT_ANSWERS[2]) {
+        in2.className = 'cloze-input correct';
+        correctCount++;
+      } else {
+        in2.className = 'cloze-input incorrect';
+      }
+
+      // Evaluar casilla 3
+      if (val3 === CORRECT_ANSWERS[3]) {
+        in3.className = 'cloze-input correct';
+        correctCount++;
+      } else {
+        in3.className = 'cloze-input incorrect';
+      }
+
+      // Mensajes de Feedback
+      if (correctCount === 3) {
+        document.getElementById('feedback').innerHTML = '🏆 <strong style="color:#15803d; font-size:1.05rem;">¡Extraordinario! Todas las respuestas son correctas (3/3).</strong>';
+      } else {
+        document.getElementById('feedback').innerHTML = `⚠️ <span style="color:#dc2626; font-weight:800;">Tienes ${correctCount} de 3 correctas. Revisa las casillas en rojo e inténtalo de nuevo.</span>`;
+      }
+    }
+
+    function resetActivity() {
+      for (let i = 1; i <= 3; i++) {
+        const inp = document.getElementById('input-' + i);
+        inp.value = '';
+        inp.className = 'cloze-input';
+      }
+      document.getElementById('feedback').innerHTML = '<span style="color:#64748b;"><i class="fa-solid fa-pencil"></i> Rellena los 3 espacios y haz clic en Verificar</span>';
+      document.getElementById('input-1').focus();
+    }
+
+    // Permitir verificar presionando Enter en cualquier input
+    document.querySelectorAll('.cloze-input').forEach(inp => {
+      inp.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+          verifyAnswers();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

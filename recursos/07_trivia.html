@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trivia Gamificada: Desafío de Conocimiento</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fira+Code:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .trivia-container {
+      width: 100%;
+      max-width: 880px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 45px -10px rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .top-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .lives-display {
+      font-size: 1.35rem;
+      color: #ef4444;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .score-badge {
+      background: #fdf2f8;
+      border: 1px solid #fbcfe8;
+      color: #be185d;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .timer-pill {
+      font-family: 'Fira Code', monospace;
+      background: #f0f9ff;
+      color: #0369a1;
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid #bae6fd;
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+    .timer-pill.urgent {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #fca5a5;
+      animation: pulseTimer 0.8s infinite;
+    }
+    @keyframes pulseTimer {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); box-shadow: 0 0 12px rgba(220, 38, 38, 0.4); }
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ec4899 0%, #8b5cf6 100%);
+      width: 20%;
+      transition: width 0.4s ease;
+    }
+
+    .question-box {
+      margin-bottom: 1.8rem;
+      text-align: center;
+      min-height: 85px;
+    }
+    .question-cat {
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #7c3aed;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+    .question-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.5;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 650px) {
+      .options-grid { grid-template-columns: 1fr; }
+    }
+    .option-btn {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      color: #334155;
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      padding: 16px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+      line-height: 1.4;
+    }
+    .option-btn:hover:not(:disabled) {
+      border-color: #ec4899;
+      background: #fdf2f8;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(236, 72, 153, 0.18);
+    }
+    .option-btn.correct {
+      background: #dcfce7 !important;
+      border-color: #10b981 !important;
+      color: #15803d !important;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    }
+    .option-btn.incorrect {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #b91c1c !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+    }
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .feedback-banner {
+      min-height: 48px;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-next-q {
+      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+      color: #ffffff;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 10px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 1rem;
+      transition: all 0.2s ease;
+    }
+    .btn-next-q:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(236, 72, 153, 0.4);
+    }
+
+    /* PANTALLA FINAL */
+    .game-over-card {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    .game-over-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    .game-over-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+    .game-over-desc {
+      font-size: 1.05rem;
+      color: #64748b;
+      margin-bottom: 1.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="trivia-container" id="trivia-box">
+    <div class="top-status-bar">
+      <div class="lives-display" id="lives">
+        <i class="fa-solid fa-heart"></i>
+        <i class="fa-solid fa-heart"></i>
+        <i class="fa-solid fa-heart"></i>
+      </div>
+      <div class="timer-pill" id="timer"><i class="fa-solid fa-stopwatch"></i> 15s</div>
+      <div class="score-badge" id="score"><i class="fa-solid fa-star"></i> 0 pts</div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar"></div>
+    </div>
+
+    <div class="question-box">
+      <div class="question-cat" id="q-cat">Pregunta 1 de 5 • Inteligencia Artificial</div>
+      <div class="question-title" id="q-title">¿Cuál es el rol principal de la IA Generativa al crear recursos educativos interactivos?</div>
+    </div>
+
+    <div class="options-grid" id="options-grid">
+      <!-- Opciones inyectadas vía JS -->
+    </div>
+
+    <div class="feedback-banner" id="feedback">
+      <span style="color:#64748b;"><i class="fa-solid fa-clock"></i> ¡El tiempo corre! Elige tu respuesta.</span>
+    </div>
+
+    <div id="next-btn-wrap" style="text-align: center; display: none;">
+      <button class="btn-next-q" onclick="nextQuestion()">
+        Siguiente Pregunta <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // WEB AUDIO API SINTETIZADOR NATIVO DE EFECTOS DE SONIDO
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'correct') {
+        // Sonido de campana de acierto alegre
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'wrong') {
+        // Sonido grave de error
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.25);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'tick') {
+        // Tic tac sutil del cronómetro
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } else if (type === 'victory') {
+        // Fanfarria de victoria
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(554.37, now + 0.1);
+        osc.frequency.setValueAtTime(659.25, now + 0.2);
+        osc.frequency.setValueAtTime(880, now + 0.3);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+        osc.start(now);
+        osc.stop(now + 0.7);
+      }
+    }
+
+    // BANCO DE 5 PREGUNTAS DIDÁCTICAS
+    const QUESTIONS = [
+      {
+        cat: 'Pregunta 1 de 5 • Pedagogía & IA',
+        title: '¿Cuál es el rol principal de la IA Generativa al crear recursos educativos interactivos?',
+        options: [
+          'Reemplazar por completo al docente en el aula.',
+          'Actuar como copiloto ágil para programar interfaces y dinamizar contenidos.',
+          'Obligar al estudiante a memorizar algoritmos complejos.',
+          'Eliminar la interacción humana y las tutorías presenciales.'
+        ],
+        correct: 1,
+        feedback: '¡Exacto! La IA es un asistente/copiloto que amplifica la creatividad y productividad del docente.'
+      },
+      {
+        cat: 'Pregunta 2 de 5 • Arquitectura Web',
+        title: '¿Qué ventaja principal tiene compilar un recurso educativo en un solo archivo HTML autónomo?',
+        options: [
+          'Requiere instalar servidores pesados y bases de datos SQL.',
+          'Se abre al instante en cualquier navegador sin instalar programas ni depender de internet.',
+          'Solo funciona en computadores de última generación.',
+          'Impide que los estudiantes interactúen con el contenido.'
+        ],
+        correct: 1,
+        feedback: '¡Brillante! Un archivo HTML autónomo es 100% portable, ligero y funciona offline en celulares y PCs.'
+      },
+      {
+        cat: 'Pregunta 3 de 5 • Gamificación Educativa',
+        title: '¿Qué elemento clave de la gamificación ayuda a fijar el aprendizaje en una trivia digital?',
+        options: [
+          'La retroalimentación formativa inmediata ante aciertos y errores.',
+          'Ocultar la puntuación final al estudiante.',
+          'Hacer las preguntas lo más confusas posible.',
+          'Eliminar cualquier límite de tiempo o desafío.'
+        ],
+        correct: 0,
+        feedback: '¡Correcto! El feedback formativo al instante permite corregir conceptos erróneos en tiempo real.'
+      },
+      {
+        cat: 'Pregunta 4 de 5 • Ingeniería de Prompts',
+        title: 'Al redactar un prompt para IA, ¿qué técnica asegura mejores resultados en el código generado?',
+        options: [
+          'Escribir una sola palabra sin dar contexto del tema.',
+          'Definir un rol claro, objetivos pedagógicos, mecánicas y formato de entrega esperado.',
+          'Pedirle a la IA que adivine el nivel educativo de los estudiantes.',
+          'Usar lenguaje ambiguo y contradictorio.'
+        ],
+        correct: 1,
+        feedback: '¡Excelente! Un prompt bien estructurado (Rol + Contexto + Reglas + Formato) genera código de alta calidad.'
+      },
+      {
+        cat: 'Pregunta 5 de 5 • Despliegue en el Aula',
+        title: '¿Cuál es la forma más rápida de compartir un recurso web en vivo con tus alumnos en el salón?',
+        options: [
+          'Dictarles manualmente 500 líneas de código en el tablero.',
+          'Subirlo a la web (GitHub Pages o Tiiny.host) y proyectar un Código QR en pantalla.',
+          'Pedirles que compren una memoria USB física cada uno.',
+          'Esperar a imprimir el recurso en papel.'
+        ],
+        correct: 1,
+        feedback: '¡Sensacional! Un Código QR proyectado permite a 40 estudiantes escanear y acceder al instante desde sus móviles.'
+      }
+    ];
+
+    let currentQIndex = 0;
+    let score = 0;
+    let lives = 3;
+    let timeLeft = 15;
+    let timerInterval = null;
+    let answered = false;
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 15;
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+
+        if (timeLeft <= 4 && timeLeft > 0) {
+          playSound('tick');
+        }
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timeOut();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const timerEl = document.getElementById('timer');
+      timerEl.innerHTML = `<i class="fa-solid fa-stopwatch"></i> ${timeLeft}s`;
+      if (timeLeft <= 5) {
+        timerEl.classList.add('urgent');
+      } else {
+        timerEl.classList.remove('urgent');
+      }
+    }
+
+    function loadQuestion() {
+      answered = false;
+      const q = QUESTIONS[currentQIndex];
+
+      document.getElementById('q-cat').innerText = q.cat;
+      document.getElementById('q-title').innerText = q.title;
+      document.getElementById('feedback').innerHTML = '<span style="color:#64748b;"><i class="fa-solid fa-clock"></i> ¡El tiempo corre! Elige tu respuesta.</span>';
+      document.getElementById('next-btn-wrap').style.display = 'none';
+
+      // Actualizar barra de progreso
+      const progressPercent = ((currentQIndex + 1) / QUESTIONS.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+      // Renderizar opciones
+      const grid = document.getElementById('options-grid');
+      grid.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = `<span style="color:#ec4899; font-weight:800;">${letters[idx]})</span> ${opt}`;
+        btn.onclick = () => selectOption(idx, btn);
+        grid.appendChild(btn);
+      });
+
+      startTimer();
+    }
+
+    function selectOption(chosenIdx, btn) {
+      if (answered) return;
+      answered = true;
+      clearInterval(timerInterval);
+
+      const q = QUESTIONS[currentQIndex];
+      const allButtons = document.querySelectorAll('.option-btn');
+      allButtons.forEach(b => b.disabled = true);
+
+      if (chosenIdx === q.correct) {
+        btn.classList.add('correct');
+        score += (100 + timeLeft * 10);
+        document.getElementById('score').innerHTML = `<i class="fa-solid fa-star"></i> ${score} pts`;
+        document.getElementById('feedback').innerHTML = `🎉 <span style="color:#15803d; font-weight:800;">${q.feedback}</span>`;
+        playSound('correct');
+      } else {
+        btn.classList.add('incorrect');
+        // Iluminar la correcta para aprendizaje formativo
+        allButtons[q.correct].classList.add('correct');
+        lives--;
+        renderLives();
+        document.getElementById('feedback').innerHTML = `❌ <span style="color:#dc2626; font-weight:800;">Incorrecto. ${q.feedback}</span>`;
+        playSound('wrong');
+      }
+
+      if (lives <= 0) {
+        setTimeout(endGameGameOver, 1200);
+      } else {
+        document.getElementById('next-btn-wrap').style.display = 'block';
+      }
+    }
+
+    function timeOut() {
+      if (answered) return;
+      answered = true;
+      const q = QUESTIONS[currentQIndex];
+      const allButtons = document.querySelectorAll('.option-btn');
+      allButtons.forEach(b => b.disabled = true);
+      allButtons[q.correct].classList.add('correct');
+
+      lives--;
+      renderLives();
+      playSound('wrong');
+      document.getElementById('feedback').innerHTML = `⏰ <span style="color:#dc2626; font-weight:800;">¡Tiempo agotado! La respuesta correcta era la opción destacada en verde.</span>`;
+
+      if (lives <= 0) {
+        setTimeout(endGameGameOver, 1400);
+      } else {
+        document.getElementById('next-btn-wrap').style.display = 'block';
+      }
+    }
+
+    function nextQuestion() {
+      currentQIndex++;
+      if (currentQIndex < QUESTIONS.length) {
+        loadQuestion();
+      } else {
+        endGameVictory();
+      }
+    }
+
+    function renderLives() {
+      let html = '';
+      for (let i = 0; i < 3; i++) {
+        html += i < lives ? '<i class="fa-solid fa-heart"></i> ' : '<i class="fa-regular fa-heart" style="color:#cbd5e1;"></i> ';
+      }
+      document.getElementById('lives').innerHTML = html;
+    }
+
+    function endGameVictory() {
+      clearInterval(timerInterval);
+      playSound('victory');
+      document.getElementById('trivia-box').innerHTML = `
+        <div class="game-over-card">
+          <div class="game-over-icon">🏆 🥇</div>
+          <div class="game-over-title">¡Desafío de Trivia Completado!</div>
+          <div class="game-over-desc">Has demostrado un dominio excepcional en la creación de recursos interactivos con IA.</div>
+          <div style="font-size: 1.6rem; font-weight: 800; color: #ec4899; margin-bottom: 2rem;">
+            Puntaje Final: ${score} pts
+          </div>
+          <button class="btn-next-q" onclick="location.reload()">
+            <i class="fa-solid fa-rotate-left"></i> Jugar de Nuevo
+          </button>
+        </div>
+      `;
+    }
+
+    function endGameGameOver() {
+      clearInterval(timerInterval);
+      document.getElementById('trivia-box').innerHTML = `
+        <div class="game-over-card">
+          <div class="game-over-icon">💔 🎮</div>
+          <div class="game-over-title">¡Fin del Juego!</div>
+          <div class="game-over-desc">Te has quedado sin vidas. ¡El aprendizaje es un proceso de ensayo y error continuo!</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #64748b; margin-bottom: 2rem;">
+            Puntos alcanzados: ${score} pts
+          </div>
+          <button class="btn-next-q" onclick="location.reload()">
+            <i class="fa-solid fa-rotate-left"></i> Intentar de Nuevo
+          </button>
+        </div>
+      `;
+    }
+
+    // Iniciar juego
+    document.addEventListener('DOMContentLoaded', loadQuestion);
+  </script>
+</body>
+</html>

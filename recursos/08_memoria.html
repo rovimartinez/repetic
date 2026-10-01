@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Memoria Informática</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fira+Code:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .memory-container {
+      width: 100%;
+      max-width: 960px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .header h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #db2777;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* SELECTOR DE DIFICULTAD / TAMAÑO DE TABLERO */
+    .grid-selector-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.8rem;
+      flex-wrap: wrap;
+    }
+    .grid-selector-label {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 6px;
+    }
+    .grid-mode-btn {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      color: #475569;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .grid-mode-btn:hover {
+      border-color: #db2777;
+      color: #db2777;
+      background: #ffffff;
+    }
+    .grid-mode-btn.active {
+      background: #db2777;
+      border-color: #db2777;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(219, 39, 119, 0.3);
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      margin-bottom: 1.8rem;
+      font-weight: 700;
+      color: #334155;
+      font-size: 1rem;
+      background: #fdf2f8;
+      padding: 10px 20px;
+      border-radius: 12px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      border: 1px solid #fbcfe8;
+    }
+
+    /* CONTENEDOR DE CARTAS */
+    .cards-grid {
+      display: grid;
+      gap: 12px;
+      margin: 0 auto 1.8rem;
+      justify-content: center;
+    }
+
+    /* Modos de cuadrícula */
+    .cards-grid.mode-2x3 {
+      grid-template-columns: repeat(3, 130px);
+      max-width: 450px;
+    }
+    .cards-grid.mode-4x3 {
+      grid-template-columns: repeat(4, 125px);
+      max-width: 580px;
+    }
+    .cards-grid.mode-3x6 {
+      grid-template-columns: repeat(6, 115px);
+      max-width: 820px;
+    }
+
+    @media (max-width: 768px) {
+      .cards-grid.mode-3x6 { grid-template-columns: repeat(3, 1fr); }
+      .cards-grid.mode-4x3 { grid-template-columns: repeat(4, 1fr); }
+      .cards-grid.mode-2x3 { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* TARJETA DE MEMORIA */
+    .memory-card {
+      height: 105px;
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+      position: relative;
+      gap: 6px;
+    }
+    .memory-card:hover:not(.flipped):not(.matched) {
+      border-color: #db2777;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 18px rgba(219, 39, 119, 0.2);
+      background: #ffffff;
+    }
+
+    /* ESTADO VOLTEADO (DE FRENTE, SIN EFECTO ESPEJO) */
+    .memory-card.flipped {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+      cursor: default;
+      transform: scale(1.03);
+    }
+
+    /* ESTADO EMPAREJADO */
+    .memory-card.matched {
+      background: #ecfdf5;
+      border-color: #10b981;
+      color: #065f46;
+      cursor: default;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+      animation: matchSuccess 0.4s ease;
+    }
+    @keyframes matchSuccess {
+      0% { transform: scale(0.9); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .card-icon {
+      font-size: 1.9rem;
+    }
+    .card-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .feedback-banner {
+      min-height: 40px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #059669;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-restart {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-restart:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="memory-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-clone"></i> Juego de Memoria Informática</h2>
+      <p>Selecciona el tamaño del tablero y encuentra todos los pares de componentes y conceptos informáticos.</p>
+    </div>
+
+    <!-- SELECTOR DE TAMAÑO / DIFICULTAD -->
+    <div class="grid-selector-wrap">
+      <span class="grid-selector-label"><i class="fa-solid fa-table-cells"></i> Tamaño de Tablero:</span>
+      <button class="grid-mode-btn" onclick="setMode('2x3', this)">
+        <i class="fa-solid fa-border-all"></i> 2 x 3 (6 cartas)
+      </button>
+      <button class="grid-mode-btn" onclick="setMode('4x3', this)">
+        <i class="fa-solid fa-table-cells-large"></i> 4 x 3 (12 cartas)
+      </button>
+      <button class="grid-mode-btn active" onclick="setMode('3x6', this)">
+        <i class="fa-solid fa-grid-horizontal"></i> 3 x 6 (18 cartas)
+      </button>
+    </div>
+
+    <!-- MARCADOR DE ESTADÍSTICAS -->
+    <div class="stats-row">
+      <span>Movimientos: <strong id="moves" style="color:#db2777;">0</strong></span>
+      <span>Pares Encontrados: <strong id="matches" style="color:#2563eb;">0 / 9</strong></span>
+    </div>
+
+    <!-- CUADRÍCULA DE CARTAS -->
+    <div class="cards-grid mode-3x6" id="grid">
+      <!-- Inyectado dinámicamente -->
+    </div>
+
+    <div class="feedback-banner" id="feedback">
+      <span style="color:#64748b; font-weight:600;"><i class="fa-solid fa-hand-pointer"></i> Haz clic en dos cartas para buscar una coincidencia</span>
+    </div>
+
+    <div>
+      <button class="btn-restart" onclick="restartGame()">
+        <i class="fa-solid fa-rotate-left"></i> Barajar y Reiniciar
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // BANCO DE 9 CONCEPTOS INFORMÁTICOS PARA 3x6 (18 CARTAS / 9 PARES)
+    const TECH_ITEMS = [
+      { id: 'cpu', icon: 'fa-microchip', label: 'CPU' },
+      { id: 'gpu', icon: 'fa-gamepad', label: 'GPU' },
+      { id: 'ram', icon: 'fa-memory', label: 'RAM' },
+      { id: 'db', icon: 'fa-database', label: 'Base de Datos' },
+      { id: 'server', icon: 'fa-server', label: 'Servidor' },
+      { id: 'code', icon: 'fa-code', label: 'Código' },
+      { id: 'cloud', icon: 'fa-cloud', label: 'Nube' },
+      { id: 'wifi', icon: 'fa-wifi', label: 'Red / WiFi' },
+      { id: 'security', icon: 'fa-shield-halved', label: 'Seguridad' }
+    ];
+
+    // WEB AUDIO API PARA EFECTOS DE SONIDO NATIVOS
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+
+      if (type === 'flip') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'match') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'victory') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.12);
+        osc.frequency.setValueAtTime(783.99, now + 0.24);
+        osc.frequency.setValueAtTime(1046.50, now + 0.36);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+        osc.start(now);
+        osc.stop(now + 0.7);
+      }
+    }
+
+    let currentMode = '3x6';
+    let targetPairs = 9;
+    let cardDeck = [];
+    let flippedCards = [];
+    let moves = 0;
+    let matchedPairs = 0;
+
+    function setMode(mode, btn) {
+      currentMode = mode;
+      document.querySelectorAll('.grid-mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      restartGame();
+    }
+
+    function restartGame() {
+      flippedCards = [];
+      moves = 0;
+      matchedPairs = 0;
+      document.getElementById('moves').innerText = '0';
+      document.getElementById('feedback').innerHTML = '<span style="color:#64748b; font-weight:600;"><i class="fa-solid fa-hand-pointer"></i> Haz clic en dos cartas para buscar una coincidencia</span>';
+
+      const gridEl = document.getElementById('grid');
+      gridEl.className = `cards-grid mode-${currentMode}`;
+
+      let pairCount = 9;
+      if (currentMode === '2x3') pairCount = 3;
+      else if (currentMode === '4x3') pairCount = 6;
+      else if (currentMode === '3x6') pairCount = 9;
+
+      targetPairs = pairCount;
+      document.getElementById('matches').innerText = `0 / ${targetPairs}`;
+
+      // Seleccionar elementos
+      const selectedItems = TECH_ITEMS.slice(0, pairCount);
+      cardDeck = [];
+
+      selectedItems.forEach(item => {
+        cardDeck.push({ ...item, uid: item.id + '_1' });
+        cardDeck.push({ ...item, uid: item.id + '_2' });
+      });
+
+      // Barajar cartas
+      cardDeck.sort(() => 0.5 - Math.random());
+      buildGrid();
+    }
+
+    function buildGrid() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+
+      cardDeck.forEach((cardData) => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.dataset.id = cardData.id;
+        card.dataset.uid = cardData.uid;
+
+        // Dorso de la carta limpio con icono interrogación
+        card.innerHTML = `
+          <i class="fa-solid fa-question" style="font-size:1.8rem; color:#94a3b8;"></i>
+        `;
+        card.onclick = () => flipCard(card, cardData);
+
+        grid.appendChild(card);
+      });
+    }
+
+    function flipCard(card, cardData) {
+      if (flippedCards.length === 2 || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+      playSound('flip');
+      card.classList.add('flipped');
+      // Renderizar el contenido perfectamente legible y de frente
+      card.innerHTML = `
+        <i class="fa-solid ${cardData.icon} card-icon"></i>
+        <span class="card-label">${cardData.label}</span>
+      `;
+      flippedCards.push({ card, cardData });
+
+      if (flippedCards.length === 2) {
+        moves++;
+        document.getElementById('moves').innerText = moves;
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      const [c1, c2] = flippedCards;
+
+      if (c1.cardData.id === c2.cardData.id) {
+        // Acierto
+        playSound('match');
+        c1.card.classList.add('matched');
+        c2.card.classList.add('matched');
+        matchedPairs++;
+        document.getElementById('matches').innerText = `${matchedPairs} / ${targetPairs}`;
+        flippedCards = [];
+
+        document.getElementById('feedback').innerHTML = `✅ <span style="color:#15803d; font-weight:800;">¡Par de ${c1.cardData.label} descubierto!</span>`;
+
+        if (matchedPairs === targetPairs) {
+          playSound('victory');
+          document.getElementById('feedback').innerHTML = `🏆 <strong style="color:#15803d; font-size:1.15rem;">¡Extraordinario! Tablero completado en ${moves} movimientos.</strong>`;
+        }
+      } else {
+        // Error
+        setTimeout(() => {
+          c1.card.classList.remove('flipped');
+          c2.card.classList.remove('flipped');
+          c1.card.innerHTML = `
+            <i class="fa-solid fa-question" style="font-size:1.8rem; color:#94a3b8;"></i>
+          `;
+          c2.card.innerHTML = `
+            <i class="fa-solid fa-question" style="font-size:1.8rem; color:#94a3b8;"></i>
+          `;
+          flippedCards = [];
+        }, 750);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', restartGame);
+  </script>
+</body>
+</html>

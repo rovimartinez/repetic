@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagrama con Hotspots Inteligentes: Arquitectura de un Recurso Web Educativo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fira+Code:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .diagram-container {
+      width: 100%;
+      max-width: 960px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 45px -10px rgba(0,0,0,0.08);
+    }
+    .diagram-header {
+      text-align: center;
+      margin-bottom: 1.8rem;
+    }
+    .diagram-header h2 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #0284c7;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .diagram-header p {
+      color: #64748b;
+      font-size: 0.98rem;
+    }
+
+    /* ESCENARIO DEL DIAGRAMA */
+    .diagram-stage {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f1f5f9 100%);
+      border: 2px solid #bae6fd;
+      border-radius: 18px;
+      margin-bottom: 1.8rem;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(2, 132, 199, 0.06);
+    }
+
+    /* SVG Conectores en el fondo */
+    .stage-svg-lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* NODO CENTRAL DEL DIAGRAMA */
+    .diagram-core-node {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffff;
+      padding: 1.2rem 1.8rem;
+      border-radius: 20px;
+      border: 3px solid #0284c7;
+      box-shadow: 0 10px 30px rgba(2, 132, 199, 0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      z-index: 5;
+    }
+    .diagram-core-node .core-icon {
+      font-size: 2rem;
+      color: #0284c7;
+    }
+    .diagram-core-node .core-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .diagram-core-node .core-sub {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* HOTSPOTS INTERACTIVOS */
+    .hotspot-card-btn {
+      position: absolute;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      border: 2px solid #cbd5e1;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10;
+    }
+    .hotspot-card-btn:hover {
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+    }
+    .hotspot-card-btn.active {
+      transform: scale(1.06);
+      box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.2), 0 12px 24px rgba(0, 0, 0, 0.14);
+    }
+
+    .hotspot-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      animation: pulseRadar 2s infinite;
+    }
+
+    .hotspot-label-text {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+    .hotspot-label-text .name {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .hotspot-label-text .role {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    @keyframes pulseRadar {
+      0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.6); }
+      70% { box-shadow: 0 0 0 12px rgba(2, 132, 199, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+    }
+
+    /* PANEL INFORMATIVO INFERIOR */
+    .hotspot-card-detail {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.8rem 2rem;
+      transition: all 0.3s ease;
+      min-height: 140px;
+    }
+    .hotspot-card-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .hotspot-card-detail h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .detail-tag {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+    }
+    .hotspot-card-detail p {
+      font-size: 1.02rem;
+      color: #334155;
+      line-height: 1.7;
+    }
+    .code-tag {
+      font-family: 'Fira Code', monospace;
+      background: #e2e8f0;
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #0369a1;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="diagram-container">
+    <div class="diagram-header">
+      <h2><i class="fa-solid fa-layer-group"></i> Anatomía de un Recurso Educativo Web</h2>
+      <p>Haz clic en cualquiera de los 4 componentes perimetrales para descubrir cómo se ensambla un recurso interactivo autónomo.</p>
+    </div>
+
+    <div class="diagram-stage">
+      <!-- Líneas conectores en SVG -->
+      <svg class="stage-svg-lines" viewBox="0 0 960 320" preserveAspectRatio="none">
+        <line x1="200" y1="65" x2="480" y2="160" stroke="#bae6fd" stroke-width="2.5" stroke-dasharray="6,6" />
+        <line x1="760" y1="65" x2="480" y2="160" stroke="#bae6fd" stroke-width="2.5" stroke-dasharray="6,6" />
+        <line x1="200" y1="255" x2="480" y2="160" stroke="#bae6fd" stroke-width="2.5" stroke-dasharray="6,6" />
+        <line x1="760" y1="255" x2="480" y2="160" stroke="#bae6fd" stroke-width="2.5" stroke-dasharray="6,6" />
+      </svg>
+
+      <!-- Nodo Central -->
+      <div class="diagram-core-node">
+        <div class="core-icon"><i class="fa-solid fa-cubes"></i></div>
+        <div class="core-title">Recurso Digital (HTML Autónomo)</div>
+        <div class="core-sub">Objeto de Aprendizaje</div>
+      </div>
+
+      <!-- Hotspot 1: HTML -->
+      <button class="hotspot-card-btn active" id="btn-hs-1" onclick="inspect(1)" style="top: 15%; left: 4%; border-color: #2563eb;" title="Estructura Semántica">
+        <div class="hotspot-badge" style="background: #2563eb;">1</div>
+        <div class="hotspot-label-text">
+          <span class="name">Estructura HTML5</span>
+          <span class="role">Esqueleto y Semántica</span>
+        </div>
+      </button>
+
+      <!-- Hotspot 2: CSS -->
+      <button class="hotspot-card-btn" id="btn-hs-2" onclick="inspect(2)" style="top: 15%; right: 4%; border-color: #059669;" title="Estética y Diseño">
+        <div class="hotspot-badge" style="background: #059669;">2</div>
+        <div class="hotspot-label-text">
+          <span class="name">Estilos CSS3</span>
+          <span class="role">Diseño y Visuales</span>
+        </div>
+      </button>
+
+      <!-- Hotspot 3: JS -->
+      <button class="hotspot-card-btn" id="btn-hs-3" onclick="inspect(3)" style="bottom: 15%; left: 4%; border-color: #d97706;" title="Motor de Interactividad">
+        <div class="hotspot-badge" style="background: #d97706;">3</div>
+        <div class="hotspot-label-text">
+          <span class="name">Lógica JavaScript</span>
+          <span class="role">Motor Interactivo</span>
+        </div>
+      </button>
+
+      <!-- Hotspot 4: Feedback -->
+      <button class="hotspot-card-btn" id="btn-hs-4" onclick="inspect(4)" style="bottom: 15%; right: 4%; border-color: #db2777;" title="Didáctica y Feedback">
+        <div class="hotspot-badge" style="background: #db2777;">4</div>
+        <div class="hotspot-label-text">
+          <span class="name">Feedback Formativo</span>
+          <span class="role">Pedagogía y Refuerzo</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Panel de Detalle Informativo -->
+    <div class="hotspot-card-detail" id="hotspot-detail">
+      <!-- Inyectado dinámicamente con inspect() -->
+    </div>
+  </div>
+
+  <script>
+    const HOTSPOTS = [
+      {
+        num: '1',
+        title: 'Capa 1: Estructura y Semántica (HTML5)',
+        color: '#2563eb',
+        tag: 'Estructura Base',
+        icon: 'fa-code',
+        desc: 'Organiza los contenedores semánticos (<span class="code-tag">&lt;main&gt;</span>, <span class="code-tag">&lt;section&gt;</span>, <span class="code-tag">&lt;button&gt;</span>, <span class="code-tag">&lt;header&gt;</span>) y la jerarquía de contenidos educativos para que la información sea accesible, ordenada y legible en cualquier dispositivo.'
+      },
+      {
+        num: '2',
+        title: 'Capa 2: Estética y Diseño Visual (CSS3)',
+        color: '#059669',
+        tag: 'Identidad Visual',
+        icon: 'fa-paintbrush',
+        desc: 'Aplica la paleta de colores armónica, tipografías modernas de Google Fonts, sombras suaves, micro-animaciones, efectos hover y diseño 100% responsivo para que el recurso cautive la atención del estudiante.'
+      },
+      {
+        num: '3',
+        title: 'Capa 3: Motor de Interactividad (JavaScript)',
+        color: '#d97706',
+        tag: 'Dinamismo & Control',
+        icon: 'fa-bolt',
+        desc: 'Gestiona los eventos en tiempo real: temporizadores, contadores de puntos y vidas, drag & drop, generación de sonidos con Web Audio API y validación inmediata sin necesidad de recargar la página ni de servidores externos.'
+      },
+      {
+        num: '4',
+        title: 'Capa 4: Feedback Formativo & Refuerzo',
+        color: '#db2777',
+        tag: 'Diseño Instruccional',
+        icon: 'fa-chart-pie',
+        desc: 'Proporciona retroalimentación pedagógica instantánea (explicaciones claras del error y refuerzo positivo al acertar), medallas de logro y resúmenes de desempeño que consolidan el aprendizaje significativo.'
+      }
+    ];
+
+    function inspect(n) {
+      const h = HOTSPOTS[n - 1];
+      const box = document.getElementById('hotspot-detail');
+
+      // Actualizar botones activos
+      document.querySelectorAll('.hotspot-card-btn').forEach((btn, idx) => {
+        if (idx + 1 === n) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      box.style.borderColor = h.color;
+      box.style.background = '#ffffff';
+      box.innerHTML = `
+        <div class="hotspot-card-detail-header">
+          <h3 style="color: ${h.color};"><i class="fa-solid ${h.icon}"></i> ${h.title}</h3>
+          <span class="detail-tag" style="color: ${h.color}; border-color: ${h.color}40;"><i class="fa-solid fa-check"></i> ${h.tag}</span>
+        </div>
+        <p>${h.desc}</p>
+      `;
+    }
+
+    // Iniciar con el primer hotspot activo
+    document.addEventListener('DOMContentLoaded', () => {
+      inspect(1);
+    });
+  </script>
+</body>
+</html>

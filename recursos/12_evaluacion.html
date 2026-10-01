@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rúbrica y Evaluación Formativa por Competencias</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .eval-container {
+      width: 100%;
+      max-width: 1180px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 2.2rem 2.6rem;
+      box-shadow: 0 25px 50px -10px rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 1.8rem;
+    }
+    .header h2 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #0f766e;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* GRID PRINCIPAL: 2 COLUMNAS (RÚBRICA DETALLADA + PANEL DIAGNÓSTICO EN VIVO) */
+    .eval-main-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .eval-main-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+
+    /* COLUMNA IZQUIERDA: CRITERIOS DE RÚBRICA */
+    .criteria-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.6rem;
+      border-bottom: 1.5px solid #e2e8f0;
+    }
+    .section-title-row h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-eval-info {
+      background: #ccfbf1;
+      color: #0f766e;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .criteria-card {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    .criteria-card:hover {
+      border-color: #99f6e4;
+      box-shadow: 0 4px 15px rgba(15, 118, 110, 0.06);
+    }
+    .criteria-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .criteria-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .criteria-desc {
+      font-size: 0.84rem;
+      color: #64748b;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .criteria-weight {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #0d9488;
+      background: #f0fdfa;
+      border: 1px solid #99f6e4;
+      padding: 3px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    /* BOTONES DE NIVELES FORMATIVOS (4 NIVELES) */
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    @media (max-width: 540px) {
+      .levels-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .btn-level {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 8px 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .btn-level .level-tag {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #475569;
+    }
+    .btn-level .level-pts {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .btn-level:hover {
+      border-color: #0d9488;
+      background: #f0fdfa;
+      transform: translateY(-1px);
+    }
+    .btn-level.active-1 {
+      background: #fee2e2;
+      border-color: #ef4444;
+    }
+    .btn-level.active-1 .level-tag { color: #dc2626; }
+    .btn-level.active-1 .level-pts { color: #dc2626; }
+
+    .btn-level.active-2 {
+      background: #fef3c7;
+      border-color: #f59e0b;
+    }
+    .btn-level.active-2 .level-tag { color: #d97706; }
+    .btn-level.active-2 .level-pts { color: #d97706; }
+
+    .btn-level.active-3 {
+      background: #e0f2fe;
+      border-color: #0284c7;
+    }
+    .btn-level.active-3 .level-tag { color: #0284c7; }
+    .btn-level.active-3 .level-pts { color: #0284c7; }
+
+    .btn-level.active-4 {
+      background: #ccfbf1;
+      border-color: #0d9488;
+    }
+    .btn-level.active-4 .level-tag { color: #0f766e; }
+    .btn-level.active-4 .level-pts { color: #0f766e; }
+
+    /* COLUMNA DERECHA: PANEL DE RESULTADOS Y DIAGNÓSTICO EN TIEMPO REAL */
+    .report-panel {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      position: sticky;
+      top: 1rem;
+    }
+
+    /* TARJETA HERO DEL SCORE GLOBAL */
+    .score-hero-card {
+      background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+      border-radius: 16px;
+      padding: 1.4rem;
+      color: #ffffff;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(13, 148, 136, 0.25);
+    }
+    .score-hero-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+    }
+    .score-hero-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin: 4px 0;
+    }
+    .score-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    /* BARRA DE PROGRESO DE LOGRO */
+    .progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .progress-bar-track {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0ea5e9, #10b981);
+      width: 85%;
+      border-radius: 10px;
+      transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* DESGLOSE POR COMPETENCIAS */
+    .competence-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+    }
+    .breakdown-row span {
+      font-weight: 700;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .breakdown-tag {
+      font-family: 'Fira Code', monospace;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+    }
+
+    /* RETROALIMENTACIÓN FORMATIVA DINÁMICA */
+    .feedback-box {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #334155;
+    }
+    .feedback-box strong {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    /* BOTONES DE ACCIÓN */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-action {
+      flex: 1;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 800;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-export {
+      background: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+    }
+    .btn-export:hover {
+      background: #334155;
+      transform: translateY(-1px);
+    }
+    .btn-reset-rubric {
+      background: #ffffff;
+      color: #475569;
+      border: 1.5px solid #cbd5e1;
+    }
+    .btn-reset-rubric:hover {
+      border-color: #94a3b8;
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="eval-container">
+    <div class="header">
+      <h2><i class="fa-solid fa-clipboard-check"></i> Rúbrica Formativa por Competencias</h2>
+      <p>Evalúa el desempeño pedagógico y técnico en tiempo real para generar retroalimentación formativa y diagnóstico global.</p>
+    </div>
+
+    <div class="eval-main-grid">
+      <!-- COLUMNA IZQUIERDA: 4 CRITERIOS DE RÚBRICA -->
+      <div class="criteria-section">
+        <div class="section-title-row">
+          <h3><i class="fa-solid fa-list-check"></i> Criterios de Desempeño</h3>
+          <span class="badge-eval-info">4 Criterios Ponderados</span>
+        </div>
+
+        <!-- CRITERIO 1 -->
+        <div class="criteria-card">
+          <div class="criteria-header">
+            <div>
+              <div class="criteria-title"><i class="fa-solid fa-brain" style="color:#0284c7;"></i> 1. Dominio Conceptual y Fundamentación</div>
+              <div class="criteria-desc">Capacidad de aplicar principios teóricos, sintetizar conceptos clave y estructurar argumentos sólidos.</div>
+            </div>
+            <span class="criteria-weight">Peso: 25%</span>
+          </div>
+          <div class="levels-grid" data-criterion="1">
+            <button type="button" class="btn-level" onclick="selectLevel(1, 1, this)">
+              <span class="level-tag">Inicial</span>
+              <span class="level-pts">1.0 pto</span>
+            </button>
+            <button type="button" class="btn-level" onclick="selectLevel(1, 2, this)">
+              <span class="level-tag">En Desarrollo</span>
+              <span class="level-pts">2.0 pts</span>
+            </button>
+            <button type="button" class="btn-level" onclick="selectLevel(1, 3, this)">
+              <span class="level-tag">Competente</span>
+              <span class="level-pts">3.0 pts</span>
+            </button>
+            <button type="button" class="btn-level active-4" onclick="selectLevel(1, 4, this)">
+              <span class="level-tag">Excelente</span>
+              <span class="level-pts">4.0 pts</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CRITERIO 2 -->
+        <div class="criteria-card">
+          <div class="criteria-header">
+            <div>
+              <div class="criteria-title"><i class="fa-solid fa-laptop-code" style="color:#8b5cf6;"></i> 2. Diseño de Experiencias y Recursos TIC</div>
+              <div class="criteria-desc">Integración pertinente de herramientas interactivas, accesibilidad universal y estética visual clara.</div>
+            </div>
+            <span class="criteria-weight">Peso: 25%</span>
+          </div>
+          <div class="levels-grid" data-criterion="2">
+            <button type="button" class="btn-level" onclick="selectLevel(2, 1, this)">
+              <span class="level-tag">Inicial</span>
+              <span class="level-pts">1.0 pto</span>
+            </button>
+            <button type="button" class="btn-level" onclick="selectLevel(2, 2, this)">
+              <span class="level-tag">En Desarrollo</span>
+              <span class="level-pts">2.0 pts</span>
+            </button>
+            <button type="button" class="btn-level active-3" onclick="selectLevel(2, 3, this)">
+              <span class="level-tag">Competente</span>
+              <span class="level-pts">3.0 pts</span>
+            </button>
+            <button type="button" class="btn-level" onclick="selectLevel(2, 4, this)">
+              <span class="level-tag">Excelente</span>
+              <span class="level-pts">4.0 pts</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CRITERIO 3 -->
+        <div class="criteria-card">
+          <div class="criteria-header">
+            <div>
+              <div class="criteria-title"><i class="fa-solid fa-puzzle-piece" style="color:#f59e0b;"></i> 3. Pensamiento Crítico y Resolución de Casos</div>
+              <div class="criteria-desc">Toma de decisiones analíticas, anticipación a escenarios imprevistos y justificación reflexiva.</div>
+            </div>
+            <span class="criteria-weight">Peso: 25%</span>
+          </div>
+          <div class="levels-grid" data-criterion="3">
+            <button type="button" class="btn-level" onclick="selectLevel(3, 1, this)">
+              <span class="level-tag">Inicial</span>
+              <span class="level-pts">1.0 pto</span>
+            </button>
+            <button type="button" class="btn-level" onclick="selectLevel(3, 2, this)">
+              <span class="level-tag">En Desarrollo</span>
+              <span class="level-pts">2.0 pts</span>
+            </button>
+            <button type="button" class="btn-level active-3" onclick="selectLevel(3, 3, this)">
+              <span class="level-tag">Competente</span>
+              <span class="level-pts">3.0 pts</span>
+            </button>
+            <button type="button" class="btn-level" onclick="selectLevel(3, 4, this)">
+              <span class="level-tag">Excelente</span>
+              <span class="level-pts">4.0 pts</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CRITERIO 4 -->
+        <div class="criteria-card">
+          <div class="criteria-header">
+            <div>
+              <div class="criteria-title"><i class="fa-solid fa-users" style="color:#10b981;"></i> 4. Dinamización y Evaluación Formativa</div>
+              <div class="criteria-desc">Capacidad de retroalimentar a pares, promover la participación activa y monitorear el progreso continuo.</div>
+            </div>
+            <span class="criteria-weight">Peso: 25%</span>
+          </div>
+          <div class="levels-grid" data-criterion="4">
+            <button type="button" class="btn-level" onclick="selectLevel(4, 1, this)">
+              <span class="level-tag">Inicial</span>
+              <span class="level-pts">1.0 pto</span>
+            </button>
+            <button type="button" class="btn-level" onclick="selectLevel(4, 2, this)">
+              <span class="level-tag">En Desarrollo</span>
+              <span class="level-pts">2.0 pts</span>
+            </button>
+            <button type="button" class="btn-level active-3" onclick="selectLevel(4, 3, this)">
+              <span class="level-tag">Competente</span>
+              <span class="level-pts">3.0 pts</span>
+            </button>
+            <button type="button" class="btn-level" onclick="selectLevel(4, 4, this)">
+              <span class="level-tag">Excelente</span>
+              <span class="level-pts">4.0 pts</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: DIAGNÓSTICO FORMATIVO EN TIEMPO REAL -->
+      <div class="report-panel">
+        <!-- SCORE HERO -->
+        <div class="score-hero-card" id="scoreHeroCard">
+          <div class="score-hero-label">Índice Global de Logro</div>
+          <div class="score-hero-val" id="scoreVal">81.3%</div>
+          <div class="score-hero-badge" id="scoreBadge">
+            <i class="fa-solid fa-award"></i> Nivel Avanzado (Destacado)
+          </div>
+        </div>
+
+        <!-- BARRA DE PROGRESO -->
+        <div class="progress-wrapper">
+          <div class="progress-labels">
+            <span>Escala de Desempeño:</span>
+            <span id="ptsRatioText">13 / 16 Puntos</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressFill" style="width: 81.3%;"></div>
+          </div>
+        </div>
+
+        <!-- DESGLOSE POR CRITERIO -->
+        <div class="competence-breakdown">
+          <div class="breakdown-row">
+            <span><i class="fa-solid fa-brain" style="color:#0284c7;"></i> Fundamentación</span>
+            <span class="breakdown-tag" id="tagCrit1" style="background:#ccfbf1; color:#0f766e;">4.0 / 4</span>
+          </div>
+          <div class="breakdown-row">
+            <span><i class="fa-solid fa-laptop-code" style="color:#8b5cf6;"></i> Recursos TIC</span>
+            <span class="breakdown-tag" id="tagCrit2" style="background:#e0f2fe; color:#0284c7;">3.0 / 4</span>
+          </div>
+          <div class="breakdown-row">
+            <span><i class="fa-solid fa-puzzle-piece" style="color:#f59e0b;"></i> Pensamiento Crítico</span>
+            <span class="breakdown-tag" id="tagCrit3" style="background:#e0f2fe; color:#0284c7;">3.0 / 4</span>
+          </div>
+          <div class="breakdown-row">
+            <span><i class="fa-solid fa-users" style="color:#10b981;"></i> Dinamización</span>
+            <span class="breakdown-tag" id="tagCrit4" style="background:#e0f2fe; color:#0284c7;">3.0 / 4</span>
+          </div>
+        </div>
+
+        <!-- RETROALIMENTACIÓN FORMATIVA -->
+        <div class="feedback-box">
+          <strong><i class="fa-solid fa-comment-dots" style="color:#0f766e;"></i> Dictamen Pedagógico:</strong>
+          <p id="feedbackText">Demuestra un dominio sobresaliente de los conceptos teóricos y una sólida integración práctica de recursos didácticos digitales. Se recomienda profundizar en estrategias de coevaluación y dinamización grupal.</p>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="action-buttons">
+          <button type="button" class="btn-action btn-export" onclick="exportReport()">
+            <i class="fa-solid fa-download"></i> Guardar Reporte
+          </button>
+          <button type="button" class="btn-action btn-reset-rubric" onclick="resetRubric()">
+            <i class="fa-solid fa-rotate-left"></i> Restablecer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const scores = { 1: 4, 2: 3, 3: 3, 4: 3 };
+
+    function selectLevel(criterion, level, btn) {
+      scores[criterion] = level;
+
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.btn-level').forEach(b => {
+        b.className = 'btn-level';
+      });
+
+      btn.classList.add(`active-${level}`);
+      updateReport();
+    }
+
+    function updateReport() {
+      const totalPoints = scores[1] + scores[2] + scores[3] + scores[4];
+      const maxPoints = 16;
+      const percentage = (totalPoints / maxPoints) * 100;
+      const pctFormatted = percentage.toFixed(1);
+
+      document.getElementById('scoreVal').innerText = `${pctFormatted}%`;
+      document.getElementById('ptsRatioText').innerText = `${totalPoints} / ${maxPoints} Puntos`;
+      document.getElementById('progressFill').style.width = `${percentage}%`;
+
+      // Tags de desglose
+      for (let i = 1; i <= 4; i++) {
+        const tag = document.getElementById(`tagCrit${i}`);
+        const val = scores[i];
+        tag.innerText = `${val}.0 / 4`;
+        if (val === 4) {
+          tag.style.background = '#ccfbf1';
+          tag.style.color = '#0f766e';
+        } else if (val === 3) {
+          tag.style.background = '#e0f2fe';
+          tag.style.color = '#0284c7';
+        } else if (val === 2) {
+          tag.style.background = '#fef3c7';
+          tag.style.color = '#d97706';
+        } else {
+          tag.style.background = '#fee2e2';
+          tag.style.color = '#dc2626';
+        }
+      }
+
+      // Nivel Global y Dictamen
+      const badge = document.getElementById('scoreBadge');
+      const feedback = document.getElementById('feedbackText');
+      const heroCard = document.getElementById('scoreHeroCard');
+
+      if (percentage >= 88) {
+        badge.innerHTML = '<i class="fa-solid fa-medal"></i> Nivel Experto (Sobresaliente)';
+        heroCard.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+        feedback.innerText = 'Desempeño excepcional. Domina con maestría la fundamentación conceptual, el diseño pedagógico interactivo y la facilitación activa en el aula virtual y presencial.';
+      } else if (percentage >= 70) {
+        badge.innerHTML = '<i class="fa-solid fa-award"></i> Nivel Avanzado (Destacado)';
+        heroCard.style.background = 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)';
+        feedback.innerText = 'Demuestra un dominio sobresaliente de los conceptos teóricos y una sólida integración práctica de recursos didácticos digitales. Se recomienda profundizar en estrategias de coevaluación.';
+      } else if (percentage >= 50) {
+        badge.innerHTML = '<i class="fa-solid fa-chart-simple"></i> Nivel Competente (En Desarrollo)';
+        heroCard.style.background = 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)';
+        feedback.innerText = 'Cumple satisfactoriamente con los requerimientos base. Se sugiere reforzar la justificación didáctica y el diseño estético de las actividades interactivas.';
+      } else {
+        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Nivel Inicial (Requiere Acompañamiento)';
+        heroCard.style.background = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
+        feedback.innerText = 'El proyecto requiere revisión y fortalecimiento pedagógico en fundamentos conceptuales y aplicación práctica de herramientas digitales interactivas.';
+      }
+    }
+
+    function exportReport() {
+      const totalPoints = scores[1] + scores[2] + scores[3] + scores[4];
+      const pct = ((totalPoints / 16) * 100).toFixed(1);
+      const text = `REPORTE DE EVALUACIÓN FORMATIVA
+====================================
+Índice Global: ${pct}% (${totalPoints}/16 Puntos)
+- 1. Dominio Conceptual: ${scores[1]}/4
+- 2. Diseño de Recursos TIC: ${scores[2]}/4
+- 3. Pensamiento Crítico: ${scores[3]}/4
+- 4. Dinamización Docente: ${scores[4]}/4
+====================================
+Generado con Rúbrica Formativa Interactiva.`;
+      
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Reporte_Evaluacion_Competencias.txt';
+      a.click();
+    }
+
+    function resetRubric() {
+      scores[1] = 3;
+      scores[2] = 3;
+      scores[3] = 3;
+      scores[4] = 3;
+
+      document.querySelectorAll('.levels-grid').forEach((grid, idx) => {
+        const crit = idx + 1;
+        grid.querySelectorAll('.btn-level').forEach((btn, bIdx) => {
+          btn.className = 'btn-level';
+          if (bIdx === 2) btn.classList.add('active-3');
+        });
+      });
+
+      updateReport();
+    }
+
+    document.addEventListener('DOMContentLoaded', updateReport);
+  </script>
+</body>
+</html>
