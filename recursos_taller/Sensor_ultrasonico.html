@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HC-SR04 Ultrasonic Waveform & Timing Diagram Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains+Mono', monospace;
+    }
+
+    .tinkercad-dots {
+      background-color: #fafbfc;
+      background-image: radial-gradient(circle, #cbd5e1 1.1px, transparent 1.1px);
+      background-size: 18px 18px;
+    }
+
+    input[type=range].slider-custom {
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 9999px;
+      background: #e2e8f0;
+      outline: none;
+    }
+    input[type=range].slider-sky::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 9999px;
+      background: #0284c7;
+      cursor: grab;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.4);
+      transition: transform 0.1s ease;
+    }
+    input[type=range].slider-sky::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.18);
+    }
+    input[type=range].slider-emerald::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 9999px;
+      background: #059669;
+      cursor: grab;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(5, 150, 105, 0.4);
+      transition: transform 0.1s ease;
+    }
+    input[type=range].slider-emerald::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.18);
+    }
+  </style>
+</head>
+<body class="bg-slate-100/80 text-slate-800 min-h-screen p-3 md:p-5 flex flex-col justify-start items-center antialiased select-none">
+
+  <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+
+    <!-- COLUMNA IZQUIERDA: ESPACIO ACÚSTICO + DIAGRAMA DE TIEMPOS -->
+    <div class="lg:col-span-7 flex flex-col gap-3">
+
+      <!-- TARJETA 1: ESPACIO ACÚSTICO -->
+      <section class="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-sm flex flex-col justify-start">
+        
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 text-xs">
+              <i class="fa-solid fa-satellite-dish"></i>
+            </span>
+            <div>
+              <h2 class="text-xs font-bold font-mono tracking-wider text-slate-800 uppercase">
+                Propagación Acústica &bull; HC-SR04
+              </h2>
+              <p class="text-[10.5px] text-slate-400">Arrastre 2D &bull; Conos centrados &bull; Rebote recto horizontal</p>
+            </div>
+          </div>
+
+          <!-- BOTONES CON ESTADOS MARCADOS/HUNDIDOS -->
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="toggleSlowMo()" id="btn-slowmo"
+                    class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] font-mono font-medium flex items-center gap-1.5 transition shadow-2xs">
+              <i class="fa-solid fa-play text-amber-500 text-[10px]"></i>
+              <span id="lbl-slowmo">Cámara Lenta</span>
+            </button>
+
+            <button type="button" onclick="triggerSinglePulse()" id="btn-single"
+                    class="bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] font-mono font-medium flex items-center gap-1.5 transition shadow-2xs">
+              <i class="fa-solid fa-bullhorn text-sky-500 text-[10px]"></i> Pulso Único
+            </button>
+
+            <button type="button" onclick="toggleContinuousMode()" id="btn-continuous"
+                    class="bg-sky-600 hover:bg-sky-700 text-white rounded-lg px-2.5 py-1 text-[11px] font-mono font-semibold flex items-center gap-1.5 transition shadow-inner border border-sky-700">
+              <i class="fa-solid fa-rotate text-[10px]"></i>
+              <span id="lbl-continuous">Continuo</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- VIEWPORT SVG -->
+        <div class="relative w-full h-[255px] bg-[#fafbfc] rounded-xl border border-slate-200/80 tinkercad-dots overflow-hidden flex items-center justify-center shadow-inner select-none cursor-crosshair">
+          
+          <svg id="acoustic-svg" viewBox="0 0 700 240" class="w-full h-full select-none"
+               onmousedown="onCanvasMouseDown(event)"
+               ontouchstart="onCanvasTouchStart(event)">
+
+            <defs>
+              <filter id="cleanShadow" x="-15%" y="-15%" width="130%" height="130%">
+                <feDropShadow dx="0" dy="2.5" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10" />
+              </filter>
+
+              <!-- Cono 15° Precisión -->
+              <linearGradient id="gradientPrecBeam" x1="100%" y1="50%" x2="0%" y2="50%">
+                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.25" />
+                <stop offset="70%" stop-color="#38bdf8" stop-opacity="0.12" />
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.03" />
+              </linearGradient>
+
+              <!-- Cono 30° Detección -->
+              <linearGradient id="gradientDetBeam" x1="100%" y1="50%" x2="0%" y2="50%">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.20" />
+                <stop offset="70%" stop-color="#7dd3fc" stop-opacity="0.10" />
+                <stop offset="100%" stop-color="#bae6fd" stop-opacity="0.02" />
+              </linearGradient>
+
+              <linearGradient id="metalBezel" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f8fafc" />
+                <stop offset="35%" stop-color="#e2e8f0" />
+                <stop offset="70%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#94a3b8" />
+              </linearGradient>
+
+              <radialGradient id="meshGrad" cx="45%" cy="45%" r="65%">
+                <stop offset="0%" stop-color="#52525b" />
+                <stop offset="60%" stop-color="#3f3f46" />
+                <stop offset="100%" stop-color="#27272a" />
+              </radialGradient>
+
+              <linearGradient id="crystalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f1f5f9" />
+                <stop offset="50%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#94a3b8" />
+              </linearGradient>
+
+              <radialGradient id="targetGrad" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="60%" stop-color="#0284c7" />
+                <stop offset="100%" stop-color="#0369a1" />
+              </radialGradient>
+            </defs>
+
+            <!-- HAZ ACÚSTICO CENTRADO EN Y=120 -->
+            <g id="acoustic-field-layer">
+              <path id="cone-detection-path" d="" fill="url(#gradientDetBeam)" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.85" />
+              <path id="cone-precision-path" d="" fill="url(#gradientPrecBeam)" stroke="#0284c7" stroke-width="1.4" stroke-dasharray="4,3" opacity="0.95" />
+              <line id="center-axis-line" x1="568" y1="120" x2="20" y2="120" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4" opacity="0.5" />
+            </g>
+
+            <!-- CAPAS DINÁMICAS DE ONDAS -->
+            <g id="waves-outgoing-layer"></g>
+            <g id="waves-echo-layer"></g>
+
+            <!-- SENSOR HC-SR04 A LA DERECHA -->
+            <g id="sensor-module-svg" transform="translate(568, 10)" filter="url(#cleanShadow)">
+              <rect x="0" y="0" width="115" height="220" rx="10" fill="#0e3d6b" stroke="#082949" stroke-width="1.5" />
+              <circle cx="10" cy="10" r="4.2" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.4" />
+              <circle cx="105" cy="10" r="4.2" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.4" />
+              <circle cx="10" cy="210" r="4.2" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.4" />
+              <circle cx="105" cy="210" r="4.2" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.4" />
+
+              <!-- Cristal oscilador -->
+              <g transform="translate(10, 97.5)">
+                <rect x="0" y="0" width="13" height="25" rx="6.5" fill="url(#crystalGrad)" stroke="#475569" stroke-width="1.1" />
+                <rect x="2" y="2" width="9" height="21" rx="4.5" fill="#cbd5e1" opacity="0.65" />
+                <text x="7" y="13" fill="#1e293b" font-size="6.2" font-family="'JetBrains Mono', monospace" font-weight="700" text-anchor="middle" transform="rotate(-90 7 13)">4.000</text>
+              </g>
+
+              <!-- Transductor T -->
+              <g transform="translate(46, 56)">
+                <circle cx="0" cy="0" r="32" fill="url(#metalBezel)" stroke="#64748b" stroke-width="1.5" />
+                <circle cx="0" cy="0" r="28" fill="#e2e8f0" />
+                <circle cx="0" cy="0" r="22.5" fill="#8a8d2e" stroke="#68680c" stroke-width="1.4" />
+                <circle cx="0" cy="0" r="16.5" fill="url(#meshGrad)" stroke="#18181b" stroke-width="1.2" />
+                <circle id="glow-led-t" cx="0" cy="0" r="13" fill="#38bdf8" opacity="0.0" />
+                <circle cx="0" cy="0" r="5" fill="#18181b" opacity="0.3" />
+              </g>
+              <text x="14" y="32" fill="#ffffff" font-size="13" font-family="'Inter', sans-serif" font-weight="800">T</text>
+
+              <!-- Serigrafía -->
+              <g transform="translate(39, 115)">
+                <text x="0" y="0" fill="#cbd5e1" font-size="8" font-family="'JetBrains Mono', monospace" font-weight="600" letter-spacing="1" text-anchor="middle" opacity="0.88" transform="rotate(-90 0 0)">HC-SR04</text>
+              </g>
+
+              <!-- Transductor R -->
+              <g transform="translate(46, 164)">
+                <circle cx="0" cy="0" r="32" fill="url(#metalBezel)" stroke="#64748b" stroke-width="1.5" />
+                <circle cx="0" cy="0" r="28" fill="#e2e8f0" />
+                <circle cx="0" cy="0" r="22.5" fill="#8a8d2e" stroke="#68680c" stroke-width="1.4" />
+                <circle cx="0" cy="0" r="16.5" fill="url(#meshGrad)" stroke="#18181b" stroke-width="1.2" />
+                <circle id="glow-led-r" cx="0" cy="0" r="13" fill="#34d399" opacity="0.0" />
+                <circle cx="0" cy="0" r="5" fill="#18181b" opacity="0.3" />
+              </g>
+              <text x="14" y="200" fill="#ffffff" font-size="13" font-family="'Inter', sans-serif" font-weight="800">R</text>
+
+              <!-- Terminales -->
+              <g transform="translate(108, 90)">
+                <text x="-9" y="3.5" fill="#ffffff" font-size="8" font-family="'Inter', sans-serif" font-weight="700" text-anchor="end">Vcc</text>
+                <ellipse cx="0" cy="0" rx="3.5" ry="2.6" fill="#cbd5e1" stroke="#f8fafc" stroke-width="1" />
+                <line x1="3.5" y1="0" x2="32" y2="0" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+              </g>
+              <g transform="translate(108, 106)">
+                <text x="-9" y="3.5" fill="#ffffff" font-size="8" font-family="'Inter', sans-serif" font-weight="700" text-anchor="end">TRIG</text>
+                <ellipse cx="0" cy="0" rx="3.5" ry="2.6" fill="#cbd5e1" stroke="#f8fafc" stroke-width="1" />
+                <line x1="3.5" y1="0" x2="32" y2="0" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+              </g>
+              <g transform="translate(108, 122)">
+                <text x="-9" y="3.5" fill="#ffffff" font-size="8" font-family="'Inter', sans-serif" font-weight="700" text-anchor="end">ECHO</text>
+                <ellipse cx="0" cy="0" rx="3.5" ry="2.6" fill="#cbd5e1" stroke="#f8fafc" stroke-width="1" />
+                <line x1="3.5" y1="0" x2="32" y2="0" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+              </g>
+              <g transform="translate(108, 138)">
+                <text x="-9" y="3.5" fill="#ffffff" font-size="8" font-family="'Inter', sans-serif" font-weight="700" text-anchor="end">GND</text>
+                <ellipse cx="0" cy="0" rx="3.5" ry="2.6" fill="#cbd5e1" stroke="#f8fafc" stroke-width="1" />
+                <line x1="3.5" y1="0" x2="32" y2="0" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+              </g>
+            </g>
+
+            <!-- OBJETIVO LIBREMENTE ARRASTRABLE EN TODO EL SVG -->
+            <g id="target-anchor" transform="translate(220, 120)" class="cursor-grab active:cursor-grabbing">
+              <circle cx="0" cy="0" r="30" fill="transparent" />
+              <circle id="target-hit-wave" cx="0" cy="0" r="16" fill="none" stroke="#0284c7" stroke-width="2.5" opacity="0.0" />
+              <circle cx="0" cy="0" r="17" fill="#0284c7" opacity="0.18" />
+              <rect x="-14" y="-10" width="28" height="20" rx="6" fill="url(#targetGrad)" stroke="#ffffff" stroke-width="2" filter="url(#cleanShadow)" />
+              <circle cx="0" cy="0" r="3.2" fill="#ffffff" />
+              <g id="target-tag" transform="translate(0, -18)">
+                <rect x="-32" y="-10" width="64" height="17" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" filter="url(#cleanShadow)" />
+                <text id="tag-distance-text" x="0" y="2" fill="#0369a1" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700" text-anchor="middle">75.0 cm</text>
+              </g>
+            </g>
+
+          </svg>
+        </div>
+
+        <!-- CONTROLES DESLIZANTES COMPACTOS -->
+        <div class="mt-2 grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <div class="sm:col-span-6 bg-slate-50/90 border border-slate-200/90 rounded-xl px-3 py-1.5 flex flex-col justify-between shadow-2xs">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[10.5px] font-mono font-bold text-slate-700 uppercase flex items-center gap-1.5">
+                <i class="fa-solid fa-arrows-left-right text-sky-600"></i> Distancia (X)
+              </span>
+              <span id="label-dist-badge" class="font-mono text-[11px] font-bold text-sky-800 bg-sky-100/90 px-2 py-0.5 rounded border border-sky-200">
+                75.0 cm
+              </span>
+            </div>
+            <input id="range-distance" type="range" min="2.0" max="400.0" step="0.5" value="75.0"
+                   oninput="setTargetDistance(this.value)"
+                   class="slider-custom slider-sky w-full">
+            <div class="flex justify-between text-[9px] font-mono text-slate-400 mt-0.5">
+              <span>2.0 cm</span>
+              <span>200 cm</span>
+              <span>400.0 cm</span>
+            </div>
+          </div>
+
+          <div class="sm:col-span-6 bg-slate-50/90 border border-slate-200/90 rounded-xl px-3 py-1.5 flex flex-col justify-between shadow-2xs">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[10.5px] font-mono font-bold text-slate-700 uppercase flex items-center gap-1.5">
+                <i class="fa-solid fa-compass text-sky-600"></i> Desviación (Y)
+              </span>
+              <span id="label-angle-badge" class="font-mono text-[11px] font-bold text-sky-800 bg-sky-100/90 px-2 py-0.5 rounded border border-sky-200">
+                0.0° (Precisión 15°)
+              </span>
+            </div>
+            <input id="range-angle" type="range" min="-60.0" max="60.0" step="0.5" value="0.0"
+                   oninput="setTargetAngle(this.value)"
+                   class="slider-custom slider-sky w-full">
+            <div class="flex justify-between text-[9px] font-mono text-slate-400 mt-0.5">
+              <span>-60° (Arriba)</span>
+              <span>0.0°</span>
+              <span>+60° (Abajo)</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TARJETA 2: DIAGRAMA DE FORMAS DE ONDA & CRONOGRAMA HC-SR04 -->
+      <section class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
+        
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-100 pb-2 gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-amber-500 font-bold text-sm">&#128200;</span>
+            <h3 class="text-xs font-bold font-mono tracking-wider text-slate-800 uppercase">
+              DIAGRAMA TEMPORAL DE PULSOS (TIMING DIAGRAM)
+            </h3>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 font-mono text-[10px]">
+              <button id="btn-cycle-1" onclick="setCycleCount(1)" class="px-2 py-0.5 rounded-md font-bold bg-white text-sky-700 shadow-2xs">
+                1 Ciclo
+              </button>
+              <button id="btn-cycle-2" onclick="setCycleCount(2)" class="px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900">
+                2 Ciclos
+              </button>
+              <button id="btn-cycle-live" onclick="setCycleCount('live')" class="px-2.5 py-0.5 rounded-md text-slate-600 hover:text-slate-900 font-bold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span> En Vivo
+              </button>
+            </div>
+
+            <span class="text-[10px] font-mono font-medium bg-sky-50/70 text-sky-800 px-2.5 py-0.5 rounded-md border border-sky-200">
+              Trigger &bull; Emisor 40kHz &bull; Receptor &bull; Echo
+            </span>
+          </div>
+        </div>
+
+        <!-- VIEWPORT DEL DIAGRAMA TEMPORAL -->
+        <div class="w-full bg-white rounded-xl border border-slate-100 p-1 overflow-x-auto">
+          <svg id="timing-diagram-svg" viewBox="0 0 740 250" class="w-full h-[220px] overflow-visible">
+            
+            <line x1="85" y1="16" x2="85" y2="235" stroke="#d97706" stroke-width="1.3" opacity="0.85" />
+            <line x1="85" y1="235" x2="710" y2="235" stroke="#d97706" stroke-width="1.3" opacity="0.85" />
+            <polygon points="710,232 718,235 710,238" fill="#d97706" opacity="0.85" />
+            <text x="722" y="238" fill="#d97706" font-size="12" font-family="'JetBrains Mono', monospace" font-weight="700">t</text>
+
+            <text x="75" y="48" fill="#d97706" font-size="11.5" font-family="'Inter', sans-serif" font-weight="700" text-anchor="end">Trigger</text>
+            <text x="75" y="100" fill="#d97706" font-size="11.5" font-family="'Inter', sans-serif" font-weight="700" text-anchor="end">Emisor</text>
+            <text x="75" y="154" fill="#d97706" font-size="11.5" font-family="'Inter', sans-serif" font-weight="700" text-anchor="end">Receptor</text>
+            <text x="75" y="210" fill="#d97706" font-size="11.5" font-family="'Inter', sans-serif" font-weight="700" text-anchor="end">Echo</text>
+
+            <g id="diag-dynamic-cycles"></g>
+          </svg>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between text-[11.5px] font-mono px-1 border-t border-slate-100 pt-2">
+          <span id="telem-badge-status" class="font-bold text-sky-800">
+            Eco Válido &bull; Cono 15° (Alta Precisión)
+          </span>
+          <span class="text-slate-500">
+            Duración ToF: <strong id="lbl-echo-width" class="text-sky-800 font-bold">23324 µs</strong> (t = 2d / 0.0343 cm/µs)
+          </span>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- COLUMNA DERECHA: FIRMWARE ARDUINO C++ -->
+    <div class="lg:col-span-5 flex flex-col">
+      <section class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm flex flex-col font-mono text-xs">
+        
+        <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between text-slate-600">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+            <span class="text-slate-800 font-bold text-xs ml-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-code text-sky-600"></i> hcsr04_distance.ino
+            </span>
+          </div>
+
+          <button type="button" onclick="toggleFloatingTerminal()"
+                  class="bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-300 px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 shadow-2xs transition">
+            <i class="fa-solid fa-terminal text-sky-600"></i> Monitor Serie
+          </button>
+        </div>
+
+        <div class="p-3.5 bg-white text-slate-800 flex flex-col justify-start overflow-x-auto text-[11px] leading-relaxed">
+          <div class="space-y-0.5">
+            <span class="text-slate-400">// Medición acústica Time-of-Flight</span><br>
+            <span class="text-purple-600 font-bold">const int</span> pinTrig = <span class="text-amber-600 font-bold">3</span>;<br>
+            <span class="text-purple-600 font-bold">const int</span> pinEcho = <span class="text-amber-600 font-bold">2</span>;<br>
+            <span class="text-purple-600 font-bold">long</span> duracionUs;<br>
+            <span class="text-purple-600 font-bold">float</span> distanciaCm;<br>
+            <br>
+            <span class="text-purple-600 font-bold">void</span> <span class="text-blue-600 font-bold">setup</span>() {<br>
+            &nbsp;&nbsp;<span class="text-blue-600 font-bold">pinMode</span>(pinTrig, <span class="text-cyan-600 font-bold">OUTPUT</span>);<br>
+            &nbsp;&nbsp;<span class="text-blue-600 font-bold">pinMode</span>(pinEcho, <span class="text-cyan-600 font-bold">INPUT</span>);<br>
+            &nbsp;&nbsp;<span class="text-blue-600 font-bold">Serial</span>.<span class="text-blue-600 font-bold">begin</span>(<span class="text-amber-600 font-bold">9600</span>);<br>
+            }<br>
+            <br>
+            <span class="text-purple-600 font-bold">void</span> <span class="text-blue-600 font-bold">loop</span>() {<br>
+            &nbsp;&nbsp;<span class="text-slate-400">// 1. Disparo de 10µs en TRIG</span><br>
+            &nbsp;&nbsp;<span class="text-blue-600 font-bold">digitalWrite</span>(pinTrig, <span class="text-slate-500 font-bold">LOW</span>);<br>
+            &nbsp;&nbsp;<span class="text-blue-600 font-bold">delayMicroseconds</span>(<span class="text-amber-600 font-bold">2</span>);<br>
+            <div id="code-trig-pulse" class="p-1 rounded bg-sky-50/70 border-l-2 border-sky-400 text-sky-950 transition-colors">
+              &nbsp;&nbsp;<span class="text-blue-600 font-bold">digitalWrite</span>(pinTrig, <span class="text-cyan-700 font-bold">HIGH</span>);<br>
+              &nbsp;&nbsp;<span class="text-blue-600 font-bold">delayMicroseconds</span>(<span class="text-amber-600 font-bold">10</span>);<br>
+              &nbsp;&nbsp;<span class="text-blue-600 font-bold">digitalWrite</span>(pinTrig, <span class="text-slate-500 font-bold">LOW</span>);
+            </div>
+            <br>
+            &nbsp;&nbsp;<span class="text-slate-400">// 2. Medir duración del pulso con pulseIn()</span><br>
+            <div id="code-echo-read" class="p-1 rounded bg-emerald-50/70 border-l-2 border-emerald-400 text-emerald-950 transition-colors">
+              &nbsp;&nbsp;duracionUs = <span class="text-blue-600 font-bold">pulseIn</span>(pinEcho, <span class="text-cyan-700 font-bold">HIGH</span>, <span class="text-amber-600 font-bold">38000</span>);<br>
+              &nbsp;&nbsp;distanciaCm = (duracionUs * <span class="text-amber-600 font-bold">0.0343</span>) / <span class="text-amber-600 font-bold">2.0</span>;
+            </div>
+            <br>
+            <div id="code-in-range" class="p-2 rounded-lg border-l-4 transition-all duration-200 my-1 bg-emerald-50 border-emerald-500 text-emerald-900 shadow-2xs">
+              &nbsp;&nbsp;<span class="text-purple-600 font-bold">if</span> (distanciaCm &gt;= <span class="text-amber-600 font-bold">2.0</span> &amp;&amp; distanciaCm &lt;= <span class="text-amber-600 font-bold">400.0</span>) {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-600 font-bold">Serial</span>.<span class="text-blue-600 font-bold">print</span>(<span class="text-emerald-700 font-bold">"Distancia: "</span>);<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-600 font-bold">Serial</span>.<span class="text-blue-600 font-bold">print</span>(distanciaCm);<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-600 font-bold">Serial</span>.<span class="text-blue-600 font-bold">println</span>(<span class="text-emerald-700 font-bold">" cm"</span>);<br>
+              &nbsp;&nbsp;}
+            </div>
+            <div id="code-out-range" class="p-2 rounded-lg border-l-4 transition-all duration-200 my-1 border-transparent opacity-35">
+              &nbsp;&nbsp;<span class="text-purple-600 font-bold">else</span> {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-600 font-bold">Serial</span>.<span class="text-blue-600 font-bold">println</span>(<span class="text-slate-400 font-bold">"Fuera de rango (Sin eco)"</span>);<br>
+              &nbsp;&nbsp;}
+            </div>
+            &nbsp;&nbsp;<span class="text-blue-600 font-bold">delay</span>(<span class="text-amber-600 font-bold">60</span>);<br>
+            }
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+  </div>
+
+  <!-- VENTANA FLOTANTE DEL MONITOR SERIE -->
+  <div id="floating-serial-modal" 
+       class="hidden fixed z-50 w-80 sm:w-96 bg-slate-900 text-slate-100 rounded-xl border border-slate-700 shadow-2xl overflow-hidden font-mono text-[11px]"
+       style="top: 100px; left: calc(50% - 192px);">
+    
+    <div id="modal-drag-header" 
+         class="bg-slate-800 px-3 py-2 border-b border-slate-700 flex items-center justify-between cursor-move select-none">
+      <div class="flex items-center gap-2 text-sky-400 font-bold">
+        <i class="fa-solid fa-terminal text-xs"></i>
+        <span>Monitor Serie (COM3 @ 9600)</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="clearSerialLogs()" class="text-[10px] text-slate-400 hover:text-white underline cursor-pointer">Limpiar</button>
+        <button type="button" onclick="toggleFloatingTerminal()" class="text-slate-400 hover:text-rose-400 px-1 py-0.5 rounded cursor-pointer">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="serial-terminal" class="p-3 h-52 overflow-y-auto space-y-1 bg-slate-950 font-mono text-[11px]">
+      <div class="text-slate-400">--- Monitor Serial iniciado @ 9600 baud ---</div>
+      <div class="text-emerald-400">Distancia: 75.0 cm</div>
+    </div>
+
+    <div class="bg-slate-800/80 px-3 py-1.5 border-t border-slate-800 text-[9.5px] text-slate-400 flex items-center justify-between">
+      <span>Autoscroll activo</span>
+      <span class="text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span> Conectado</span>
+    </div>
+  </div>
+
+  <script>
+    const FRONT_PLANE_X = 548;
+    const SENSOR_REF = { x: FRONT_PLANE_X, y: 120 };
+    const SENSOR_TX  = { x: FRONT_PLANE_X, y: 66 };
+    const SENSOR_RX  = { x: FRONT_PLANE_X, y: 174 };
+
+    const SCALE_PX_PER_CM = 1.25;
+    const ZERO_OFFSET_PX = 38.0;
+
+    const ANGLE_PRECISION_HALF = 7.5;
+    const ANGLE_DETECTION_HALF = 15.0;
+    const RAD_PREC = (ANGLE_PRECISION_HALF * Math.PI) / 180;
+    const RAD_DET = (ANGLE_DETECTION_HALF * Math.PI) / 180;
+
+    const NUM_WAVE_ARCS = 8;
+    const WAVE_SPACING_PX = 4.8;
+
+    let target = {
+      distCm: 75.0,
+      angleDeg: 0.0,
+      x: 416.2,
+      y: 120.0,
+      zone: 'precision',
+      inRange: true,
+      timeUs: 4373
+    };
+
+    let isContinuous = true;
+    let isSlowMo = false;
+    let isDragging = false;
+    let activePackets = [];
+    let lastSerialStamp = 0;
+    let currentCycleCount = 1;
+    let continuousTimer = null;
+
+    // VELOCIDAD CONSTANTE ÚNICA EN TODO EL DIAGRAMA
+    let liveTiming = {
+      active: false,
+      currentScanX: 85,
+      echoFinished: false,
+      rxProgress: 0.0
+    };
+
+    function polarToSvgCoords(distCm, angleDeg) {
+      const distPx = ZERO_OFFSET_PX + (distCm * SCALE_PX_PER_CM);
+      const rad = (angleDeg * Math.PI) / 180;
+      return {
+        x: SENSOR_REF.x - (distPx * Math.cos(rad)),
+        y: SENSOR_REF.y + (distPx * Math.sin(rad))
+      };
+    }
+
+    function svgCoordsToPolar(svgX, svgY) {
+      const dx = SENSOR_REF.x - svgX;
+      const dy = svgY - SENSOR_REF.y;
+      const totalDistPx = Math.sqrt(dx * dx + dy * dy);
+      const distCm = Math.max(2.0, Math.min(400.0, (totalDistPx - ZERO_OFFSET_PX) / SCALE_PX_PER_CM));
+      const angleDeg = Math.atan2(dy, dx) * (180 / Math.PI);
+      return { distCm, angleDeg };
+    }
+
+    function drawDetectionCones() {
+      const rMinPx = ZERO_OFFSET_PX + (2.0 * SCALE_PX_PER_CM);
+      const rMaxPx = ZERO_OFFSET_PX + (400.0 * SCALE_PX_PER_CM);
+
+      function createTruncatedConePath(rad) {
+        const cosA = Math.cos(rad);
+        const sinA = Math.sin(rad);
+
+        const xMaxT = SENSOR_REF.x - (rMaxPx * cosA);
+        const yMaxT = SENSOR_REF.y - (rMaxPx * sinA);
+        const xMaxB = SENSOR_REF.x - (rMaxPx * cosA);
+        const yMaxB = SENSOR_REF.y + (rMaxPx * sinA);
+
+        const xMinT = SENSOR_REF.x - (rMinPx * cosA);
+        const yMinT = SENSOR_REF.y - (rMinPx * sinA);
+        const xMinB = SENSOR_REF.x - (rMinPx * cosA);
+        const yMinB = SENSOR_REF.y + (rMinPx * sinA);
+
+        return `M ${xMinT.toFixed(1)} ${yMinT.toFixed(1)}
+                L ${xMaxT.toFixed(1)} ${yMaxT.toFixed(1)}
+                A ${rMaxPx.toFixed(1)} ${rMaxPx.toFixed(1)} 0 0 0 ${xMaxB.toFixed(1)} ${yMaxB.toFixed(1)}
+                L ${xMinB.toFixed(1)} ${yMinB.toFixed(1)}
+                A ${rMinPx.toFixed(1)} ${rMinPx.toFixed(1)} 0 0 1 ${xMinT.toFixed(1)} ${yMinT.toFixed(1)}
+                Z`;
+      }
+
+      document.getElementById('cone-detection-path').setAttribute('d', createTruncatedConePath(RAD_DET));
+      document.getElementById('cone-precision-path').setAttribute('d', createTruncatedConePath(RAD_PREC));
+    }
+
+    function setTargetDistance(val) {
+      target.distCm = parseFloat(val);
+      syncTarget();
+    }
+
+    function setTargetAngle(val) {
+      target.angleDeg = parseFloat(val);
+      syncTarget();
+    }
+
+    function syncTarget() {
+      const pos = polarToSvgCoords(target.distCm, target.angleDeg);
+      target.x = pos.x;
+      target.y = pos.y;
+
+      const anchor = document.getElementById('target-anchor');
+      const tagText = document.getElementById('tag-distance-text');
+
+      anchor.setAttribute('transform', `translate(${target.x.toFixed(1)}, ${target.y.toFixed(1)})`);
+      tagText.textContent = `${target.distCm.toFixed(1)} cm`;
+
+      document.getElementById('range-distance').value = target.distCm;
+      document.getElementById('label-dist-badge').textContent = `${target.distCm.toFixed(1)} cm`;
+
+      const angleSlider = document.getElementById('range-angle');
+      angleSlider.value = Math.max(-60, Math.min(60, target.angleDeg));
+
+      evaluatePhysics();
+    }
+
+    function evaluatePhysics() {
+      const absAngle = Math.abs(target.angleDeg);
+      if (absAngle <= ANGLE_PRECISION_HALF && target.distCm >= 2.0 && target.distCm <= 400.0) {
+        target.zone = 'precision';
+        target.inRange = true;
+      } else if (absAngle <= ANGLE_DETECTION_HALF && target.distCm >= 2.0 && target.distCm <= 400.0) {
+        target.zone = 'detection';
+        target.inRange = true;
+      } else {
+        target.zone = 'out';
+        target.inRange = false;
+      }
+
+      target.timeUs = target.inRange ? Math.round((2.0 * target.distCm) / 0.0343) : 0;
+
+      updateTelemetryUI();
+      drawTimingDiagram();
+    }
+
+    function updateTelemetryUI() {
+      const badge = document.getElementById('telem-badge-status');
+      const angleBadge = document.getElementById('label-angle-badge');
+      const echoLbl = document.getElementById('lbl-echo-width');
+      const codeIn = document.getElementById('code-in-range');
+      const codeOut = document.getElementById('code-out-range');
+      const angleSign = target.angleDeg > 0 ? '+' : '';
+
+      if (target.zone === 'precision') {
+        badge.textContent = "Eco Válido • Cono 15° (Alta Precisión)";
+        badge.className = "font-bold text-sky-850";
+        angleBadge.textContent = `${angleSign}${target.angleDeg.toFixed(1)}° (Precisión 15°)`;
+        angleBadge.className = "font-mono text-[11px] font-bold text-sky-800 bg-sky-100/90 px-2 py-0.5 rounded border border-sky-200";
+
+        echoLbl.textContent = `${target.timeUs} µs`;
+        codeIn.className = "p-2 rounded-lg border-l-4 transition-all duration-200 my-1 bg-emerald-50 border-emerald-500 text-emerald-900 shadow-2xs";
+        codeOut.className = "p-2 rounded-lg border-l-4 transition-all duration-200 my-1 border-transparent opacity-35";
+
+      } else if (target.zone === 'detection') {
+        badge.textContent = "Eco Periférico • Cono 30° (Detección General)";
+        badge.className = "font-bold text-sky-700";
+        angleBadge.textContent = `${angleSign}${target.angleDeg.toFixed(1)}° (Detección 30°)`;
+        angleBadge.className = "font-mono text-[11px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-300";
+
+        echoLbl.textContent = `${target.timeUs} µs (± Ruido)`;
+        codeIn.className = "p-2 rounded-lg border-l-4 transition-all duration-200 my-1 bg-sky-50 border-sky-500 text-sky-900 shadow-2xs";
+        codeOut.className = "p-2 rounded-lg border-l-4 transition-all duration-200 my-1 border-transparent opacity-35";
+
+      } else {
+        badge.textContent = "Fuera de Rango (> 30° o Límite de Distancia)";
+        badge.className = "font-bold text-rose-600";
+        angleBadge.textContent = `${angleSign}${target.angleDeg.toFixed(1)}° (Fuera de Cono)`;
+        angleBadge.className = "font-mono text-[11px] font-bold text-rose-800 bg-rose-100/90 px-2 py-0.5 rounded border border-rose-200";
+
+        echoLbl.textContent = "> 38000 µs (Timeout)";
+        codeIn.className = "p-2 rounded-lg border-l-4 transition-all duration-200 my-1 border-transparent opacity-35";
+        codeOut.className = "p-2 rounded-lg border-l-4 transition-all duration-200 my-1 bg-rose-50 border-rose-500 text-rose-900 shadow-2xs";
+      }
+    }
+
+    function setCycleCount(count) {
+      currentCycleCount = count;
+      const b1 = document.getElementById('btn-cycle-1');
+      const b2 = document.getElementById('btn-cycle-2');
+      const bLive = document.getElementById('btn-cycle-live');
+
+      b1.className = "px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900";
+      b2.className = "px-2 py-0.5 rounded-md text-slate-600 hover:text-slate-900";
+      bLive.className = "px-2.5 py-0.5 rounded-md text-slate-600 hover:text-slate-900 font-bold flex items-center gap-1";
+
+      if (count === 1) {
+        b1.className = "px-2 py-0.5 rounded-md font-bold bg-white text-sky-700 shadow-2xs";
+      } else if (count === 2) {
+        b2.className = "px-2 py-0.5 rounded-md font-bold bg-white text-sky-700 shadow-2xs";
+      } else if (count === 'live') {
+        bLive.className = "px-2.5 py-0.5 rounded-md font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-2xs flex items-center gap-1";
+      }
+      drawTimingDiagram();
+    }
+
+    function drawTimingDiagram() {
+      const container = document.getElementById('diag-dynamic-cycles');
+      if (!container) return;
+
+      const yTrig = 50, yEmis = 104, yRecep = 158, yEcho = 214;
+      const yTrigHigh = 26, yEmisHigh = 80, yRecepHigh = 134, yEchoHigh = 186;
+
+      let svgHTML = '';
+
+      if (currentCycleCount === 1) {
+        const xStart = 85;
+        const xEnd = 690;
+        const tTrigStart = 120, tTrigEnd = 128;
+        const tBurstStart = 136, tBurstEnd = 188;
+
+        const minEchoX = 220;
+        const maxEchoX = 650;
+        const tEchoEnd = target.inRange 
+          ? minEchoX + ((target.distCm - 2.0) / 398.0) * (maxEchoX - minEchoX)
+          : 670;
+
+        // 1. Trigger
+        svgHTML += `<path d="M ${xStart} ${yTrig} L ${tTrigStart} ${yTrig} L ${tTrigStart} ${yTrigHigh} L ${tTrigEnd} ${yTrigHigh} L ${tTrigEnd} ${yTrig} L ${xEnd} ${yTrig}" 
+                          fill="none" stroke="#2563eb" stroke-width="1.8" />
+                    <text x="${(tTrigStart + tTrigEnd)/2}" y="${yTrigHigh - 6}" fill="#d97706" font-size="10" font-family="'JetBrains Mono', monospace" font-weight="700" text-anchor="middle">&gt;10µs</text>`;
+
+        // 2. Emisor
+        let dEmisor = `M ${xStart} ${yEmis} L ${tBurstStart} ${yEmis}`;
+        for (let i = 0; i < 8; i++) {
+          const px = tBurstStart + (i * 6.5);
+          dEmisor += ` L ${px} ${yEmisHigh} L ${px + 3.25} ${yEmisHigh} L ${px + 3.25} ${yEmis} L ${px + 6.5} ${yEmis}`;
+        }
+        dEmisor += ` L ${xEnd} ${yEmis}`;
+        svgHTML += `<path d="${dEmisor}" fill="none" stroke="#2563eb" stroke-width="1.6" />
+                    <text x="${(tBurstStart + tBurstEnd)/2 + 10}" y="${yEmisHigh - 6}" fill="#d97706" font-size="10" font-family="'Inter', sans-serif" font-weight="600" text-anchor="middle">Onda sonora 8 pulsos a 40KHz</text>`;
+
+        // 3. Receptor
+        if (target.inRange) {
+          let dRecep = `M ${xStart} ${yRecep} L ${tEchoEnd} ${yRecep}`;
+          for (let i = 0; i < 8; i++) {
+            const rx = tEchoEnd + (i * 6.5);
+            dRecep += ` L ${rx} ${yRecepHigh} L ${rx + 3.25} ${yRecepHigh} L ${rx + 3.25} ${yRecep} L ${rx + 6.5} ${yRecep}`;
+          }
+          dRecep += ` L ${xEnd} ${yRecep}`;
+          svgHTML += `<path d="${dRecep}" fill="none" stroke="#2563eb" stroke-width="1.6" />
+                      <text x="${tEchoEnd + 26}" y="${yRecepHigh - 6}" fill="#d97706" font-size="10" font-family="'Inter', sans-serif" font-weight="600" text-anchor="middle">Llegada onda reflejada</text>`;
+        } else {
+          svgHTML += `<path d="M ${xStart} ${yRecep} L ${xEnd} ${yRecep}" fill="none" stroke="#2563eb" stroke-width="1.6" />`;
+        }
+
+        // 4. Echo
+        const dEcho = `M ${xStart} ${yEcho} L ${tBurstEnd} ${yEcho} L ${tBurstEnd} ${yEchoHigh} L ${tEchoEnd} ${yEchoHigh} L ${tEchoEnd} ${yEcho} L ${xEnd} ${yEcho}`;
+        svgHTML += `<path d="${dEcho}" fill="none" stroke="#2563eb" stroke-width="1.8" />
+                    <text x="${(tBurstEnd + tEchoEnd)/2}" y="${yEchoHigh - 6}" fill="#d97706" font-size="10.5" font-family="'Inter', sans-serif" font-weight="700" text-anchor="middle">${target.inRange ? 'Tiempo de ida y vuelta' : 'Timeout (>38ms sin eco)'}</text>
+                    <line x1="${tEchoEnd}" y1="${yRecepHigh + 4}" x2="${tEchoEnd}" y2="${yEcho}" stroke="#d97706" stroke-width="1" stroke-dasharray="2,2" opacity="0.6" />`;
+
+      } else if (currentCycleCount === 2) {
+        const cycleWidth = 300;
+        let dTrig = `M 85 ${yTrig}`, dEmis = `M 85 ${yEmis}`, dRecep = `M 85 ${yRecep}`, dEcho = `M 85 ${yEcho}`;
+
+        for (let c = 0; c < 2; c++) {
+          const offset = 85 + (c * cycleWidth);
+          const tTrigStart = offset + 25, tTrigEnd = offset + 31;
+          const tBurstStart = offset + 37, tBurstEnd = offset + 75;
+
+          const minEchoX = offset + 95;
+          const maxEchoX = offset + 265;
+          const tEchoEnd = target.inRange 
+            ? minEchoX + ((target.distCm - 2.0) / 398.0) * (maxEchoX - minEchoX)
+            : offset + 280;
+
+          dTrig += ` L ${tTrigStart} ${yTrig} L ${tTrigStart} ${yTrigHigh} L ${tTrigEnd} ${yTrigHigh} L ${tTrigEnd} ${yTrig} L ${offset + cycleWidth} ${yTrig}`;
+          svgHTML += `<text x="${(tTrigStart + tTrigEnd)/2}" y="${yTrigHigh - 5}" fill="#d97706" font-size="8.5" font-family="'JetBrains Mono', monospace" font-weight="700" text-anchor="middle">&gt;10µs</text>`;
+
+          dEmis += ` L ${tBurstStart} ${yEmis}`;
+          for (let i = 0; i < 8; i++) {
+            const px = tBurstStart + (i * 4.5);
+            dEmis += ` L ${px} ${yEmisHigh} L ${px + 2.25} ${yEmisHigh} L ${px + 2.25} ${yEmis} L ${px + 4.5} ${yEmis}`;
+          }
+          dEmis += ` L ${offset + cycleWidth} ${yEmis}`;
+          svgHTML += `<text x="${(tBurstStart + tBurstEnd)/2}" y="${yEmisHigh - 5}" fill="#d97706" font-size="8.5" font-family="'Inter', sans-serif" font-weight="600" text-anchor="middle">8 pulsos 40KHz</text>`;
+
+          if (target.inRange) {
+            dRecep += ` L ${tEchoEnd} ${yRecep}`;
+            for (let i = 0; i < 8; i++) {
+              const rx = tEchoEnd + (i * 4.5);
+              dRecep += ` L ${rx} ${yRecepHigh} L ${rx + 2.25} ${yRecepHigh} L ${rx + 2.25} ${yRecep} L ${rx + 4.5} ${yRecep}`;
+            }
+            dRecep += ` L ${offset + cycleWidth} ${yRecep}`;
+            svgHTML += `<text x="${tEchoEnd + 18}" y="${yRecepHigh - 5}" fill="#d97706" font-size="8.5" font-family="'Inter', sans-serif" font-weight="600" text-anchor="end">Onda reflejada</text>`;
+          } else {
+            dRecep += ` L ${offset + cycleWidth} ${yRecep}`;
+          }
+
+          dEcho += ` L ${tBurstEnd} ${yEcho} L ${tBurstEnd} ${yEchoHigh} L ${tEchoEnd} ${yEchoHigh} L ${tEchoEnd} ${yEcho} L ${offset + cycleWidth} ${yEcho}`;
+          svgHTML += `<text x="${(tBurstEnd + tEchoEnd)/2}" y="${yEchoHigh - 5}" fill="#d97706" font-size="9" font-family="'Inter', sans-serif" font-weight="700" text-anchor="middle">Tiempo ida y vuelta</text>
+                      <line x1="${tEchoEnd}" y1="${yRecepHigh + 4}" x2="${tEchoEnd}" y2="${yEcho}" stroke="#d97706" stroke-width="1" stroke-dasharray="2,2" opacity="0.6" />`;
+        }
+
+        svgHTML = `<path d="${dTrig}" fill="none" stroke="#2563eb" stroke-width="1.8" />
+                   <path d="${dEmis}" fill="none" stroke="#2563eb" stroke-width="1.6" />
+                   <path d="${dRecep}" fill="none" stroke="#2563eb" stroke-width="1.6" />
+                   <path d="${dEcho}" fill="none" stroke="#2563eb" stroke-width="1.8" />` + svgHTML;
+
+        svgHTML += `<line x1="85" y1="12" x2="385" y2="12" stroke="#d97706" stroke-width="1.2" stroke-dasharray="3,3" />
+                    <line x1="385" y1="12" x2="685" y2="12" stroke="#d97706" stroke-width="1.2" stroke-dasharray="3,3" />
+                    <text x="235" y="10" fill="#d97706" font-size="8.5" font-family="'JetBrains Mono', monospace" font-weight="700" text-anchor="middle">Periodo 1</text>
+                    <text x="535" y="10" fill="#d97706" font-size="8.5" font-family="'JetBrains Mono', monospace" font-weight="700" text-anchor="middle">Periodo 2</text>`;
+
+      } else if (currentCycleCount === 'live') {
+        // ================= MODO EN VIVO CON VELOCIDAD CONSTANTE ÚNICA =================
+        const xStart = 85;
+        const xEnd = 690;
+        const tTrigStart = 120, tTrigEnd = 128;
+        const tBurstStart = 136, tBurstEnd = 188;
+
+        const minEchoX = 220;
+        const maxEchoX = 650;
+        const tEchoEnd = target.inRange 
+          ? minEchoX + ((target.distCm - 2.0) / 398.0) * (maxEchoX - minEchoX)
+          : 670;
+
+        const liveX = Math.min(xEnd, Math.max(xStart, liveTiming.currentScanX));
+
+        // 1. Trigger
+        let dTrig = `M ${xStart} ${yTrig}`;
+        if (liveX >= tTrigStart) {
+          dTrig += ` L ${tTrigStart} ${yTrig} L ${tTrigStart} ${yTrigHigh}`;
+          if (liveX >= tTrigEnd) {
+            dTrig += ` L ${tTrigEnd} ${yTrigHigh} L ${tTrigEnd} ${yTrig} L ${xEnd} ${yTrig}`;
+          } else {
+            dTrig += ` L ${liveX} ${yTrigHigh} L ${liveX} ${yTrig} L ${xEnd} ${yTrig}`;
+          }
+        } else {
+          dTrig += ` L ${xEnd} ${yTrig}`;
+        }
+        svgHTML += `<path d="${dTrig}" fill="none" stroke="#2563eb" stroke-width="1.8" />`;
+        if (liveX >= tTrigEnd) {
+          svgHTML += `<text x="${(tTrigStart + tTrigEnd)/2}" y="${yTrigHigh - 6}" fill="#d97706" font-size="10" font-family="'JetBrains Mono', monospace" font-weight="700" text-anchor="middle">&gt;10µs</text>`;
+        }
+
+        // 2. Emisor
+        let dEmis = `M ${xStart} ${yEmis}`;
+        if (liveX >= tBurstStart) {
+          dEmis += ` L ${tBurstStart} ${yEmis}`;
+          const cyclesToDraw = Math.min(8, Math.floor((liveX - tBurstStart) / 6.5));
+          for (let i = 0; i < cyclesToDraw; i++) {
+            const px = tBurstStart + (i * 6.5);
+            dEmis += ` L ${px} ${yEmisHigh} L ${px + 3.25} ${yEmisHigh} L ${px + 3.25} ${yEmis} L ${px + 6.5} ${yEmis}`;
+          }
+          dEmis += ` L ${xEnd} ${yEmis}`;
+        } else {
+          dEmis += ` L ${xEnd} ${yEmis}`;
+        }
+        svgHTML += `<path d="${dEmis}" fill="none" stroke="#2563eb" stroke-width="1.6" />`;
+        if (liveX >= tBurstEnd) {
+          svgHTML += `<text x="${(tBurstStart + tBurstEnd)/2 + 10}" y="${yEmisHigh - 6}" fill="#d97706" font-size="10" font-family="'Inter', sans-serif" font-weight="600" text-anchor="middle">Onda sonora 8 pulsos a 40KHz</text>`;
+        }
+
+        // 3. Receptor
+        let dRecep = `M ${xStart} ${yRecep}`;
+        if (target.inRange && liveTiming.echoFinished) {
+          dRecep += ` L ${tEchoEnd} ${yRecep}`;
+          const rxCount = Math.floor(liveTiming.rxProgress);
+          for (let i = 0; i < rxCount; i++) {
+            const rx = tEchoEnd + (i * 6.5);
+            dRecep += ` L ${rx} ${yRecepHigh} L ${rx + 3.25} ${yRecepHigh} L ${rx + 3.25} ${yRecep} L ${rx + 6.5} ${yRecep}`;
+          }
+          dRecep += ` L ${xEnd} ${yRecep}`;
+          svgHTML += `<text x="${tEchoEnd + 26}" y="${yRecepHigh - 6}" fill="#d97706" font-size="10" font-family="'Inter', sans-serif" font-weight="600" text-anchor="middle">Llegada onda reflejada</text>`;
+        } else {
+          dRecep += ` L ${xEnd} ${yRecep}`;
+        }
+        svgHTML += `<path d="${dRecep}" fill="none" stroke="#2563eb" stroke-width="1.6" />`;
+
+        // 4. Echo
+        let dEcho = `M ${xStart} ${yEcho} L ${tBurstEnd} ${yEcho}`;
+        if (liveX >= tBurstEnd) {
+          if (liveTiming.echoFinished) {
+            dEcho += ` L ${tBurstEnd} ${yEchoHigh} L ${tEchoEnd} ${yEchoHigh} L ${tEchoEnd} ${yEcho} L ${xEnd} ${yEcho}`;
+          } else {
+            dEcho += ` L ${tBurstEnd} ${yEchoHigh} L ${liveX} ${yEchoHigh} L ${liveX} ${yEcho} L ${xEnd} ${yEcho}`;
+          }
+        } else {
+          dEcho += ` L ${xEnd} ${yEcho}`;
+        }
+        svgHTML += `<path d="${dEcho}" fill="none" stroke="#2563eb" stroke-width="1.8" />`;
+
+        if (liveX >= (tBurstEnd + 35)) {
+          const textMidX = liveTiming.echoFinished ? (tBurstEnd + tEchoEnd) / 2 : (tBurstEnd + liveX) / 2;
+          svgHTML += `<text x="${textMidX}" y="${yEchoHigh - 6}" fill="#d97706" font-size="10.5" font-family="'Inter', sans-serif" font-weight="700" text-anchor="middle">${target.inRange ? 'Tiempo de ida y vuelta' : 'Timeout (>38ms sin eco)'}</text>`;
+        }
+
+        if (liveTiming.echoFinished && target.inRange) {
+          svgHTML += `<line x1="${tEchoEnd}" y1="${yRecepHigh + 4}" x2="${tEchoEnd}" y2="${yEcho}" stroke="#d97706" stroke-width="1" stroke-dasharray="2,2" opacity="0.6" />`;
+        }
+
+        // Cursor verde escaneador en tiempo real
+        svgHTML += `<line x1="${liveX}" y1="18" x2="${liveX}" y2="235" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.85" />
+                    <circle cx="${liveX}" cy="235" r="3.5" fill="#10b981" />`;
+      }
+
+      container.innerHTML = svgHTML;
+    }
+
+    function getPointerSvgCoords(e) {
+      const svg = document.getElementById('acoustic-svg');
+      const pt = svg.createSVGPoint();
+      if (e.touches && e.touches.length > 0) {
+        pt.x = e.touches[0].clientX;
+        pt.y = e.touches[0].clientY;
+      } else {
+        pt.x = e.clientX;
+        pt.y = e.clientY;
+      }
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function onCanvasMouseDown(e) {
+      isDragging = true;
+      handleDragMove(e);
+      window.addEventListener('mousemove', onCanvasMouseMove);
+      window.addEventListener('mouseup', onCanvasMouseUp);
+    }
+
+    function onCanvasTouchStart(e) {
+      isDragging = true;
+      handleDragMove(e);
+      window.addEventListener('touchmove', onCanvasTouchMove, { passive: false });
+      window.addEventListener('touchend', onCanvasTouchEnd);
+    }
+
+    function onCanvasMouseMove(e) {
+      if (!isDragging) return;
+      handleDragMove(e);
+    }
+
+    function onCanvasTouchMove(e) {
+      if (!isDragging) return;
+      if (e.preventDefault) e.preventDefault();
+      handleDragMove(e);
+    }
+
+    function handleDragMove(e) {
+      const pt = getPointerSvgCoords(e);
+      const polar = svgCoordsToPolar(pt.x, pt.y);
+      target.distCm = polar.distCm;
+      target.angleDeg = polar.angleDeg;
+      syncTarget();
+    }
+
+    function onCanvasMouseUp() {
+      isDragging = false;
+      window.removeEventListener('mousemove', onCanvasMouseMove);
+      window.removeEventListener('mouseup', onCanvasMouseUp);
+    }
+
+    function onCanvasTouchEnd() {
+      isDragging = false;
+      window.removeEventListener('touchmove', onCanvasTouchMove);
+      window.removeEventListener('touchend', onCanvasTouchEnd);
+    }
+
+    // CONTROL DEL MODO CÁMARA LENTA
+    function toggleSlowMo() {
+      isSlowMo = !isSlowMo;
+      updateSlowMoButtonUI();
+
+      if (isSlowMo) {
+        if (isContinuous) {
+          isContinuous = false;
+          updateContinuousButtonUI();
+        }
+        activePackets = [];
+        spawnBurstPacket();
+      } else {
+        restartContinuousTimer();
+      }
+    }
+
+    function updateSlowMoButtonUI() {
+      const btn = document.getElementById('btn-slowmo');
+      if (isSlowMo) {
+        btn.className = "bg-amber-100/90 text-amber-900 border-2 border-amber-500 rounded-lg px-2.5 py-1 text-[11px] font-mono font-bold flex items-center gap-1.5 shadow-inner transition";
+      } else {
+        btn.className = "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] font-mono font-medium flex items-center gap-1.5 transition shadow-2xs";
+      }
+    }
+
+    function triggerSinglePulse() {
+      if (isContinuous) {
+        isContinuous = false;
+        updateContinuousButtonUI();
+      }
+      activePackets = [];
+      spawnBurstPacket();
+    }
+
+    function toggleContinuousMode() {
+      isContinuous = !isContinuous;
+      updateContinuousButtonUI();
+      restartContinuousTimer();
+      if (isContinuous) {
+        spawnBurstPacket();
+      }
+    }
+
+    function updateContinuousButtonUI() {
+      const btn = document.getElementById('btn-continuous');
+      const lbl = document.getElementById('lbl-continuous');
+      if (isContinuous) {
+        lbl.textContent = "Continuo";
+        btn.className = "bg-sky-600 hover:bg-sky-700 text-white rounded-lg px-2.5 py-1 text-[11px] font-mono font-semibold flex items-center gap-1.5 transition shadow-inner border border-sky-700";
+      } else {
+        lbl.textContent = "Pausado";
+        btn.className = "bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg px-2.5 py-1 text-[11px] font-mono font-medium flex items-center gap-1.5 transition shadow-2xs border border-slate-300";
+      }
+    }
+
+    function restartContinuousTimer() {
+      if (continuousTimer) clearInterval(continuousTimer);
+      const intervalMs = isSlowMo ? 3500 : 850;
+      continuousTimer = setInterval(() => {
+        if (!isContinuous) return;
+        spawnBurstPacket();
+        if (target.inRange) {
+          logToSerial(`Distancia: ${target.distCm.toFixed(1)} cm`);
+        } else {
+          logToSerial("Fuera de rango (Sin eco)");
+        }
+      }, intervalMs);
+    }
+
+    function spawnBurstPacket() {
+      const glowT = document.getElementById('glow-led-t');
+      glowT.style.opacity = '0.9';
+      setTimeout(() => { glowT.style.opacity = '0.0'; }, 160);
+
+      // Reinicio del escáner en vivo a velocidad constante
+      liveTiming.active = true;
+      liveTiming.currentScanX = 85;
+      liveTiming.echoFinished = false;
+      liveTiming.rxProgress = 0.0;
+
+      activePackets.push({
+        id: Date.now() + Math.random(),
+        type: 'outgoing',
+        originX: SENSOR_REF.x,
+        originY: SENSOR_REF.y,
+        currentRadiusPx: 0.0,
+        speedPxPerSec: isSlowMo ? 140 : 480,
+        hasSpawnedEcho: false,
+        maxRadiusPx: 660
+      });
+    }
+
+    let lastTick = performance.now();
+    function animateAcoustics(now) {
+      const dt = (now - lastTick) / 1000;
+      lastTick = now;
+
+      const minEchoX = 220;
+      const maxEchoX = 650;
+      const tEchoEnd = target.inRange 
+        ? minEchoX + ((target.distCm - 2.0) / 398.0) * (maxEchoX - minEchoX)
+        : 670;
+
+      // ================= VELOCIDAD CONSTANTE Y FLUIDA EN EL MODO EN VIVO =================
+      if (currentCycleCount === 'live' && liveTiming.active) {
+        // Velocidad en píxeles por segundo homogénea durante todo el trazo
+        const scanSpeedPxPerSec = isSlowMo ? 120 : 400;
+
+        if (!liveTiming.echoFinished) {
+          liveTiming.currentScanX += scanSpeedPxPerSec * dt;
+          // Si el escaneo alcanza el fin previsto del eco
+          if (liveTiming.currentScanX >= tEchoEnd) {
+            liveTiming.currentScanX = tEchoEnd;
+          }
+        } else {
+          // Despliegue de los pulsos del receptor
+          liveTiming.rxProgress += (isSlowMo ? 12 : 36) * dt;
+          if (liveTiming.rxProgress > 8.0) {
+            liveTiming.rxProgress = 8.0;
+            liveTiming.active = false;
+          }
+          liveTiming.currentScanX = tEchoEnd + (liveTiming.rxProgress * 6.5);
+        }
+
+        drawTimingDiagram();
+      }
+
+      for (let i = activePackets.length - 1; i >= 0; i--) {
+        const pkt = activePackets[i];
+        pkt.currentRadiusPx += pkt.speedPxPerSec * dt;
+
+        const distPhysicalTrip = SENSOR_REF.x - target.x;
+
+        // Impacto con el objeto
+        if (pkt.type === 'outgoing' && !pkt.hasSpawnedEcho) {
+          if (pkt.currentRadiusPx >= distPhysicalTrip) {
+            pkt.hasSpawnedEcho = true;
+
+            if (target.inRange) {
+              triggerTargetImpactVisual();
+              activePackets.push({
+                id: Date.now() + Math.random(),
+                type: 'echo',
+                originX: target.x,
+                originY: target.y,
+                currentRadiusPx: 0.0,
+                speedPxPerSec: pkt.speedPxPerSec,
+                hasReachedReceiver: false,
+                maxRadiusPx: 580
+              });
+            }
+          }
+        }
+
+        // Llegada del eco al sensor (caída de ECHO y activación de los pulsos del receptor)
+        if (pkt.type === 'echo' && !pkt.hasReachedReceiver) {
+          if (pkt.currentRadiusPx >= distPhysicalTrip) {
+            pkt.hasReachedReceiver = true;
+            liveTiming.echoFinished = true;
+            liveTiming.currentScanX = tEchoEnd;
+            triggerReceiverImpactVisual();
+          }
+        }
+
+        if (pkt.currentRadiusPx >= pkt.maxRadiusPx) {
+          activePackets.splice(i, 1);
+        }
+      }
+
+      renderWaveArcs();
+      requestAnimationFrame(animateAcoustics);
+    }
+
+    function triggerTargetImpactVisual() {
+      const hit = document.getElementById('target-hit-wave');
+      hit.style.opacity = '0.9';
+      setTimeout(() => { hit.style.opacity = '0.0'; }, 160);
+    }
+
+    function triggerReceiverImpactVisual() {
+      const glowR = document.getElementById('glow-led-r');
+      glowR.style.opacity = '0.95';
+      setTimeout(() => { glowR.style.opacity = '0.0'; }, 180);
+    }
+
+    function renderWaveArcs() {
+      const outLayer = document.getElementById('waves-outgoing-layer');
+      const echoLayer = document.getElementById('waves-echo-layer');
+
+      let svgOut = '';
+      let svgEcho = '';
+
+      activePackets.forEach(pkt => {
+        if (pkt.type === 'outgoing') {
+          const baseAngle = Math.PI;
+
+          for (let c = 0; c < NUM_WAVE_ARCS; c++) {
+            const r = pkt.currentRadiusPx - (c * WAVE_SPACING_PX);
+            if (r > 5) {
+              const arcSpan = Math.max(0.48, 1.15 - (r / 220));
+              const a1 = baseAngle - arcSpan;
+              const a2 = baseAngle + arcSpan;
+
+              const x1 = pkt.originX + r * Math.cos(a1);
+              const y1 = pkt.originY + r * Math.sin(a1);
+              const x2 = pkt.originX + r * Math.cos(a2);
+              const y2 = pkt.originY + r * Math.sin(a2);
+
+              const strokeColor = (c % 2 === 0) ? '#0284c7' : '#38bdf8';
+              const strokeWidth = (c === 0) ? 2.3 : 1.7;
+              const fade = Math.max(0.08, 1.0 - (r / 620));
+
+              svgOut += `<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}"
+                               fill="none" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" opacity="${fade.toFixed(2)}" />`;
+            }
+          }
+        } else if (pkt.type === 'echo') {
+          const arcSpan = 0.52;
+
+          for (let c = 0; c < NUM_WAVE_ARCS; c++) {
+            const r = pkt.currentRadiusPx - (c * WAVE_SPACING_PX);
+            if (r > 3) {
+              const a1 = -arcSpan;
+              const a2 = arcSpan;
+
+              const x1 = pkt.originX + r * Math.cos(a1);
+              const y1 = pkt.originY + r * Math.sin(a1);
+              const x2 = pkt.originX + r * Math.cos(a2);
+              const y2 = pkt.originY + r * Math.sin(a2);
+
+              const strokeColor = target.zone === 'precision' 
+                ? ((c % 2 === 0) ? '#059669' : '#34d399') 
+                : ((c % 2 === 0) ? '#0284c7' : '#38bdf8');
+              const strokeWidth = (c === 0) ? 2.3 : 1.7;
+              const fade = Math.max(0.1, 0.9 - (r / 500));
+
+              svgEcho += `<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}"
+                                fill="none" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" opacity="${fade.toFixed(2)}" />`;
+            }
+          }
+        }
+      });
+
+      outLayer.innerHTML = svgOut;
+      echoLayer.innerHTML = svgEcho;
+    }
+
+    function logToSerial(msg) {
+      const term = document.getElementById('serial-terminal');
+      if (!term) return;
+      const line = document.createElement('div');
+      line.className = msg.includes('Distancia:') ? 'text-emerald-400' : 'text-slate-400';
+      line.textContent = msg;
+      term.appendChild(line);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function clearSerialLogs() {
+      const term = document.getElementById('serial-terminal');
+      if (term) term.innerHTML = '';
+    }
+
+    function toggleFloatingTerminal() {
+      const modal = document.getElementById('floating-serial-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    (function initDraggableModal() {
+      const modal = document.getElementById('floating-serial-modal');
+      const header = document.getElementById('modal-drag-header');
+      let isWindowDragging = false;
+      let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+
+      header.addEventListener('mousedown', (e) => {
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+        isWindowDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = modal.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        window.addEventListener('mousemove', onWindowMouseMove);
+        window.addEventListener('mouseup', onWindowMouseUp);
+      });
+
+      header.addEventListener('touchstart', (e) => {
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+        isWindowDragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const rect = modal.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        window.addEventListener('touchmove', onWindowTouchMove, { passive: false });
+        window.addEventListener('touchend', onWindowTouchEnd);
+      });
+
+      function onWindowMouseMove(e) {
+        if (!isWindowDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        modal.style.left = `${initialLeft + dx}px`;
+        modal.style.top = `${initialTop + dy}px`;
+      }
+
+      function onWindowTouchMove(e) {
+        if (!isWindowDragging) return;
+        if (e.preventDefault) e.preventDefault();
+        const touch = e.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        modal.style.left = `${initialLeft + dx}px`;
+        modal.style.top = `${initialTop + dy}px`;
+      }
+
+      function onWindowMouseUp() {
+        isWindowDragging = false;
+        window.removeEventListener('mousemove', onWindowMouseMove);
+        window.removeEventListener('mouseup', onWindowMouseUp);
+      }
+
+      function onWindowTouchEnd() {
+        isWindowDragging = false;
+        window.removeEventListener('touchmove', onWindowTouchMove);
+        window.removeEventListener('touchend', onWindowTouchEnd);
+      }
+    })();
+
+    window.addEventListener('DOMContentLoaded', () => {
+      drawDetectionCones();
+      syncTarget();
+      restartContinuousTimer();
+      requestAnimationFrame(animateAcoustics);
+    });
+  </script>
+</body>
+</html>

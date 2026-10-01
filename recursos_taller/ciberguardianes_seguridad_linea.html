@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CiberGuardianes: Misión Seguridad en Línea</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 45%, #312e81 100%);
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --card-border: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* Contenedor Principal */
+    .app-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem 1rem;
+      position: relative;
+    }
+
+    /* Tarjeta Central */
+    .game-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      border-radius: 28px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.25);
+      width: 100%;
+      max-width: 1020px;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      padding: 1.75rem;
+    }
+
+    /* Pantallas */
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      flex: 1;
+      animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Centro Hero */
+    .hero-center {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: auto 0;
+      padding: 1.5rem 1rem;
+    }
+
+    .hero-badge {
+      background: #e0e7ff;
+      color: #3730a3;
+      font-weight: 700;
+      padding: 0.45rem 1.4rem;
+      border-radius: 999px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 2px solid #c7d2fe;
+    }
+
+    .main-title {
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      color: #1e1b4b;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .main-title span {
+      background: linear-gradient(120deg, #4f46e5, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .description {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 620px;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+    }
+
+    /* Botones de acción */
+    .btn-action {
+      background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%);
+      color: #ffffff;
+      border: none;
+      font-family: inherit;
+      font-size: 1.3rem;
+      font-weight: 700;
+      padding: 0.95rem 2.8rem;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.5);
+    }
+
+    .btn-action:active {
+      transform: translateY(1px);
+    }
+
+    /* HUD del Juego */
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      padding: 0.85rem 1.4rem;
+      border-radius: 20px;
+      border: 2px solid #e2e8f0;
+      margin-bottom: 1.25rem;
+    }
+
+    .hud-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #334155;
+    }
+
+    .hud-chip .badge {
+      background: #e0e7ff;
+      color: #4338ca;
+      padding: 0.25rem 0.75rem;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    /* Área de juego interactivo */
+    .gameplay-area {
+      position: relative;
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 2.5rem;
+      min-height: 430px;
+    }
+
+    #line-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 1rem;
+      z-index: 5;
+    }
+
+    /* Tarjetas Interactivas */
+    .interactive-card {
+      background: var(--card-bg);
+      border: 3px solid var(--card-border);
+      border-radius: 20px;
+      padding: 0.9rem 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      position: relative;
+      min-height: 80px;
+    }
+
+    .interactive-card:hover:not(.matched) {
+      border-color: #818cf8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15);
+    }
+
+    .interactive-card.selected {
+      border-color: var(--accent);
+      background: #fffbeb;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25);
+      transform: scale(1.02);
+    }
+
+    .interactive-card.matched {
+      border-color: var(--success);
+      background: #ecfdf5;
+      cursor: default;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12);
+    }
+
+    .interactive-card.error {
+      animation: shake 0.4s ease-in-out;
+      border-color: var(--danger);
+      background: #fef2f2;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-7px); }
+      40%, 80% { transform: translateX(7px); }
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .card-text {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.3;
+    }
+
+    .col-right .card-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    /* Puntos de anclaje de conexión visual */
+    .anchor-point {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #94a3b8;
+      border: 3px solid #ffffff;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      box-shadow: 0 0 0 2px #64748b;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .col-left .anchor-point {
+      right: -9px;
+    }
+
+    .col-right .anchor-point {
+      left: -9px;
+    }
+
+    .interactive-card.selected .anchor-point {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent);
+    }
+
+    .interactive-card.matched .anchor-point {
+      background: var(--success);
+      box-shadow: 0 0 0 3px var(--success);
+    }
+
+    /* Pantalla Victoria */
+    .trophy-icon {
+      font-size: 5rem;
+      margin-bottom: 0.5rem;
+      animation: bounce 1.2s infinite alternate ease-in-out;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-12px) scale(1.08); }
+    }
+
+    .badge-rank {
+      display: inline-block;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #065f46;
+      background: #d1fae5;
+      padding: 0.5rem 1.6rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+      border: 2px solid #6ee7b7;
+    }
+
+    /* Footer Institucional Requerido */
+    footer {
+      background: rgba(15, 23, 42, 0.9);
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      color: #cbd5e1;
+      text-align: center;
+      padding: 0.95rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    /* Ajustes Adaptativos */
+    @media (max-width: 820px) {
+      .gameplay-area {
+        gap: 1.25rem;
+      }
+      .card-text {
+        font-size: 0.95rem;
+      }
+      .col-right .card-text {
+        font-size: 0.9rem;
+      }
+      .card-icon {
+        font-size: 1.75rem;
+      }
+      .hud {
+        padding: 0.6rem 0.9rem;
+      }
+      .hud-chip {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-wrapper">
+    <div class="game-card">
+      
+      <!-- PANTALLA 1: INICIO -->
+      <div id="screen-start" class="screen active">
+        <div class="hero-center">
+          <div class="hero-badge">
+            <span>🛡️</span> Informática Educativa • 2.° Grado
+          </div>
+          <h1 class="main-title">Misión: <span>CiberGuardianes</span></h1>
+          <p class="description">
+            ¡Hola, explorador! El mundo digital está lleno de juegos y aprendizajes divertidos, pero debemos cuidarnos. 
+            Haz clic en un concepto de la izquierda y luego en su significado correcto de la derecha para trazar la conexión segura.
+          </p>
+          <button class="btn-action" onclick="startGame()">
+            <span>¡Iniciar Misión!</span> 🚀
+          </button>
+        </div>
+      </div>
+
+      <!-- PANTALLA 2: JUEGO ACTIVO -->
+      <div id="screen-game" class="screen">
+        <div class="hud">
+          <div class="hud-chip">
+            <span>🎯 Conexiones:</span>
+            <span class="badge" id="score-counter">0 / 4</span>
+          </div>
+          <div class="hud-chip">
+            <span>⭐ Puntos:</span>
+            <span class="badge" id="stars-counter">0</span>
+          </div>
+          <div class="hud-chip">
+            <span>🏅 Rango:</span>
+            <span class="badge">Guardián Junior</span>
+          </div>
+        </div>
+
+        <div class="gameplay-area" id="game-area">
+          <canvas id="line-canvas"></canvas>
+
+          <!-- Columna Izquierda: Conceptos Clave -->
+          <div class="column col-left" id="concepts-col"></div>
+
+          <!-- Columna Derecha: Definiciones -->
+          <div class="column col-right" id="definitions-col"></div>
+        </div>
+      </div>
+
+      <!-- PANTALLA 3: FELICITACIONES / VICTORIA -->
+      <div id="screen-end" class="screen">
+        <div class="hero-center">
+          <div class="trophy-icon">🏆</div>
+          <div class="badge-rank">¡Medalla de Honor CiberGuardián!</div>
+          <h2 class="main-title">¡Misión Cumplida con Éxito!</h2>
+          <p class="description">
+            ¡Eres un experto en ciberseguridad! Ya sabes cómo guardar tus contraseñas, cuidar tus datos y pedir ayuda a un adulto de confianza.
+          </p>
+          <button class="btn-action" onclick="resetGame()">
+            <span>Volver a Jugar</span> 🔄
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PIE DE PÁGINA OBLIGATORIO -->
+  <footer>
+    Ronny Martinez • UNIMAG • @usuario / correo@institucion.edu.co • 2026
+  </footer>
+
+  <script>
+    /* ==========================================================
+       1. BANCO DE CONCEPTOS Y DEFINICIONES (2.° de Primaria)
+       ========================================================== */
+    const GAME_DATA = [
+      {
+        id: "clave",
+        concept: "Contraseña Secreta",
+        icon: "🔑",
+        definition: "Una palabra con números y letras que solo tú y tus papás conocen para cuidar tus juegos.",
+        color: "#6366f1"
+      },
+      {
+        id: "datos",
+        concept: "Datos Personales",
+        icon: "🏠",
+        definition: "Tu nombre real, dirección, teléfono o colegio; nunca los compartas con extraños.",
+        color: "#ec4899"
+      },
+      {
+        id: "virus",
+        concept: "Virus Digital",
+        icon: "👾",
+        definition: "Un programa tramposo que puede dañar tu computador si abres enlaces sospechosos.",
+        color: "#f59e0b"
+      },
+      {
+        id: "ayuda",
+        concept: "Adulto de Confianza",
+        icon: "🦸‍♂️",
+        definition: "Papá, mamá o tu profesor, a quienes debes acudir si algo en internet te asusta o confunde.",
+        color: "#10b981"
+      }
+    ];
+
+    /* ==========================================================
+       2. EFECTOS SONOROS NATIVOS (Web Audio API)
+       ========================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playClick() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(480, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(750, this.ctx.currentTime + 0.07);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.07);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.07);
+      }
+
+      playSuccess() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // Acorde mayor luminoso
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+          gain.gain.setValueAtTime(0.22, now + idx * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.38);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.07);
+          osc.stop(now + idx * 0.07 + 0.38);
+        });
+      }
+
+      playError() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(170, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.22);
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.linearRampToValueAtTime(0.001, now + 0.22);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      }
+
+      playVictory() {
+        this.init();
+        const melody = [
+          { f: 523.25, d: 0.12 },
+          { f: 659.25, d: 0.12 },
+          { f: 783.99, d: 0.15 },
+          { f: 1046.5, d: 0.45 }
+        ];
+        let t = this.ctx.currentTime;
+        melody.forEach(item => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(item.f, t);
+          gain.gain.setValueAtTime(0.28, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + item.d);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + item.d);
+          t += item.d;
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    /* ==========================================================
+       3. LÓGICA DE JUEGO Y RENDERIZADO EN CANVAS
+       ========================================================= */
+    let selectedConcept = null;
+    let selectedDefinition = null;
+    let matchedPairs = [];
+    let score = 0;
+
+    const canvas = document.getElementById("line-canvas");
+    const ctx = canvas.getContext("2d");
+    const gameArea = document.getElementById("game-area");
+
+    function resizeCanvas() {
+      if (!canvas || !gameArea) return;
+      const rect = gameArea.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      drawAllConnections();
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    function shuffle(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
+    function switchScreen(screenId) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+    }
+
+    function startGame() {
+      sound.playClick();
+      switchScreen("screen-game");
+      setupBoard();
+      setTimeout(resizeCanvas, 60);
+    }
+
+    function resetGame() {
+      sound.playClick();
+      switchScreen("screen-start");
+      selectedConcept = null;
+      selectedDefinition = null;
+      matchedPairs = [];
+      score = 0;
+      updateHud();
+    }
+
+    function setupBoard() {
+      const conceptsCol = document.getElementById("concepts-col");
+      const definitionsCol = document.getElementById("definitions-col");
+      conceptsCol.innerHTML = "";
+      definitionsCol.innerHTML = "";
+
+      const shuffledConcepts = shuffle(GAME_DATA);
+      const shuffledDefinitions = shuffle(GAME_DATA);
+
+      shuffledConcepts.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "interactive-card";
+        card.dataset.id = item.id;
+        card.dataset.type = "concept";
+        card.innerHTML = `
+          <div class="card-icon">${item.icon}</div>
+          <div class="card-text">${item.concept}</div>
+          <div class="anchor-point"></div>
+        `;
+        card.addEventListener("click", () => handleCardClick(card, "concept"));
+        conceptsCol.appendChild(card);
+      });
+
+      shuffledDefinitions.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "interactive-card";
+        card.dataset.id = item.id;
+        card.dataset.type = "definition";
+        card.innerHTML = `
+          <div class="anchor-point"></div>
+          <div class="card-text">${item.definition}</div>
+        `;
+        card.addEventListener("click", () => handleCardClick(card, "definition"));
+        definitionsCol.appendChild(card);
+      });
+
+      matchedPairs = [];
+      selectedConcept = null;
+      selectedDefinition = null;
+      score = 0;
+      updateHud();
+      clearCanvas();
+    }
+
+    function handleCardClick(card, type) {
+      if (card.classList.contains("matched")) return;
+
+      sound.playClick();
+
+      if (type === "concept") {
+        if (selectedConcept) selectedConcept.classList.remove("selected");
+        selectedConcept = card;
+        selectedConcept.classList.add("selected");
+      } else {
+        if (selectedDefinition) selectedDefinition.classList.remove("selected");
+        selectedDefinition = card;
+        selectedDefinition.classList.add("selected");
+      }
+
+      // Verificación si ambos extremos están listos
+      if (selectedConcept && selectedDefinition) {
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      const isMatch = selectedConcept.dataset.id === selectedDefinition.dataset.id;
+      const conceptCard = selectedConcept;
+      const defCard = selectedDefinition;
+
+      if (isMatch) {
+        sound.playSuccess();
+        conceptCard.classList.remove("selected");
+        defCard.classList.remove("selected");
+        conceptCard.classList.add("matched");
+        defCard.classList.add("matched");
+
+        const dataItem = GAME_DATA.find(d => d.id === conceptCard.dataset.id);
+        matchedPairs.push({
+          conceptEl: conceptCard,
+          definitionEl: defCard,
+          color: dataItem.color
+        });
+
+        score += 100;
+        updateHud();
+        drawAllConnections();
+
+        selectedConcept = null;
+        selectedDefinition = null;
+
+        if (matchedPairs.length === GAME_DATA.length) {
+          setTimeout(() => {
+            sound.playVictory();
+            switchScreen("screen-end");
+          }, 850);
+        }
+      } else {
+        sound.playError();
+        conceptCard.classList.add("error");
+        defCard.classList.add("error");
+
+        setTimeout(() => {
+          conceptCard.classList.remove("error", "selected");
+          defCard.classList.remove("error", "selected");
+          selectedConcept = null;
+          selectedDefinition = null;
+        }, 450);
+      }
+    }
+
+    function updateHud() {
+      document.getElementById("score-counter").textContent = `${matchedPairs.length} / ${GAME_DATA.length}`;
+      document.getElementById("stars-counter").textContent = score;
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function getAnchorCoords(element, isLeft) {
+      const rect = element.getBoundingClientRect();
+      const parentRect = gameArea.getBoundingClientRect();
+      return {
+        x: isLeft ? (rect.right - parentRect.left) : (rect.left - parentRect.left),
+        y: (rect.top + rect.height / 2) - parentRect.top
+      };
+    }
+
+    function drawAllConnections() {
+      clearCanvas();
+      matchedPairs.forEach(pair => {
+        const start = getAnchorCoords(pair.conceptEl, true);
+        const end = getAnchorCoords(pair.definitionEl, false);
+
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+
+        // Curva Bezier fluida entre anclajes
+        const midX = (start.x + end.x) / 2;
+        ctx.bezierCurveTo(midX, start.y, midX, end.y, end.x, end.y);
+
+        ctx.strokeStyle = pair.color;
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = "round";
+        ctx.shadowColor = pair.color;
+        ctx.shadowBlur = 10;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      });
+    }
+  </script>
+</body>
+</html>

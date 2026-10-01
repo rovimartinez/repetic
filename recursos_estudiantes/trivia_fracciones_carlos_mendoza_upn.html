@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión Fracciones - Trivia Interactiva de Matemáticas 4° Primaria</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            purple: '#6C5CE7',
+                            pink: '#FD79A8',
+                            yellow: '#FDCB6E',
+                            green: '#00B894',
+                            blue: '#0984E3',
+                            orange: '#E17055',
+                            dark: '#2D3436',
+                            light: '#F7F9FC'
+                        }
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            min-height: 100vh;
+        }
+
+        .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .btn-game {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+        }
+
+        .btn-game:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.15);
+        }
+
+        .btn-game:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+        }
+
+        .option-btn {
+            transition: all 0.25s ease;
+            border: 3px solid transparent;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            border-color: #6C5CE7;
+            background-color: #F0EDFF;
+        }
+
+        .option-btn.correct {
+            background-color: #D4EDDA !important;
+            border-color: #28A745 !important;
+            color: #155724 !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: #F8D7DA !important;
+            border-color: #DC3545 !important;
+            color: #721C24 !important;
+        }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        @keyframes pulse-heart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+
+        .animate-heart {
+            animation: pulse-heart 0.8s infinite;
+        }
+
+        /* Canvas de Confeti sobre la interfaz */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Modal o contenedor de retroalimentación suave */
+        .feedback-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 antialiased justify-between">
+
+    <!-- Canvas para confeti al ganar -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Header / Barra Superior opcional -->
+    <header class="w-full py-4 px-6 text-center text-white">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-shapes text-yellow-300 text-2xl"></i>
+                <span class="font-title text-xl font-bold tracking-wide">Misión Fracciones</span>
+            </div>
+            <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">4° Primaria</span>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal de Vistas -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="w-full max-w-3xl card-glass rounded-3xl p-6 md:p-8 transition-all duration-300 relative overflow-hidden">
+            
+            <!-- 1. PANTALLA DE INICIO -->
+            <div id="screen-start" class="text-center py-4 space-y-6">
+                <div class="inline-block p-4 bg-purple-100 rounded-full text-brand-purple mb-2">
+                    <svg class="w-24 h-24 mx-auto text-brand-purple" viewBox="0 0 100 100">
+                        <!-- SVG Representando un pastel/fracción 3/4 -->
+                        <circle cx="50" cy="50" r="40" fill="#E2E8F0" />
+                        <path d="M 50 50 L 50 10 A 40 40 0 1 1 10 50 Z" fill="#6C5CE7" />
+                        <path d="M 50 50 L 10 50 A 40 40 0 0 1 50 10 Z" fill="#00B894" />
+                        <circle cx="50" cy="50" r="6" fill="#FFFFFF" />
+                    </svg>
+                </div>
+
+                <div>
+                    <h1 class="font-title text-3xl md:text-5xl font-bold text-slate-800 mb-2">
+                        ¡Aventura con Fracciones! 🍕
+                    </h1>
+                    <p class="text-slate-600 max-w-lg mx-auto text-sm md:text-base">
+                        Pon a prueba tus conocimientos sobre numeradores, denominadores y fracciones equivalentes. ¡Demuestra que eres un maestro de las matemáticas!
+                    </p>
+                </div>
+
+                <!-- Reglas de juego -->
+                <div class="bg-slate-100 rounded-2xl p-4 max-w-md mx-auto text-left text-xs md:text-sm space-y-2 border border-slate-200">
+                    <div class="font-semibold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-brand-purple"></i> Reglas del juego:
+                    </div>
+                    <ul class="space-y-1.5 text-slate-600 pl-6 list-disc">
+                        <li><strong>5 Preguntas</strong> de opción múltiple.</li>
+                        <li><strong>20 Segundos</strong> por pregunta.</li>
+                        <li>Cuentas con <strong>3 Vidas ❤️</strong>. Si fallas, perderás una.</li>
+                        <li>Ganarás puntos extra según la velocidad con que respondas.</li>
+                    </ul>
+                </div>
+
+                <div class="pt-2">
+                    <button id="btn-start" class="btn-game bg-brand-purple hover:bg-indigo-600 text-white font-title text-xl font-bold px-8 py-4 rounded-2xl w-full sm:w-auto shadow-lg flex items-center justify-center gap-3 mx-auto">
+                        <i class="fa-solid fa-play"></i> COMENZAR TRIVIA
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. PANTALLA DE JUEGO / PREGUNTA -->
+            <div id="screen-game" class="hidden space-y-6">
+                <!-- HUD / Barra de Estado -->
+                <div class="flex flex-wrap justify-between items-center gap-3 bg-slate-100 p-3 md:p-4 rounded-2xl border border-slate-200">
+                    <!-- Vidas -->
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs uppercase font-bold text-slate-500 mr-1">Vidas:</span>
+                        <div id="lives-container" class="flex gap-1 text-red-500 text-xl md:text-2xl">
+                            <i class="fa-solid fa-heart animate-heart"></i>
+                            <i class="fa-solid fa-heart animate-heart"></i>
+                            <i class="fa-solid fa-heart animate-heart"></i>
+                        </div>
+                    </div>
+
+                    <!-- Temporizador -->
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <i class="fa-solid fa-clock text-brand-orange text-lg"></i>
+                        <span id="timer-text" class="font-title text-xl font-bold text-slate-800">20s</span>
+                    </div>
+
+                    <!-- Puntos -->
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <i class="fa-solid fa-star text-yellow-500 text-lg"></i>
+                        <span id="score-text" class="font-title text-xl font-bold text-brand-purple">0 pts</span>
+                    </div>
+                </div>
+
+                <!-- Barra de Progreso del tiempo -->
+                <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                    <div id="timer-bar" class="bg-brand-orange h-full w-full transition-all duration-1000 ease-linear"></div>
+                </div>
+
+                <!-- Indicador de número de pregunta -->
+                <div class="flex justify-between items-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <span id="question-number">Pregunta 1 de 5</span>
+                    <span id="category-badge" class="bg-purple-100 text-brand-purple px-2.5 py-1 rounded-md">Fracciones Básicas</span>
+                </div>
+
+                <!-- Pregunta e Ilustración Contextual -->
+                <div class="space-y-4">
+                    <h2 id="question-text" class="font-title text-xl md:text-2xl font-bold text-slate-800 leading-snug">
+                        ¿Texto de la pregunta aquí?
+                    </h2>
+
+                    <!-- Gráfico o SVG dinámico opcional para soporte visual de fracciones -->
+                    <div id="graphic-container" class="flex justify-center my-3 min-h-[100px]">
+                        <!-- Se renderiza por JS -->
+                    </div>
+                </div>
+
+                <!-- Opciones de Respuesta (Grid) -->
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <!-- Botones generados dinámicamente -->
+                </div>
+
+                <!-- Retroalimentación Didáctica (Oculta por defecto) -->
+                <div id="feedback-card" class="hidden feedback-pop p-4 rounded-2xl border-2 space-y-3">
+                    <div class="flex items-center gap-2 font-title font-bold text-lg" id="feedback-title">
+                        <!-- Icono + Título -->
+                    </div>
+                    <p id="feedback-text" class="text-sm md:text-base text-slate-700 leading-relaxed">
+                        <!-- Explicación pedagógica -->
+                    </p>
+                    <div class="text-right pt-1">
+                        <button id="btn-next" class="btn-game bg-brand-purple hover:bg-indigo-600 text-white font-title text-sm md:text-base font-bold px-6 py-2.5 rounded-xl inline-flex items-center gap-2">
+                            <span>Siguiente</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. PANTALLA FINAL (RESULTADOS) -->
+            <div id="screen-end" class="hidden text-center py-4 space-y-6">
+                <!-- Icono/Medalla -->
+                <div id="medal-container" class="inline-block p-4 rounded-full bg-yellow-100 text-yellow-500 mb-2">
+                    <i id="medal-icon" class="fa-solid fa-award text-6xl md:text-7xl"></i>
+                </div>
+
+                <div>
+                    <h2 id="result-title" class="font-title text-3xl md:text-4xl font-bold text-slate-800 mb-1">
+                        ¡Felicitaciones!
+                    </h2>
+                    <p id="result-subtitle" class="text-slate-600 text-sm md:text-base">
+                        Has completado la trivia con un gran desempeño.
+                    </p>
+                </div>
+
+                <!-- Resumen de estadísticas -->
+                <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                    <div class="bg-slate-100 p-4 rounded-2xl border border-slate-200">
+                        <span class="block text-xs font-semibold text-slate-500 uppercase">Puntaje Total</span>
+                        <span id="final-score" class="font-title text-2xl md:text-3xl font-bold text-brand-purple">0</span>
+                    </div>
+                    <div class="bg-slate-100 p-4 rounded-2xl border border-slate-200">
+                        <span class="block text-xs font-semibold text-slate-500 uppercase">Aciertos</span>
+                        <span id="final-accuracy" class="font-title text-2xl md:text-3xl font-bold text-brand-green">0/5</span>
+                    </div>
+                </div>
+
+                <!-- Mensaje motivacional pedagógico -->
+                <div id="pedagogical-message" class="bg-purple-50 p-4 rounded-2xl border border-purple-200 max-w-md mx-auto text-sm text-purple-900 font-medium">
+                    ¡Sigue practicando para convertirte en un experto en fracciones!
+                </div>
+
+                <div class="pt-4">
+                    <button id="btn-restart" class="btn-game bg-brand-purple hover:bg-indigo-600 text-white font-title text-lg font-bold px-8 py-3.5 rounded-2xl w-full sm:w-auto shadow-lg inline-flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> JUGAR DE NUEVO
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- PIE DE PÁGINA / FOOTER (Obligatorio) -->
+    <footer class="w-full py-4 px-4 text-center text-white/90 text-xs md:text-sm bg-black/20 backdrop-blur-md mt-4">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3">
+            <span class="font-semibold">Prof. Carlos Mendoza</span>
+            <span class="hidden sm:inline">•</span>
+            <span>Universidad Pedagógica Nacional</span>
+            <span class="hidden sm:inline">•</span>
+            <span class="text-yellow-300">@profecarlos / cmendoza@institucion.edu.co</span>
+            <span class="hidden sm:inline">•</span>
+            <span>2026</span>
+        </div>
+    </footer>
+
+    <script>
+        /* ==========================================
+           1. SISTEMA DE AUDIO NATIVO (Web Audio API)
+           ========================================== */
+        class SoundSystem {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playCorrect() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.3); // C6
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.5);
+            }
+
+            playIncorrect() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now); // A3
+                osc.frequency.setValueAtTime(164.81, now + 0.15); // E3
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+
+            playTick() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+
+            playFanfare() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.12);
+                    gain.gain.setValueAtTime(0.2, now + i * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.12 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.12);
+                    osc.stop(now + i * 0.12 + 0.3);
+                });
+            }
+
+            playGameOver() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const notes = [400, 350, 300, 250];
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.15);
+                    gain.gain.setValueAtTime(0.15, now + i * 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.15 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.15);
+                    osc.stop(now + i * 0.15 + 0.25);
+                });
+            }
+        }
+
+        const soundFX = new SoundSystem();
+
+        /* ==========================================
+           2. BANCO DE PREGUNTAS Y GRÁFICOS SVG
+           ========================================== */
+        const questions = [
+            {
+                category: "Identificación de Partes",
+                question: "En la fracción 3/4, ¿qué número representa el DENOMINADOR y qué indica?",
+                graphicType: "fraction_text",
+                graphicData: { num: 3, den: 4 },
+                options: [
+                    "El 3, e indica las partes que tomamos de la unidad.",
+                    "El 4, e indica en cuántas partes iguales se divide la unidad.",
+                    "El 3, e indica el total de partes iguales.",
+                    "El 4, e indica las partes que quedan sin colorear."
+                ],
+                correctIndex: 1,
+                explanation: "¡Correcto! El **denominador** es el número de abajo (4) e indica en cuántas partes iguales se divide la unidad completa. El **numerador** es el de arriba (3) y muestra las partes tomadas."
+            },
+            {
+                category: "Representación Gráfica",
+                question: "¿Qué fracción representa la parte coloreada de amarillo en la siguiente figura?",
+                graphicType: "pizza",
+                graphicData: { total: 4, shaded: 3, color: '#FDCB6E' },
+                options: [
+                    "1/4",
+                    "2/4",
+                    "3/4",
+                    "4/3"
+                ],
+                correctIndex: 2,
+                explanation: "¡Excelente! La figura está dividida en **4 partes iguales** (denominador) y **3 están coloreadas** de amarillo (numerador). Por lo tanto, representa **3/4**."
+            },
+            {
+                category: "Fracciones Equivalentes",
+                question: "¿Cuál de las siguientes fracciones es EQUIVALENTE (vale lo mismo) a 1/2?",
+                graphicType: "bars_equivalent",
+                options: [
+                    "2/4",
+                    "1/3",
+                    "3/5",
+                    "2/3"
+                ],
+                correctIndex: 0,
+                explanation: "¡Muy bien! **1/2 es equivalente a 2/4** porque ambas representan exactamente la mitad de la unidad. Si multiplicas el numerador y denominador de 1/2 por 2, obtienes 2/4."
+            },
+            {
+                category: "Suma de Fracciones",
+                question: "Si Sofía se come 2/6 de una pizza y Mateo se come 3/6, ¿qué fracción de la pizza se comieron entre los dos?",
+                graphicType: "addition",
+                options: [
+                    "5/12",
+                    "5/6",
+                    "1/6",
+                    "6/6"
+                ],
+                correctIndex: 1,
+                explanation: "¡Excelente cálculo! Al sumar fracciones con el **mismo denominador**, sumamos los numeradores (2 + 3 = 5) y **mantenemos el mismo denominador** (6). Resultado: **5/6**."
+            },
+            {
+                category: "Comparación de Fracciones",
+                question: "¿Qué fracción es MAYOR: 3/8 o 5/8?",
+                graphicType: "comparison",
+                options: [
+                    "3/8 es mayor",
+                    "5/8 es mayor",
+                    "Son exactamente iguales",
+                    "No se pueden comparar"
+                ],
+                correctIndex: 1,
+                explanation: "¡Así se hace! Cuando dos fracciones tienen el mismo denominador, es **mayor la que tiene el numerador más grande**. Como 5 es mayor que 3, entonces **5/8 > 3/8**."
+            }
+        ];
+
+        /* ==========================================
+           3. ESTADO DEL JUEGO
+           ========================================== */
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let correctAnswersCount = 0;
+        let timerInterval = null;
+        let timeLeft = 20;
+        const TIME_PER_QUESTION = 20;
+
+        // Elementos DOM
+        const screenStart = document.getElementById('screen-start');
+        const screenGame = document.getElementById('screen-game');
+        const screenEnd = document.getElementById('screen-end');
+
+        const btnStart = document.getElementById('btn-start');
+        const btnNext = document.getElementById('btn-next');
+        const btnRestart = document.getElementById('btn-restart');
+
+        const livesContainer = document.getElementById('lives-container');
+        const timerText = document.getElementById('timer-text');
+        const timerBar = document.getElementById('timer-bar');
+        const scoreText = document.getElementById('score-text');
+        const questionNumberText = document.getElementById('question-number');
+        const categoryBadge = document.getElementById('category-badge');
+        const questionText = document.getElementById('question-text');
+        const graphicContainer = document.getElementById('graphic-container');
+        const optionsContainer = document.getElementById('options-container');
+
+        const feedbackCard = document.getElementById('feedback-card');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+
+        /* ==========================================
+           4. LÓGICA DE NAVEGACIÓN Y CONTROL
+           ========================================== */
+        btnStart.addEventListener('click', startGame);
+        btnNext.addEventListener('click', goToNextQuestion);
+        btnRestart.addEventListener('click', resetGame);
+
+        function startGame() {
+            soundFX.init();
+            screenStart.classList.add('hidden');
+            screenGame.classList.remove('hidden');
+            screenEnd.classList.add('hidden');
+
+            currentQuestionIndex = 0;
+            score = 0;
+            lives = 3;
+            correctAnswersCount = 0;
+
+            updateHUD();
+            loadQuestion();
+        }
+
+        function resetGame() {
+            startGame();
+        }
+
+        function updateHUD() {
+            // Actualizar Vidas
+            livesContainer.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const heart = document.createElement('i');
+                if (i < lives) {
+                    heart.className = 'fa-solid fa-heart animate-heart text-red-500';
+                } else {
+                    heart.className = 'fa-regular fa-heart text-slate-300';
+                }
+                livesContainer.appendChild(heart);
+            }
+
+            // Actualizar Puntaje
+            scoreText.textContent = `${score} pts`;
+        }
+
+        function loadQuestion() {
+            // Limpiar temporizador previo
+            clearInterval(timerInterval);
+            timeLeft = TIME_PER_QUESTION;
+            updateTimerDisplay();
+
+            // Ocultar retroalimentación
+            feedbackCard.classList.add('hidden');
+
+            const q = questions[currentQuestionIndex];
+
+            // Cargar textos
+            questionNumberText.textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+            categoryBadge.textContent = q.category;
+            questionText.textContent = q.question;
+
+            // Renderizar Gráfico SVG
+            renderGraphic(q);
+
+            // Renderizar Opciones
+            optionsContainer.innerHTML = '';
+            q.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn bg-white border-2 border-slate-200 text-slate-800 p-4 rounded-2xl font-medium text-left text-sm md:text-base flex items-center gap-3 shadow-sm hover:shadow-md';
+                
+                // Letra indicadora (A, B, C, D)
+                const letter = String.fromCharCode(65 + index);
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-xl bg-purple-100 text-brand-purple font-title font-bold flex items-center justify-center shrink-0">
+                        ${letter}
+                    </span>
+                    <span>${optText}</span>
+                `;
+
+                btn.addEventListener('click', () => handleAnswer(index));
+                optionsContainer.appendChild(btn);
+            });
+
+            // Iniciar temporizador
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 5 && timeLeft > 0) {
+                    soundFX.playTick();
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            timerText.textContent = `${timeLeft}s`;
+            const percentage = (timeLeft / TIME_PER_QUESTION) * 100;
+            timerBar.style.width = `${percentage}%`;
+
+            if (timeLeft <= 5) {
+                timerBar.className = 'bg-red-500 h-full transition-all duration-1000 ease-linear';
+                timerText.className = 'font-title text-xl font-bold text-red-500';
+            } else {
+                timerBar.className = 'bg-brand-orange h-full transition-all duration-1000 ease-linear';
+                timerText.className = 'font-title text-xl font-bold text-slate-800';
+            }
+        }
+
+        function renderGraphic(q) {
+            graphicContainer.innerHTML = '';
+
+            if (q.graphicType === 'fraction_text') {
+                graphicContainer.innerHTML = `
+                    <div class="flex items-center justify-center font-title text-4xl font-bold text-brand-purple bg-purple-50 px-8 py-3 rounded-2xl border border-purple-200">
+                        <div class="flex flex-col items-center">
+                            <span>${q.graphicData.num}</span>
+                            <div class="w-10 h-1 bg-brand-purple my-0.5 rounded-full"></div>
+                            <span>${q.graphicData.den}</span>
+                        </div>
+                    </div>
+                `;
+            } else if (q.graphicType === 'pizza') {
+                graphicContainer.innerHTML = `
+                    <svg class="w-28 h-28" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="2" />
+                        <!-- 3/4 coloreado -->
+                        <path d="M 50 50 L 50 5 A 45 45 0 1 1 5 50 Z" fill="${q.graphicData.color}" />
+                        <line x1="50" y1="5" x2="50" y2="95" stroke="#FFFFFF" stroke-width="3" />
+                        <line x1="5" y1="50" x2="95" y2="50" stroke="#FFFFFF" stroke-width="3" />
+                    </svg>
+                `;
+            } else if (q.graphicType === 'bars_equivalent') {
+                graphicContainer.innerHTML = `
+                    <div class="space-y-2 w-full max-w-xs">
+                        <div class="text-xs text-slate-500 text-center font-semibold">1/2</div>
+                        <div class="w-full h-8 bg-slate-200 rounded-lg overflow-hidden flex border border-slate-300">
+                            <div class="w-1/2 h-full bg-brand-purple"></div>
+                            <div class="w-1/2 h-full bg-slate-200"></div>
+                        </div>
+                        <div class="text-xs text-slate-500 text-center font-semibold">2/4</div>
+                        <div class="w-full h-8 bg-slate-200 rounded-lg overflow-hidden flex border border-slate-300 divide-x-2 divide-white">
+                            <div class="w-1/4 h-full bg-brand-green"></div>
+                            <div class="w-1/4 h-full bg-brand-green"></div>
+                            <div class="w-1/4 h-full bg-slate-200"></div>
+                            <div class="w-1/4 h-full bg-slate-200"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (q.graphicType === 'addition') {
+                graphicContainer.innerHTML = `
+                    <div class="flex items-center gap-2 text-lg font-title font-bold text-slate-700 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                        <div class="flex flex-col items-center text-brand-purple"><span>2</span><div class="w-5 h-0.5 bg-brand-purple"></div><span>6</span></div>
+                        <span>+</span>
+                        <div class="flex flex-col items-center text-brand-green"><span>3</span><div class="w-5 h-0.5 bg-brand-green"></div><span>6</span></div>
+                        <span>=</span>
+                        <span class="text-2xl text-brand-orange">?</span>
+                    </div>
+                `;
+            } else if (q.graphicType === 'comparison') {
+                graphicContainer.innerHTML = `
+                    <div class="flex items-center justify-around w-full max-w-xs gap-4">
+                        <div class="text-center">
+                            <span class="font-title font-bold text-brand-purple text-xl">3/8</span>
+                            <div class="w-20 h-6 bg-slate-200 rounded flex overflow-hidden border border-slate-300 mt-1">
+                                <div class="w-[37.5%] bg-brand-purple h-full"></div>
+                            </div>
+                        </div>
+                        <span class="font-title text-2xl font-bold text-slate-400">vs</span>
+                        <div class="text-center">
+                            <span class="font-title font-bold text-brand-blue text-xl">5/8</span>
+                            <div class="w-20 h-6 bg-slate-200 rounded flex overflow-hidden border border-slate-300 mt-1">
+                                <div class="w-[62.5%] bg-brand-blue h-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function handleAnswer(selectedIndex) {
+            clearInterval(timerInterval);
+            disableOptions();
+
+            const q = questions[currentQuestionIndex];
+            const optionButtons = optionsContainer.children;
+
+            if (selectedIndex === q.correctIndex) {
+                // Respuesta Correcta
+                soundFX.playCorrect();
+                optionButtons[selectedIndex].classList.add('correct');
+                
+                // Calcular Puntos: Base (100 pts) + Bonificación de tiempo (timeLeft * 5)
+                const pointsEarned = 100 + (timeLeft * 5);
+                score += pointsEarned;
+                correctAnswersCount++;
+                updateHUD();
+
+                showFeedback(true, `¡Excelente trabajo! +${pointsEarned} pts`, q.explanation);
+            } else {
+                // Respuesta Incorrecta
+                soundFX.playIncorrect();
+                optionButtons[selectedIndex].classList.add('incorrect');
+                optionButtons[q.correctIndex].classList.add('correct');
+
+                lives--;
+                updateHUD();
+
+                showFeedback(false, "¡Respuesta incorrecta!", q.explanation);
+            }
+        }
+
+        function handleTimeOut() {
+            disableOptions();
+            soundFX.playIncorrect();
+
+            const q = questions[currentQuestionIndex];
+            const optionButtons = optionsContainer.children;
+            optionButtons[q.correctIndex].classList.add('correct');
+
+            lives--;
+            updateHUD();
+
+            showFeedback(false, "¡Se agotó el tiempo! ⏰", q.explanation);
+        }
+
+        function disableOptions() {
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+        }
+
+        function showFeedback(isCorrect, titleText, explanationText) {
+            feedbackCard.classList.remove('hidden');
+
+            if (isCorrect) {
+                feedbackCard.className = 'feedback-pop p-4 rounded-2xl border-2 bg-emerald-50 border-emerald-300 space-y-3';
+                feedbackTitle.className = 'flex items-center gap-2 font-title font-bold text-lg text-emerald-800';
+                feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-check text-xl text-emerald-600"></i> ${titleText}`;
+            } else {
+                feedbackCard.className = 'feedback-pop p-4 rounded-2xl border-2 bg-rose-50 border-rose-300 space-y-3';
+                feedbackTitle.className = 'flex items-center gap-2 font-title font-bold text-lg text-rose-800';
+                feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-xmark text-xl text-rose-600"></i> ${titleText}`;
+            }
+
+            feedbackText.innerHTML = parseMarkdown(explanationText);
+        }
+
+        // Función simple para formatear negritas de markdown a <strong>
+        function parseMarkdown(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        function goToNextQuestion() {
+            if (lives <= 0) {
+                endGame(false);
+                return;
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                endGame(true);
+            }
+        }
+
+        function endGame(completed) {
+            screenGame.classList.add('hidden');
+            screenEnd.classList.remove('hidden');
+
+            const resultTitle = document.getElementById('result-title');
+            const resultSubtitle = document.getElementById('result-subtitle');
+            const medalContainer = document.getElementById('medal-container');
+            const medalIcon = document.getElementById('medal-icon');
+            const finalScore = document.getElementById('final-score');
+            const finalAccuracy = document.getElementById('final-accuracy');
+            const pedagogicalMessage = document.getElementById('pedagogical-message');
+
+            finalScore.textContent = `${score} pts`;
+            finalAccuracy.textContent = `${correctAnswersCount}/${questions.length}`;
+
+            if (lives <= 0) {
+                // Game Over por sin vidas
+                soundFX.playGameOver();
+                medalContainer.className = 'inline-block p-4 rounded-full bg-slate-200 text-slate-500 mb-2';
+                medalIcon.className = 'fa-solid fa-heart-crack text-6xl md:text-7xl';
+                resultTitle.textContent = "¡Inténtalo de nuevo!";
+                resultSubtitle.textContent = "Te has quedado sin vidas, pero la práctica hace al maestro.";
+                pedagogicalMessage.textContent = "No te preocupes. Vuelve a intentarlo para reforzar los conceptos de numerador, denominador y suma de fracciones.";
+            } else {
+                // Completado
+                soundFX.playFanfare();
+                triggerConfetti();
+
+                if (correctAnswersCount === 5) {
+                    // MEDALLA DE ORO
+                    medalContainer.className = 'inline-block p-4 rounded-full bg-yellow-100 text-yellow-500 mb-2';
+                    medalIcon.className = 'fa-solid fa-award text-6xl md:text-7xl text-yellow-500';
+                    resultTitle.textContent = "¡Medalla de Oro! 🥇";
+                    resultSubtitle.textContent = "¡Puntaje perfecto! Dominas las fracciones a la perfección.";
+                    pedagogicalMessage.textContent = "¡Excelente! Has demostrado una comprensión sobresaliente de las fracciones de 4° de primaria.";
+                } else if (correctAnswersCount >= 3) {
+                    // MEDALLA DE PLATA
+                    medalContainer.className = 'inline-block p-4 rounded-full bg-slate-200 text-slate-400 mb-2';
+                    medalIcon.className = 'fa-solid fa-medal text-6xl md:text-7xl text-slate-400';
+                    resultTitle.textContent = "¡Medalla de Plata! 🥈";
+                    resultSubtitle.textContent = "¡Muy buen trabajo! Tienes bases muy sólidas.";
+                    pedagogicalMessage.textContent = "¡Buen esfuerzo! Repasa únicamente las pequeñas dudas para alcanzar la medalla de oro.";
+                } else {
+                    // MEDALLA DE BRONCE
+                    medalContainer.className = 'inline-block p-4 rounded-full bg-amber-100 text-amber-700 mb-2';
+                    medalIcon.className = 'fa-solid fa-medal text-6xl md:text-7xl text-amber-700';
+                    resultTitle.textContent = "¡Medalla de Bronce! 🥉";
+                    resultSubtitle.textContent = "¡Has completado el reto! Sigue practicando.";
+                    pedagogicalMessage.textContent = "¡Buen intento! Revisa las explicaciones de las fracciones para seguir mejorando.";
+                }
+            }
+        }
+
+        /* ==========================================
+           5. EFECTO DE CONFETI EN CANVAS (NATIVO)
+           ========================================== */
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#6C5CE7', '#FD79A8', '#FDCB6E', '#00B894', '#0984E3'];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 2 - 1,
+                    rotation: Math.random() * 360
+                });
+            }
+
+            let animationFrame;
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach((p) => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    p.rotation += 2;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                });
+
+                if (particles.some(p => p.y < canvas.height)) {
+                    animationFrame = requestAnimationFrame(animateConfetti);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    cancelAnimationFrame(animationFrame);
+                }
+            }
+
+            animateConfetti();
+        }
+
+        // Reajuste de canvas ante cambio de tamaño de ventana
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('confetti-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

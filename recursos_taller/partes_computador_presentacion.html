@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Las Partes del Computador - 1° Primaria</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 10%, #eff6ff 0%, #dbeafe 60%, #e0e7ff 100%);
+      margin: 0;
+      color: #1e293b;
+      user-select: none;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .slide-page {
+      display: none;
+      animation: fadeInFast 0.25s ease-out forwards;
+    }
+
+    .slide-page.active {
+      display: block;
+    }
+
+    @keyframes fadeInFast {
+      from { opacity: 0; transform: scale(0.985); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Confetti items */
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      animation: drop 2.2s linear forwards;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    @keyframes drop {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(380px) rotate(720deg); opacity: 0; }
+    }
+
+    /* Flashing LED lights simulation */
+    .led-blink {
+      animation: blink 0.6s infinite alternate;
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.2; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.15); }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="w-full max-w-3xl bg-white rounded-3xl shadow-xl shadow-blue-200/50 border border-blue-100 overflow-hidden flex flex-col">
+    
+    <!-- Top Header & Tabs (Ultra-compact) -->
+    <header class="px-4 py-3 sm:px-6 bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-purple-50/70 border-b border-blue-100">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <!-- Brand / Identity -->
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm shadow-sm shadow-blue-300">
+            <i class="fa-solid fa-laptop"></i>
+          </div>
+          <div>
+            <h1 class="text-sm font-extrabold text-slate-800 leading-none">Mi Computador</h1>
+            <span class="text-[11px] font-bold text-blue-600">1° Primaria</span>
+          </div>
+        </div>
+
+        <!-- 4 Numeric Quick Tabs -->
+        <nav class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-blue-100 shadow-sm" aria-label="Navegación de Diapositivas">
+          <button onclick="goToSlide(0)" id="pill-0" class="nav-pill px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white shadow-sm flex items-center gap-1">
+            <span class="w-4 h-4 rounded-full bg-white/25 flex items-center justify-center text-[10px]">1</span>
+            <span class="hidden sm:inline">Hardware/Software</span>
+          </button>
+          <button onclick="goToSlide(1)" id="pill-1" class="nav-pill px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1">
+            <span class="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">2</span>
+            <span class="hidden sm:inline">CPU & Pantalla</span>
+          </button>
+          <button onclick="goToSlide(2)" id="pill-2" class="nav-pill px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1">
+            <span class="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">3</span>
+            <span class="hidden sm:inline">Ratón & Teclado</span>
+          </button>
+          <button onclick="goToSlide(3)" id="pill-3" class="nav-pill px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1">
+            <span class="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">4</span>
+            <span class="hidden sm:inline">Juego</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Compact Progress Line -->
+      <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+        <div id="progress-bar" class="h-full bg-blue-600 rounded-full transition-all duration-300" style="width: 25%;"></div>
+      </div>
+    </header>
+
+    <!-- Content Wrapper (Fitted and snug, no large blank gaps) -->
+    <div class="p-4 sm:p-5 relative">
+      
+      <!-- SLIDE 1: ¿Qué es el computador? -->
+      <section id="slide-0" class="slide-page active">
+        <!-- Compact Header -->
+        <div class="text-center mb-3">
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[11px] font-extrabold uppercase">
+            <i class="fa-solid fa-sparkles text-amber-500"></i> Misión 1
+          </span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">¿Qué es el computador?</h2>
+          <p class="text-xs text-slate-500 font-semibold">Toca las tarjetas para descubrir qué puedes tocar y qué es magia digital.</p>
+        </div>
+
+        <!-- 2 Side-by-side cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <!-- Hardware Card -->
+          <div onclick="selectConcept('hardware')" id="card-hw" class="cursor-pointer p-3.5 rounded-2xl border-2 border-blue-500 bg-blue-50/70 shadow-sm transition-all hover:scale-[1.01]">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm shadow-sm">
+                <i class="fa-solid fa-hand"></i>
+              </div>
+              <div>
+                <h3 class="font-extrabold text-slate-800 text-sm">HARDWARE</h3>
+                <span class="text-[11px] font-bold text-blue-600 block leading-tight">¡Lo que podemos tocar!</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 font-semibold mt-2 leading-relaxed">
+              Las partes duras del computador: pantalla, ratón, cables y botones.
+            </p>
+          </div>
+
+          <!-- Software Card -->
+          <div onclick="selectConcept('software')" id="card-sw" class="cursor-pointer p-3.5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm transition-all hover:scale-[1.01] hover:border-emerald-300">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-sm shadow-sm">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </div>
+              <div>
+                <h3 class="font-extrabold text-slate-800 text-sm">SOFTWARE</h3>
+                <span class="text-[11px] font-bold text-emerald-600 block leading-tight">¡La magia invisible!</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 font-semibold mt-2 leading-relaxed">
+              Los programas, canciones, dibujos y jueguitos que viven en su memoria.
+            </p>
+          </div>
+        </div>
+
+        <!-- Dynamic Live Feedback Box -->
+        <div id="concept-box" class="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-amber-400 text-amber-900 flex items-center justify-center shrink-0 text-sm font-black">
+            <i class="fa-solid fa-lightbulb"></i>
+          </div>
+          <div class="text-xs">
+            <strong id="concept-title" class="text-amber-950 font-bold block text-xs">Ejemplos de Hardware (¡Se tocan!):</strong>
+            <span id="concept-desc" class="text-slate-600 font-medium">🖥️ El monitor, 🖱️ el ratón, ⌨️ el teclado y 🔊 los altavoces.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: CPU y Monitor -->
+      <section id="slide-1" class="slide-page">
+        <!-- Compact Header -->
+        <div class="text-center mb-3">
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-[11px] font-extrabold uppercase">
+            <i class="fa-solid fa-microchip text-indigo-500"></i> Misión 2
+          </span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">El Cerebro y la Ventana Mágica</h2>
+          <p class="text-xs text-slate-500 font-semibold">Interactúa con la pantalla y enciende las luces del cerebro robot.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Monitor Simulator Card -->
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-tv text-sky-500"></i> El Monitor (Pantalla)
+              </span>
+              <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded">Muestra imágenes</span>
+            </div>
+
+            <!-- Mini Monitor Screen -->
+            <div class="bg-slate-900 rounded-xl p-2.5 border-2 border-slate-700 text-center flex flex-col items-center justify-center min-h-[95px] relative">
+              <div id="screen-display" class="text-3xl transition-transform transform scale-100">
+                🐶
+              </div>
+              <p id="screen-label" class="text-[11px] font-bold text-sky-300 mt-1">Perrito juguetón</p>
+            </div>
+
+            <!-- Screen Switchers -->
+            <div class="flex gap-1.5 justify-center mt-2.5">
+              <button onclick="changeScreen('🐶', 'Perrito juguetón', this)" class="screen-btn px-2.5 py-1 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-bold shadow-sm hover:bg-sky-50">
+                🐶 Perro
+              </button>
+              <button onclick="changeScreen('🚀', 'Cohete veloz', this)" class="screen-btn px-2.5 py-1 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-bold shadow-sm hover:bg-sky-50">
+                🚀 Cohete
+              </button>
+              <button onclick="changeScreen('🎨', 'Pintando colores', this)" class="screen-btn px-2.5 py-1 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-bold shadow-sm hover:bg-sky-50">
+                🎨 Dibujo
+              </button>
+            </div>
+          </div>
+
+          <!-- CPU Simulator Card -->
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-server text-indigo-500"></i> La Torre (CPU)
+              </span>
+              <span class="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.5 rounded">El Cerebro</span>
+            </div>
+
+            <!-- Mini CPU Box -->
+            <div class="bg-slate-800 rounded-xl p-3 border-2 border-slate-700 flex items-center justify-between min-h-[95px]">
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-2">
+                  <span id="led-1" class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                  <span class="text-[10px] text-slate-300 font-semibold">Cerebro pensando</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="led-2" class="w-3 h-3 rounded-full bg-amber-400"></span>
+                  <span class="text-[10px] text-slate-300 font-semibold">Guardando fotos</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="led-3" class="w-3 h-3 rounded-full bg-sky-400"></span>
+                  <span class="text-[10px] text-slate-300 font-semibold">Ventilador activo</span>
+                </div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center text-slate-300 text-lg border border-slate-600">
+                <i class="fa-solid fa-microchip"></i>
+              </div>
+            </div>
+
+            <!-- CPU Power button -->
+            <button onclick="toggleCpuBoost()" id="cpu-boost-btn" class="w-full mt-2.5 py-1 px-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-bolt"></i>
+              <span id="cpu-btn-text">¡Poner el cerebro a pensar rápido!</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: Ratón y Teclado -->
+      <section id="slide-2" class="slide-page">
+        <!-- Compact Header -->
+        <div class="text-center mb-3">
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-[11px] font-extrabold uppercase">
+            <i class="fa-solid fa-hand-pointer text-emerald-600"></i> Misión 3
+          </span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">Nuestras Manos: Ratón y Teclado</h2>
+          <p class="text-xs text-slate-500 font-semibold">¡Prueba los botones del ratón y pulsa teclas para escribir!</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Mouse Tester -->
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-computer-mouse text-emerald-600"></i> El Ratón (Mouse)
+                </span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">¡Mueve la flecha!</span>
+              </div>
+              <p class="text-[11px] text-slate-500 font-medium">Pulsa el botón izquierdo o derecho para escuchar y contar clics:</p>
+            </div>
+
+            <!-- Virtual Mouse with two buttons -->
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200 mt-2">
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="handleMouseClick('izquierdo')" class="py-3 px-2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex flex-col items-center">
+                  <i class="fa-solid fa-arrow-pointer mb-1 text-sm"></i>
+                  <span>Clic Izquierdo</span>
+                </button>
+                <button onclick="handleMouseClick('derecho')" class="py-3 px-2 bg-teal-500 hover:bg-teal-600 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex flex-col items-center">
+                  <i class="fa-solid fa-bars mb-1 text-sm"></i>
+                  <span>Clic Derecho</span>
+                </button>
+              </div>
+              <p id="mouse-output" class="text-center text-[11px] font-extrabold text-emerald-700 mt-2 min-h-[16px]">
+                ¡Haz un clic para probar!
+              </p>
+            </div>
+          </div>
+
+          <!-- Keyboard Tester -->
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-keyboard text-purple-600"></i> El Teclado
+                </span>
+                <span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded">Escribe letras</span>
+              </div>
+              <p class="text-[11px] text-slate-500 font-medium">Toca las teclas grandes para escribir en la pizarra:</p>
+            </div>
+
+            <!-- Screen text field -->
+            <div class="mt-2">
+              <div id="screen-input" class="bg-white border-2 border-dashed border-purple-300 rounded-xl p-2 text-center text-sm font-extrabold text-purple-800 tracking-wider min-h-[36px] flex items-center justify-center">
+                HOLA
+              </div>
+              <!-- Big keys row -->
+              <div class="flex items-center justify-center gap-1.5 mt-2">
+                <button onclick="typeChar('H')" class="w-8 h-8 bg-white border-b-2 border-slate-300 rounded-lg font-bold text-slate-700 text-xs active:translate-y-0.5 hover:bg-purple-50">H</button>
+                <button onclick="typeChar('O')" class="w-8 h-8 bg-white border-b-2 border-slate-300 rounded-lg font-bold text-slate-700 text-xs active:translate-y-0.5 hover:bg-purple-50">O</button>
+                <button onclick="typeChar('L')" class="w-8 h-8 bg-white border-b-2 border-slate-300 rounded-lg font-bold text-slate-700 text-xs active:translate-y-0.5 hover:bg-purple-50">L</button>
+                <button onclick="typeChar('A')" class="w-8 h-8 bg-white border-b-2 border-slate-300 rounded-lg font-bold text-slate-700 text-xs active:translate-y-0.5 hover:bg-purple-50">A</button>
+                <button onclick="typeChar('⭐')" class="w-8 h-8 bg-white border-b-2 border-slate-300 rounded-lg font-bold text-slate-700 text-xs active:translate-y-0.5 hover:bg-purple-50">⭐</button>
+                <button onclick="clearText()" class="px-2 h-8 bg-rose-100 text-rose-700 rounded-lg font-bold text-[11px] hover:bg-rose-200">Borrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: ¡A Jugar! Minijuego -->
+      <section id="slide-3" class="slide-page relative">
+        <div id="confetti-zone" class="absolute inset-0 pointer-events-none"></div>
+
+        <div class="text-center mb-3">
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full text-[11px] font-extrabold uppercase">
+            <i class="fa-solid fa-trophy text-amber-500"></i> Desafío Final
+          </span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">¡El Reto del Explorador!</h2>
+          <p class="text-xs text-slate-500 font-semibold">Lee la adivinanza y toca la parte correcta del computador:</p>
+        </div>
+
+        <!-- Question Banner -->
+        <div class="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl text-center mb-3">
+          <p class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wide">Adivinanza:</p>
+          <p id="trivia-prompt" class="text-sm sm:text-base font-extrabold text-slate-800 mt-0.5">
+            "Soy el cerebro del computador, guardo todas las ideas y pienso muy veloz. ¿Quién soy?"
+          </p>
+        </div>
+
+        <!-- 3 Big Options -->
+        <div class="grid grid-cols-3 gap-2.5" id="answers-container">
+          <button onclick="answerQuestion(false, this)" class="opt-btn p-3 bg-white border-2 border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-1 hover:border-blue-400 hover:scale-[1.02] transition-all">
+            <i class="fa-solid fa-tv text-2xl text-sky-500"></i>
+            <span class="text-xs font-extrabold text-slate-700">El Monitor</span>
+          </button>
+          <button onclick="answerQuestion(true, this)" class="opt-btn p-3 bg-white border-2 border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-1 hover:border-blue-400 hover:scale-[1.02] transition-all">
+            <i class="fa-solid fa-microchip text-2xl text-indigo-600"></i>
+            <span class="text-xs font-extrabold text-slate-700">La Torre (CPU)</span>
+          </button>
+          <button onclick="answerQuestion(false, this)" class="opt-btn p-3 bg-white border-2 border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-1 hover:border-blue-400 hover:scale-[1.02] transition-all">
+            <i class="fa-solid fa-computer-mouse text-2xl text-emerald-500"></i>
+            <span class="text-xs font-extrabold text-slate-700">El Ratón</span>
+          </button>
+        </div>
+
+        <!-- Feedback Result Message -->
+        <div id="quiz-msg" class="mt-3 p-2.5 rounded-xl text-center hidden">
+          <p id="quiz-msg-text" class="text-xs font-extrabold"></p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Snug Bottom Bar (No blank spaces) -->
+    <footer class="px-4 py-2.5 sm:px-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+      <button id="btn-prev" onclick="nav(-1)" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-sm">
+        <i class="fa-solid fa-arrow-left text-[10px]"></i>
+        <span>Anterior</span>
+      </button>
+
+      <span id="page-count" class="text-xs font-extrabold text-slate-600 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-inner">
+        1 de 4
+      </span>
+
+      <button id="btn-next" onclick="nav(1)" class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-bold text-xs bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-sm shadow-blue-300">
+        <span id="btn-next-label">Siguiente</span>
+        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      </button>
+    </footer>
+
+  </main>
+
+  <script>
+    // Safe Web Audio API synthesizer for child-friendly feedback
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function beep(freq, type = 'sine', time = 0.08) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + time);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + time);
+      } catch (err) {
+        // audio unavailable fallback
+      }
+    }
+
+    function soundCheer() {
+      beep(523.25, 'triangle', 0.1);
+      setTimeout(() => beep(659.25, 'triangle', 0.1), 100);
+      setTimeout(() => beep(783.99, 'triangle', 0.22), 200);
+    }
+
+    function soundClick() {
+      beep(460, 'sine', 0.05);
+    }
+
+    function soundBuzz() {
+      beep(200, 'sawtooth', 0.15);
+    }
+
+    // Slide State Management
+    let current = 0;
+    const total = 4;
+
+    function renderView() {
+      // Toggle slides
+      for (let i = 0; i < total; i++) {
+        const page = document.getElementById(`slide-${i}`);
+        const pill = document.getElementById(`pill-${i}`);
+        if (i === current) {
+          page.classList.add('active');
+          pill.className = 'nav-pill px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white shadow-sm flex items-center gap-1';
+          pill.querySelector('span:first-child').className = 'w-4 h-4 rounded-full bg-white/25 flex items-center justify-center text-[10px]';
+        } else {
+          page.classList.remove('active');
+          pill.className = 'nav-pill px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1';
+          pill.querySelector('span:first-child').className = 'w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center text-[10px]';
+        }
+      }
+
+      // Progress bar & counter
+      document.getElementById('progress-bar').style.width = `${((current + 1) / total) * 100}%`;
+      document.getElementById('page-count').innerText = `${current + 1} de ${total}`;
+      document.getElementById('btn-prev').disabled = (current === 0);
+
+      const nextLabel = document.getElementById('btn-next-label');
+      if (current === total - 1) {
+        nextLabel.innerText = "¡Repetir!";
+      } else {
+        nextLabel.innerText = "Siguiente";
+      }
+    }
+
+    function goToSlide(idx) {
+      if (idx >= 0 && idx < total) {
+        soundClick();
+        current = idx;
+        renderView();
+      }
+    }
+
+    function nav(step) {
+      soundClick();
+      if (current === total - 1 && step === 1) {
+        current = 0;
+      } else {
+        current = Math.max(0, Math.min(total - 1, current + step));
+      }
+      renderView();
+    }
+
+    // Slide 1 Handlers: Hardware vs Software
+    function selectConcept(type) {
+      soundClick();
+      const cardHw = document.getElementById('card-hw');
+      const cardSw = document.getElementById('card-sw');
+      const title = document.getElementById('concept-title');
+      const desc = document.getElementById('concept-desc');
+
+      if (type === 'hardware') {
+        cardHw.className = 'cursor-pointer p-3.5 rounded-2xl border-2 border-blue-500 bg-blue-50/70 shadow-sm transition-all scale-[1.01]';
+        cardSw.className = 'cursor-pointer p-3.5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm transition-all hover:scale-[1.01] hover:border-emerald-300';
+        title.innerText = "Ejemplos de Hardware (¡Se tocan con las manos!):";
+        desc.innerText = "🖥️ El monitor, 🖱️ el ratón, ⌨️ el teclado y 🔊 los altavoces.";
+      } else {
+        cardSw.className = 'cursor-pointer p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 shadow-sm transition-all scale-[1.01]';
+        cardHw.className = 'cursor-pointer p-3.5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm transition-all hover:scale-[1.01] hover:border-blue-300';
+        title.innerText = "Ejemplos de Software (¡Magia invisible adentro!):";
+        desc.innerText = "🎮 Los juegos de colorear, 🎬 los videos infantiles y 🤖 los programas.";
+      }
+    }
+
+    // Slide 2 Handlers: Monitor & CPU Simulator
+    function changeScreen(emoji, name, btn) {
+      soundClick();
+      const screenDisplay = document.getElementById('screen-display');
+      screenDisplay.innerText = emoji;
+      document.getElementById('screen-label').innerText = name;
+      screenDisplay.classList.add('scale-125');
+      setTimeout(() => screenDisplay.classList.remove('scale-125'), 180);
+
+      document.querySelectorAll('.screen-btn').forEach(b => b.classList.replace('bg-sky-100', 'bg-white'));
+      btn.classList.replace('bg-white', 'bg-sky-100');
+    }
+
+    let cpuFast = false;
+    function toggleCpuBoost() {
+      soundClick();
+      cpuFast = !cpuFast;
+      const leds = [document.getElementById('led-1'), document.getElementById('led-2'), document.getElementById('led-3')];
+      const btnText = document.getElementById('cpu-btn-text');
+
+      leds.forEach(led => {
+        if (cpuFast) {
+          led.classList.add('led-blink');
+        } else {
+          led.classList.remove('led-blink');
+        }
+      });
+
+      btnText.innerText = cpuFast ? "⚡ ¡Pensando a súper velocidad!" : "¡Poner el cerebro a pensar rápido!";
+    }
+
+    // Slide 3 Handlers: Mouse & Keyboard Simulator
+    let clickCount = 0;
+    function handleMouseClick(buttonType) {
+      soundClick();
+      clickCount++;
+      const output = document.getElementById('mouse-output');
+      output.innerText = `¡Bien! Pulsaste el botón ${buttonType.toUpperCase()} (Total: ${clickCount} clics 🎯)`;
+    }
+
+    let typedContent = "HOLA";
+    function typeChar(letter) {
+      soundClick();
+      if (typedContent.length >= 8) typedContent = "";
+      typedContent += letter;
+      document.getElementById('screen-input').innerText = typedContent;
+    }
+
+    function clearText() {
+      soundClick();
+      typedContent = "";
+      document.getElementById('screen-input').innerText = "...";
+    }
+
+    // Slide 4 Handlers: Quiz Game & Confetti
+    function answerQuestion(isCorrect, elem) {
+      const msgBox = document.getElementById('quiz-msg');
+      const msgText = document.getElementById('quiz-msg-text');
+      const buttons = document.querySelectorAll('.opt-btn');
+
+      if (isCorrect) {
+        soundCheer();
+        buttons.forEach(b => b.classList.add('pointer-events-none', 'opacity-60'));
+        elem.classList.remove('opacity-60');
+        elem.classList.add('border-emerald-500', 'bg-emerald-50', 'scale-105');
+
+        msgBox.className = 'mt-3 p-2 rounded-xl text-center bg-emerald-100 border border-emerald-300 text-emerald-900 block';
+        msgText.innerHTML = "🎉 <strong>¡CORRECTO!</strong> La Torre o CPU es el gran cerebro del computador. ¡Medalla para ti! 🥇";
+        spawnConfetti();
+      } else {
+        soundBuzz();
+        elem.classList.add('border-rose-400', 'bg-rose-50');
+        msgBox.className = 'mt-3 p-2 rounded-xl text-center bg-rose-50 border border-rose-200 text-rose-800 block';
+        msgText.innerText = "¡Casi! Recuerda: ¿cuál es la parte que PIENSA y GUARDA la información? Prueba otra vez.";
+        setTimeout(() => {
+          elem.classList.remove('border-rose-400', 'bg-rose-50');
+        }, 1100);
+      }
+    }
+
+    function spawnConfetti() {
+      const zone = document.getElementById('confetti-zone');
+      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+      for (let i = 0; i < 28; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 95 + '%';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (1.2 + Math.random() * 1.2) + 's';
+        zone.appendChild(piece);
+        setTimeout(() => piece.remove(), 2400);
+      }
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') nav(1);
+      if (e.key === 'ArrowLeft') nav(-1);
+    });
+
+    // Start on slide 0
+    renderView();
+  </script>
+</body>
+</html>

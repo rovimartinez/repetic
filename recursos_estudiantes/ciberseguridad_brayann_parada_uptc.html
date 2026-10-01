@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventura de Ciberseguridad - Segundo de Primaria</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for kids-friendly icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        cyberBlue: '#3b82f6',
+                        cyberPurple: '#8b5cf6',
+                        cyberPink: '#ec4899',
+                        cyberYellow: '#f59e0b',
+                        cyberGreen: '#10b981',
+                        cyberDark: '#1e1b4b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .slide-transition {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .floating-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .pulse-btn {
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-white select-none">
+
+    <!-- Barra Superior de Navegación / Índice Interactiva -->
+    <header id="main-header" class="hidden bg-indigo-950/80 backdrop-blur-md border-b border-indigo-800/50 sticky top-0 z-50 px-4 py-3 shadow-lg">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="goToSlide(0)">
+                <div class="bg-gradient-to-tr from-pink-500 to-yellow-400 p-2.5 rounded-2xl shadow-md text-white font-bold text-xl">
+                    <i class="fa-solid fa-shield-cat"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-300">CiberGuardianes</h1>
+                    <p class="text-xs text-indigo-300">Informática • 2° Primaria</p>
+                </div>
+            </div>
+
+            <!-- Índice de Conceptos Clave (Pestañas de Diapositivas) -->
+            <nav class="flex flex-wrap items-center justify-center gap-2" id="slide-nav-pills">
+                <button onclick="goToSlide(1)" class="nav-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-900/60 hover:bg-pink-600 border border-indigo-700/50 transition flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-indigo-800 flex items-center justify-center text-[10px]">1</span> Escudo
+                </button>
+                <button onclick="goToSlide(2)" class="nav-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-900/60 hover:bg-pink-600 border border-indigo-700/50 transition flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-indigo-800 flex items-center justify-center text-[10px]">2</span> Contraseñas
+                </button>
+                <button onclick="goToSlide(3)" class="nav-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-900/60 hover:bg-pink-600 border border-indigo-700/50 transition flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-indigo-800 flex items-center justify-center text-[10px]">3</span> Amigos/Extraños
+                </button>
+                <button onclick="goToSlide(4)" class="nav-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-900/60 hover:bg-pink-600 border border-indigo-700/50 transition flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-indigo-800 flex items-center justify-center text-[10px]">4</span> Semáforo
+                </button>
+                <button onclick="goToSlide(5)" class="nav-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-900/60 hover:bg-pink-600 border border-indigo-700/50 transition flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-indigo-800 flex items-center justify-center text-[10px]">5</span> ¡Reto!
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal de Presentación -->
+    <main class="flex-grow flex items-center justify-center p-4 md:p-8">
+        <div class="w-full max-w-4xl bg-gradient-to-b from-indigo-900/80 to-indigo-950/90 backdrop-blur-xl border border-indigo-700/40 rounded-3xl shadow-2xl p-6 md:p-10 relative overflow-hidden flex flex-col justify-between min-h-[500px]">
+
+            <!-- Decoración de Fondo -->
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- ======================================================= -->
+            <!-- DIAPOSITIVA 0: Pantalla de Inicio -->
+            <!-- ======================================================= -->
+            <section id="slide-0" class="slide active flex flex-col items-center justify-center text-center my-auto py-8">
+                <div class="floating-animation mb-6 bg-gradient-to-tr from-pink-500 via-purple-500 to-yellow-400 p-6 rounded-3xl shadow-2xl inline-block border-4 border-white/20">
+                    <i class="fa-solid fa-shield-halved text-6xl md:text-8xl text-white"></i>
+                </div>
+                <span class="bg-pink-500/20 text-pink-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-pink-500/30">
+                    <i class="fa-solid fa-graduation-cap mr-1"></i> Recurso Didáctico Interactivo
+                </span>
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-300">
+                    Aventura Cibersegura
+                </h1>
+                <p class="text-indigo-200 text-sm md:text-base max-w-xl mb-8 leading-relaxed">
+                    ¡Hola, pequeño Ciberguerrero! Prepárate para aprender los superpoderes necesarios para navegar seguro, divertido y protegido en el gran mundo del internet.
+                </p>
+                <button onclick="startAdventure()" class="pulse-btn bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-xl transition transform hover:scale-105 flex items-center gap-3">
+                    <i class="fa-solid fa-rocket text-xl"></i> Empezar Aventura
+                </button>
+            </section>
+
+            <!-- ======================================================= -->
+            <!-- DIAPOSITIVA 1: ¿Qué es la Ciberseguridad? -->
+            <!-- ======================================================= -->
+            <section id="slide-1" class="slide hidden flex-col justify-between my-auto py-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-xl text-xs font-bold border border-blue-500/30">Concepto 1 de 5</span>
+                        <h2 class="text-2xl md:text-3xl font-bold text-cyan-300">El Escudo Secreto de Internet</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div class="bg-indigo-900/50 p-6 rounded-2xl border border-indigo-700/40">
+                            <h3 class="font-bold text-lg text-yellow-300 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-shield-cat text-pink-400"></i> ¿Qué es la Ciberseguridad?
+                            </h3>
+                            <p class="text-indigo-100 text-sm md:text-base leading-relaxed mb-4">
+                                Así como miras a ambos lados antes de cruzar la calle, en internet también necesitamos reglas para cuidarnos. La <b>ciberseguridad</b> es como un escudo invisible que protege nuestra información, nuestros juegos y nuestros dispositivos contra peligros y personas malintencionadas.
+                            </p>
+                            <div class="bg-cyan-500/10 border-l-4 border-cyan-400 p-3 rounded-r-xl text-xs text-cyan-200">
+                                💡 <b>Dato clave:</b> Internet es un lugar genial para aprender y jugar, ¡pero usar tu escudo te mantiene a salvo!
+                            </div>
+                        </div>
+                        <div class="flex justify-center">
+                            <div class="relative bg-gradient-to-br from-blue-600/30 to-indigo-800/40 p-8 rounded-3xl border border-blue-400/30 text-center shadow-inner">
+                                <i class="fa-solid fa-user-shield text-8xl text-cyan-300 floating-animation"></i>
+                                <p class="mt-4 font-bold text-sm text-indigo-200">¡Tú eres el Guardián de tu Navegador!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================= -->
+            <!-- DIAPOSITIVA 2: Tus datos personales -->
+            <!-- ======================================================= -->
+            <section id="slide-2" class="slide hidden flex-col justify-between my-auto py-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-xl text-xs font-bold border border-purple-500/30">Concepto 2 de 5</span>
+                        <h2 class="text-2xl md:text-3xl font-bold text-pink-300">Contraseñas Fuertes y Datos Privados</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div class="bg-indigo-900/50 p-6 rounded-2xl border border-indigo-700/40">
+                            <h3 class="font-bold text-lg text-yellow-300 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-key text-yellow-400"></i> ¡Guarda tu llave secreta!
+                            </h3>
+                            <p class="text-indigo-100 text-sm md:text-base leading-relaxed mb-3">
+                                Nunca compartas tus datos privados: tu nombre completo, dirección, nombre de colegio o contraseñas con desconocidos.
+                            </p>
+                            <ul class="space-y-2 text-xs md:text-sm text-indigo-200">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-green-400"></i> Usa contraseñas divertidas con números y letras.</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-green-400"></i> No anotes tu contraseña en papeles visibles.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-indigo-900/50 p-6 rounded-2xl border border-indigo-700/40 text-center">
+                            <div class="bg-pink-500/20 p-4 rounded-2xl border border-pink-500/30 inline-block mb-3">
+                                <i class="fa-solid fa-lock text-5xl text-pink-400"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-white mb-1">Regla de Oro</h4>
+                            <p class="text-xs text-indigo-200">"Tus contraseñas son como tu cepillo de dientes: ¡no se le prestan a nadie, ni siquiera al mejor amigo!"</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================= -->
+            <!-- DIAPOSITIVA 3: Amigos y extraños en internet -->
+            <!-- ======================================================= -->
+            <section id="slide-3" class="slide hidden flex-col justify-between my-auto py-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-xl text-xs font-bold border border-yellow-500/30">Concepto 3 de 5</span>
+                        <h2 class="text-2xl md:text-3xl font-bold text-yellow-300">Amigos y Extraños en la Red</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-green-900/30 border border-green-500/30 p-5 rounded-2xl">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="bg-green-500/20 p-3 rounded-xl text-green-400">
+                                    <i class="fa-solid fa-user-group text-xl"></i>
+                                </div>
+                                <h3 class="font-bold text-base text-green-300">Amigos Reales</h3>
+                            </div>
+                            <p class="text-xs md:text-sm text-indigo-100">
+                                Son las personas que conoces en la escuela, tu familia y vecinos en quien tus papás confían plenamente. Con ellos juegas de forma segura.
+                            </p>
+                        </div>
+                        <div class="bg-red-900/30 border border-red-500/30 p-5 rounded-2xl">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="bg-red-500/20 p-3 rounded-xl text-red-400">
+                                    <i class="fa-solid fa-user-secret text-xl"></i>
+                                </div>
+                                <h3 class="font-bold text-base text-red-300">Cuidado con Extraños</h3>
+                            </div>
+                            <p class="text-xs md:text-sm text-indigo-100">
+                                En internet, alguien puede decir que tiene tu edad pero ser otra persona. Nunca aceptes citas, regalos ni envíes fotos a perfiles que no conoces en la vida real.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================= -->
+            <!-- DIAPOSITIVA 4: La regla del semáforo digital -->
+            <!-- ======================================================= -->
+            <section id="slide-4" class="slide hidden flex-col justify-between my-auto py-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-green-500/20 text-green-300 px-3 py-1 rounded-xl text-xs font-bold border border-green-500/30">Concepto 4 de 5</span>
+                        <h2 class="text-2xl md:text-3xl font-bold text-green-300">La Regla del Semáforo Digital</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-red-500/20 border border-red-500/40 p-4 rounded-2xl text-center">
+                            <div class="w-12 h-12 bg-red-500 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-white shadow-md">STOP</div>
+                            <h4 class="font-bold text-red-300 text-sm mb-1">ROJO: ALTO</h4>
+                            <p class="text-xs text-indigo-200">Si algo te da miedo, aparece un mensaje raro o te pide datos, ¡para de inmediato y no hagas clic!</p>
+                        </div>
+                        <div class="bg-yellow-500/20 border border-yellow-500/40 p-4 rounded-2xl text-center">
+                            <div class="w-12 h-12 bg-yellow-500 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-indigo-950 shadow-md">PIDE</div>
+                            <h4 class="font-bold text-yellow-300 text-sm mb-1">AMARILLO: DUDA</h4>
+                            <p class="text-xs text-indigo-200">Si tienes una duda sobre si un juego o aplicación es seguro, pregunta a mamá, papá o profesor.</p>
+                        </div>
+                        <div class="bg-green-500/20 border border-green-500/40 p-4 rounded-2xl text-center">
+                            <div class="w-12 h-12 bg-green-500 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-white shadow-md">AVANZA</div>
+                            <h4 class="font-bold text-green-300 text-sm mb-1">VERDE: SEGURO</h4>
+                            <p class="text-xs text-indigo-200">¡Diviértete visitando páginas educativas aprobadas por tus adultos de confianza con total tranquilidad!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================= -->
+            <!-- DIAPOSITIVA 5: Minijuego / Reto final -->
+            <!-- ======================================================= -->
+            <section id="slide-5" class="slide hidden flex-col justify-between my-auto py-2">
+                <div id="quiz-container">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-pink-500/20 text-pink-300 px-3 py-1 rounded-xl text-xs font-bold border border-pink-500/30">Concepto 5 de 5 • ¡Reto Ciberhéroe!</span>
+                        <span id="quiz-counter" class="text-xs text-yellow-300 font-bold">Pregunta 1 de 3</span>
+                    </div>
+                    
+                    <div class="bg-indigo-900/60 p-5 rounded-2xl border border-indigo-700/50 mb-4">
+                        <h3 id="quiz-question" class="font-bold text-base md:text-lg text-white mb-4">
+                            ¿Debes darle tu contraseña de videojuegos a un desconocido que conociste en internet?
+                        </h3>
+                        <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- Opciones inyectadas por JS -->
+                        </div>
+                    </div>
+                    <div id="quiz-feedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+                </div>
+
+                <!-- Pantalla Final / Felicitaciones (Oculta hasta terminar el quiz) -->
+                <div id="final-screen" class="hidden text-center py-4">
+                    <div class="inline-block bg-gradient-to-tr from-yellow-400 to-pink-500 p-5 rounded-full shadow-2xl mb-4 floating-animation">
+                        <i class="fa-solid fa-award text-5xl md:text-6xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-yellow-300 mb-2">¡Felicitaciones, Super Ciberguerrero!</h2>
+                    <p class="text-indigo-200 text-xs md:text-sm max-w-md mx-auto mb-4">
+                        Has completado todas las misiones y demostrado que sabes proteger tus datos y navegar con seguridad.
+                    </p>
+                    <div class="flex justify-center gap-3 mb-6">
+                        <div class="bg-indigo-900/80 border border-yellow-500/40 px-4 py-2 rounded-xl">
+                            <span class="block text-xs text-indigo-300">Medallas Ganadas</span>
+                            <span id="final-score" class="text-xl font-bold text-yellow-400">3/3 🌟</span>
+                        </div>
+                    </div>
+                    <button onclick="restartAdventure()" class="bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-600 hover:to-cyan-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition transform hover:scale-105 flex items-center gap-2 mx-auto text-sm">
+                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Aventura
+                    </button>
+                </div>
+            </section>
+
+            <!-- Botones de Control Inferior (Anterior / Siguiente) -->
+            <div id="controls-footer" class="hidden flex items-center justify-between pt-4 mt-4 border-t border-indigo-800/40">
+                <button onclick="prevSlide()" id="prev-btn" class="bg-indigo-800/60 hover:bg-indigo-700 text-indigo-200 hover:text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition disabled:opacity-30 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-arrow-left"></i> Anterior
+                </button>
+                <div class="text-xs text-indigo-400 font-semibold" id="slide-indicator">
+                    Diapositiva 1 de 5
+                </div>
+                <button onclick="nextSlide()" id="next-btn" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md transition">
+                    Siguiente <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- PIE DE PÁGINA (FOOTER) OBLIGATORIO -->
+    <footer class="bg-indigo-950 border-t border-indigo-900 py-3 px-4 text-center text-xs text-indigo-400 shadow-inner">
+        Brayann Parada • UPTC • @brayann.parada • 2026
+    </footer>
+
+    <!-- Script de Audio y Lógica de Presentación Interactiva -->
+    <script>
+        // Web Audio API para efectos de sonido nativos sin archivos externos
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gainNode.gain.setValueAtTime(0.1, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(120, now + 0.15);
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'victory') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, index) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.setValueAtTime(freq, now + index * 0.12);
+                        g.gain.setValueAtTime(0.15, now + index * 0.12);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + index * 0.12 + 0.3);
+                        o.start(now + index * 0.12);
+                        o.stop(now + index * 0.12 + 0.3);
+                    });
+                }
+            } catch (e) {
+                console.log('Audio error:', e);
+            }
+        }
+
+        // Lógica de Diapositivas y Quiz
+        let currentSlide = 0;
+        const totalSlides = 5;
+
+        const quizData = [
+            {
+                question: "¿Debes darle tu contraseña secreta de juegos a un desconocido que conociste en internet?",
+                options: [
+                    { text: "Sí, si es muy amable", correct: false },
+                    { text: "No, nunca debo compartir contraseñas", correct: true }
+                ],
+                explanation: "¡Correcto! Las contraseñas son privadas y solo las conocen tú y tus papás."
+            },
+            {
+                question: "Si ves un mensaje extraño en la pantalla que te da miedo o te pide datos, ¿qué debes hacer?",
+                options: [
+                    { text: "Darle clic rápidamente", correct: false },
+                    { text: "Parar (Rojo) y avisar a un adulto de confianza", correct: true }
+                ],
+                explanation: "¡Exacto! Aplicas la regla del semáforo digital: parar y pedir ayuda."
+            },
+            {
+                question: "¿Quiénes son considerados tus amigos seguros en el mundo digital?",
+                options: [
+                    { text: "Personas de la escuela y familia en quien mis padres confían", correct: true },
+                    { text: "Cualquier persona que me hable bonito en un chat", correct: false }
+                ],
+                explanation: "¡Muy bien! Solo interactuamos con personas conocidas de confianza en la vida real."
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let score = 0;
+
+        function updateView() {
+            // Ocultar todas las diapositivas
+            for (let i = 0; i <= totalSlides; i++) {
+                const slide = document.getElementById(`slide-${i}`);
+                if (slide) {
+                    slide.classList.remove('flex');
+                    slide.classList.add('hidden');
+                }
+            }
+
+            // Mostrar diapositiva actual
+            const activeSlide = document.getElementById(`slide-${currentSlide}`);
+            if (activeSlide) {
+                activeSlide.classList.remove('hidden');
+                activeSlide.classList.add('flex');
+            }
+
+            // Mostrar u ocultar barra superior y controles según pantalla de inicio
+            const header = document.getElementById('main-header');
+            const footerControls = document.getElementById('controls-footer');
+
+            if (currentSlide === 0) {
+                header.classList.add('hidden');
+                footerControls.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+                footerControls.classList.remove('hidden');
+                document.getElementById('slide-indicator').innerText = `Diapositiva ${currentSlide} de ${totalSlides}`;
+                document.getElementById('prev-btn').disabled = (currentSlide === 1);
+                
+                // Si estamos en la diapositiva final (5), ocultamos el botón siguiente estándar porque el quiz maneja su propio flujo
+                if (currentSlide === 5) {
+                    document.getElementById('next-btn').style.display = 'none';
+                } else {
+                    document.getElementById('next-btn').style.display = 'flex';
+                }
+            }
+
+            // Actualizar estilo de pills del índice
+            const pills = document.querySelectorAll('.nav-pill');
+            pills.forEach((pill, idx) => {
+                if (idx + 1 === currentSlide) {
+                    pill.classList.remove('bg-indigo-900/60');
+                    pill.classList.add('bg-pink-600', 'border-pink-400');
+                } else {
+                    pill.classList.remove('bg-pink-600', 'border-pink-400');
+                    pill.classList.add('bg-indigo-900/60');
+                }
+            });
+        }
+
+        function startAdventure() {
+            playSound('success');
+            currentSlide = 1;
+            updateView();
+        }
+
+        function goToSlide(slideNum) {
+            playSound('click');
+            currentSlide = slideNum;
+            if (currentSlide === 5) {
+                resetQuiz();
+            }
+            updateView();
+        }
+
+        function nextSlide() {
+            playSound('click');
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                if (currentSlide === 5) {
+                    resetQuiz();
+                }
+                updateView();
+            }
+        }
+
+        function prevSlide() {
+            playSound('click');
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateView();
+            }
+        }
+
+        // Funciones del Minijuego / Quiz
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            score = 0;
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('final-screen').classList.add('hidden');
+            loadQuizQuestion();
+        }
+
+        function loadQuizQuestion() {
+            const q = quizData[currentQuizIndex];
+            document.getElementById('quiz-counter').innerText = `Pregunta ${currentQuizIndex + 1} de ${quizData.length}`;
+            document.getElementById('quiz-question').innerText = q.question;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "bg-indigo-800/80 hover:bg-indigo-700 border border-indigo-600/50 p-3 rounded-xl text-xs md:text-sm text-left font-medium transition flex items-center gap-3";
+                btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-indigo-900 flex items-center justify-center text-xs font-bold">${String.fromCharCode(65 + idx)}</span> ${opt.text}`;
+                btn.onclick = () => selectAnswer(opt.correct);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+        }
+
+        function selectAnswer(isCorrect) {
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.classList.remove('hidden');
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            const buttons = optionsContainer.getElementsByTagName('button');
+            for (let b of buttons) {
+                b.disabled = true;
+            }
+
+            if (isCorrect) {
+                playSound('success');
+                score++;
+                feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-green-500/20 text-green-300 border border-green-500/30";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> ¡Excelente! ${quizData[currentQuizIndex].explanation}`;
+            } else {
+                playSound('error');
+                feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-red-500/20 text-red-300 border border-red-500/30";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark">Casi lo logras. Recuerda: ${quizData[currentQuizIndex].explanation}</i>`;
+            }
+
+            setTimeout(() => {
+                currentQuizIndex++;
+                if (currentQuizIndex < quizData.length) {
+                    loadQuizQuestion();
+                } else {
+                    showFinalScreen();
+                }
+            }, 2500);
+        }
+
+        function showFinalScreen() {
+            playSound('victory');
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('final-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = `${score}/${quizData.length} 🌟`;
+        }
+
+        function restartAdventure() {
+            playSound('click');
+            currentSlide = 0;
+            updateView();
+        }
+
+        // Inicializar vista al cargar
+        window.onload = function() {
+            updateView();
+        };
+    </script>
+</body>
+</html>

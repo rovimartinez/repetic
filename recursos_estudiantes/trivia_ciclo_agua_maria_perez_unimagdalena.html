@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoReto: El Ciclo del Agua y el Cambio Climático</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-cyan-900 via-blue-900 to-emerald-900 min-h-screen text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <header class="w-full py-4 px-6 bg-slate-950/40 backdrop-blur-md border-b border-white/10 flex justify-between items-center z-10 shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-tr from-cyan-500 to-emerald-400 p-2.5 rounded-xl shadow-lg shadow-cyan-500/30">
+                <svg class="w-6 h-6 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+            </div>
+            <div>
+                <h1 class="text-lg md:text-xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">EcoReto Grado 9°</h1>
+                <p class="text-xs text-slate-400">Ciencias Naturales • Universidad del Magdalena</p>
+            </div>
+        </div>
+        <div id="game-status-bar" class="hidden items-center space-x-4 md:space-x-6 text-sm">
+            <div class="flex items-center space-x-1.5 bg-slate-900/60 px-3 py-1.5 rounded-full border border-white/10">
+                <span class="text-xs text-slate-400 font-medium">Vidas:</span>
+                <div id="lives-container" class="flex space-x-1 text-red-500">
+                    <!-- Hearts inserted dynamically -->
+                </div>
+            </div>
+            <div class="flex items-center space-x-1.5 bg-slate-900/60 px-3 py-1.5 rounded-full border border-white/10">
+                <span class="text-xs text-slate-400 font-medium">Puntos:</span>
+                <span id="score-display" class="font-bold text-emerald-400">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4 md:p-6 w-full max-w-4xl mx-auto">
+
+        <!-- SCREEN 1: START SCREEN -->
+        <div id="start-screen" class="w-full bg-slate-900/70 backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-3xl shadow-2xl text-center relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="inline-flex p-4 bg-gradient-to-tr from-cyan-500/20 to-emerald-500/20 rounded-2xl mb-6 border border-cyan-500/30 animate-pulse-slow">
+                <svg class="w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+            </div>
+
+            <h2 class="text-2xl md:text-4xl font-black text-white mb-4 tracking-tight">El Ciclo del Agua y el Cambio Climático</h2>
+            <p class="text-slate-300 text-sm md:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+                Pon a prueba tus conocimientos de 9° grado sobre hidrología, impacto ambiental, calentamiento global y la conservación de los recursos hídricos. ¡Tienes 20 segundos por pregunta y 3 vidas!
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left max-w-2xl mx-auto text-xs md:text-sm">
+                <div class="bg-slate-800/60 p-4 rounded-xl border border-white/5 flex items-start space-x-3">
+                    <span class="text-cyan-400 font-bold text-lg">01</span>
+                    <p class="text-slate-300">5 Preguntas dinámicas de selección múltiple.</p>
+                </div>
+                <div class="bg-slate-800/60 p-4 rounded-xl border border-white/5 flex items-start space-x-3">
+                    <span class="text-emerald-400 font-bold text-lg">02</span>
+                    <p class="text-slate-300">Temporizador de 20s y retroalimentación pedagógica.</p>
+                </div>
+                <div class="bg-slate-800/60 p-4 rounded-xl border border-white/5 flex items-start space-x-3">
+                    <span class="text-teal-400 font-bold text-lg">03</span>
+                    <p class="text-slate-300">Gana medallas y consolida tu aprendizaje científico.</p>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-slate-950 transition-all duration-200 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-2xl hover:from-cyan-300 hover:to-emerald-300 hover:shadow-lg hover:shadow-cyan-500/25 active:scale-95 cursor-pointer">
+                <span>Comenzar EcoReto</span>
+                <svg class="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            </button>
+        </div>
+
+        <!-- SCREEN 2: QUIZ SCREEN -->
+        <div id="quiz-screen" class="hidden w-full bg-slate-900/70 backdrop-blur-xl border border-white/10 p-6 md:p-8 rounded-3xl shadow-2xl relative">
+            <!-- Timer & Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center text-xs md:text-sm text-slate-300 mb-2 font-medium">
+                    <span id="question-counter">Pregunta 1 de 5</span>
+                    <div class="flex items-center space-x-1.5 text-amber-400 font-bold">
+                        <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span id="timer-display">20s</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-white/5">
+                    <div id="timer-bar" class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-2.5 rounded-full transition-all duration-1000 w-full"></div>
+                </div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="mb-6">
+                <h3 id="question-text" class="text-lg md:text-2xl font-bold text-white leading-snug">Cargando pregunta...</h3>
+            </div>
+
+            <!-- Options Grid -->
+            <div id="options-container" class="space-y-3 mb-6">
+                <!-- Options injected dynamically -->
+            </div>
+
+            <!-- Explanation Box (Hidden initially) -->
+            <div id="explanation-box" class="hidden bg-slate-800/80 border border-slate-700 p-5 rounded-2xl mb-6 transition-all duration-300">
+                <div class="flex items-center space-x-2 mb-2 font-bold text-sm" id="explanation-header">
+                    <!-- Status icon & text -->
+                </div>
+                <p id="explanation-text" class="text-slate-300 text-xs md:text-sm leading-relaxed mb-4"></p>
+                <button onclick="nextQuestion()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold rounded-xl shadow-lg transition-all active:scale-98 cursor-pointer">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: RESULTS SCREEN -->
+        <div id="results-screen" class="hidden w-full bg-slate-900/70 backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-3xl shadow-2xl text-center relative overflow-hidden">
+            <div class="inline-flex p-4 bg-gradient-to-tr from-amber-500/20 to-emerald-500/20 rounded-2xl mb-4 border border-amber-500/30">
+                <div id="result-medal-icon" class="text-4xl md:text-5xl">🏆</div>
+            </div>
+
+            <h2 class="text-2xl md:text-4xl font-black text-white mb-2">¡EcoReto Completado!</h2>
+            <p id="result-message" class="text-cyan-300 font-semibold text-sm md:text-base mb-6">Excelente desempeño en ciencias ambientales.</p>
+
+            <div class="bg-slate-800/60 border border-white/5 p-6 rounded-2xl max-w-md mx-auto mb-8 grid grid-cols-2 gap-4 text-center">
+                <div class="border-r border-white/10 pr-4">
+                    <span class="block text-xs text-slate-400 uppercase tracking-wider mb-1">Puntaje Final</span>
+                    <span id="final-score" class="text-3xl md:text-4xl font-extrabold text-emerald-400">0</span>
+                    <span class="text-xs text-slate-400">/ 50 pts</span>
+                </div>
+                <div class="pl-4 flex flex-col justify-center items-center">
+                    <span class="block text-xs text-slate-400 uppercase tracking-wider mb-1">Medalla</span>
+                    <span id="medal-title" class="text-sm md:text-base font-bold text-amber-300">Defensor del Agua</span>
+                </div>
+            </div>
+
+            <button onclick="restartGame()" class="inline-flex items-center justify-center px-8 py-4 font-bold text-slate-950 transition-all duration-200 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-2xl hover:from-cyan-300 hover:to-emerald-300 hover:shadow-lg hover:shadow-cyan-500/25 active:scale-95 cursor-pointer">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                <span>Jugar Nuevamente</span>
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="w-full py-4 px-6 bg-slate-950/80 border-t border-white/10 text-center text-xs text-slate-400 z-10">
+        <p>Prof. María Pérez • Universidad del Magdalena • @maria_perez / maria@unimagdalena.edu.co • 2026</p>
+    </footer>
+
+    <script>
+        // Preguntas educativas de Grado 9° sobre el Ciclo del Agua y Cambio Climático
+        const quizData = [
+            {
+                question: "¿Cuál es el principal motor energético que impulsa las fases de evaporación y transpiración en el ciclo hidrológico?",
+                options: [
+                    "El campo magnético terrestre y la rotación del planeta.",
+                    "La radiación solar y la energía térmica del Sol.",
+                    "La energía geotérmica proveniente del núcleo de la Tierra."
+                ],
+                correct: 1,
+                explanation: "La energía solar es el motor termodinámico fundamental del ciclo del agua. Calienta los cuerpos de agua superficiales provocando evaporación y activa la evapotranspiración en las plantas, elevando la humedad hacia la atmósfera."
+            },
+            {
+                question: "¿Cómo afecta directamente el cambio climático global al ciclo hidrológico?",
+                options: [
+                    "Aumenta la capacidad de retención de humedad de la atmósfera, intensificando eventos extremos como sequías prolongadas y lluvias torrenciales.",
+                    "Detiene por completo la formación de nubes estratosféricas en los polos.",
+                    "Elimina los acuíferos subterráneos convirtiéndolos en vapor atmosférico instantáneo."
+                ],
+                correct: 0,
+                explanation: "Al elevarse la temperatura media del planeta por efecto invernadero, la atmósfera retiene mayor cantidad de vapor de agua (según la relación de Clausius-Clapeyron), lo que desestabiliza los patrones de precipitación habituales."
+            },
+            {
+                question: "¿Qué fenómeno describe mejor el proceso de 'escorrentía superficial' y su vínculo ambiental?",
+                options: [
+                    "El flujo del agua de lluvia sobre el terreno hacia ríos y océanos, el cual puede acarrear contaminantes y sedimentos si hay deforestación.",
+                    "La condensación del vapor de agua en las capas altas de la troposfera fría.",
+                    "La infiltración profunda de agua pura directamente hacia el manto magmático."
+                ],
+                correct: 0,
+                explanation: "La escorrentía superficial es el desplazamiento del agua sobre la superficie terrestre. En cuencas deforestadas o pavimentadas, este flujo es más violento, provocando inundaciones y erosión severa."
+            },
+            {
+                question: "¿Por qué el derretimiento de los glaciares y casquetes polares altera gravemente el equilibrio hídrico global?",
+                options: [
+                    "Porque incrementa el volumen de agua dulce congelada disponible para el consumo humano inmediato.",
+                    "Porque transforma el agua dulce en vapor salino de forma irreversible.",
+                    "Porque reduce drásticamente el volumen de albedo reflectante y transfiere grandes volúmenes de agua dulce a los océanos, alterando corrientes marinas."
+                ],
+                correct: 2,
+                explanation: "Los glaciares regulan el suministro constante de agua dulce a los ríos. Su pérdida acelera el aumento del nivel del mar, altera la salinidad oceánica y afecta los ecosistemas globales."
+            },
+            {
+                question: "¿Qué rol cumplen los bosques tropicales y la vegetación en la regulación local del ciclo del agua?",
+                options: [
+                    "Actúan como 'bombas bióticas' que reciclan la humedad mediante la evapotranspiración y generan los ríos voladores atmosféricos.",
+                    "Impiden totalmente que ocurra la condensación en las zonas montañosas.",
+                    "Consumen toda el agua disponible provocando desertificación inmediata."
+                ],
+                correct: 0,
+                explanation: "Los bosques no solo absorben agua, sino que la devuelven masivamente a la atmósfera en forma de vapor a través de la transpiración, creando corrientes aéreas húmedas fundamentales para las lluvias continentales."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let timeLeft = 20;
+        let timerInterval = null;
+        let answeredCurrent = false;
+
+        // Web Audio API Synthesizer for Immersive Sound Effects
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(90, now + 0.25);
+                    gainNode.gain.setValueAtTime(0.2, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    gainNode.gain.setValueAtTime(0.05, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                }
+            } catch (e) {
+                console.log("Audio context note played silently:", e);
+            }
+        }
+
+        function updateLivesDisplay() {
+            const container = document.getElementById('lives-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const heart = document.createElement('span');
+                heart.innerHTML = i < lives ? '❤️' : '🖤';
+                container.appendChild(heart);
+            }
+        }
+
+        function startGame() {
+            initAudio();
+            currentQuestionIndex = 0;
+            score = 0;
+            lives = 3;
+            
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('game-status-bar').classList.remove('hidden');
+            document.getElementById('game-status-bar').classList.add('flex');
+            
+            updateLivesDisplay();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answeredCurrent = false;
+            timeLeft = 20;
+            document.getElementById('timer-display').innerText = `${timeLeft}s`;
+            document.getElementById('timer-bar').style.width = '100%';
+            document.getElementById('explanation-box').classList.add('hidden');
+            
+            const q = quizData[currentQuestionIndex];
+            document.getElementById('question-counter').innerText = `Pregunta ${currentQuestionIndex + 1} de ${quizData.length}`;
+            document.getElementById('question-text').innerText = q.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-white/5 hover:border-cyan-500/50 text-slate-200 text-sm md:text-base font-medium transition-all duration-200 flex items-center space-x-3 cursor-pointer";
+                btn.innerHTML = `<span class="flex-shrink-0 w-7 h-7 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-center text-xs font-bold text-cyan-400">${String.fromCharCode(65 + idx)}</span><span class="flex-grow">${opt}</span>`;
+                btn.onclick = () => selectOption(idx);
+                optionsContainer.appendChild(btn);
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-display').innerText = `${timeLeft}s`;
+                const percentage = (timeLeft / 20) * 100;
+                document.getElementById('timer-bar').style.width = `${percentage}%`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function handleTimeOut() {
+            if (answeredCurrent) return;
+            answeredCurrent = true;
+            playSound('wrong');
+            lives--;
+            updateLivesDisplay();
+
+            const q = quizData[currentQuestionIndex];
+            showExplanation(false, "¡Se acabó el tiempo!", q.explanation, q.correct);
+
+            if (lives <= 0) {
+                setTimeout(endGame, 2500);
+            }
+        }
+
+        function selectOption(selectedIndex) {
+            if (answeredCurrent) return;
+            answeredCurrent = true;
+            clearInterval(timerInterval);
+            playSound('click');
+
+            const q = quizData[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.correct);
+            
+            const buttons = document.getElementById('options-container').children;
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === q.correct) {
+                    buttons[i].classList.remove('bg-slate-800/80', 'hover:bg-slate-700/80');
+                    buttons[i].classList.add('bg-emerald-600/30', 'border-emerald-500', 'text-emerald-200');
+                } else if (i === selectedIndex && !isCorrect) {
+                    buttons[i].classList.remove('bg-slate-800/80', 'hover:bg-slate-700/80');
+                    buttons[i].classList.add('bg-red-600/30', 'border-red-500', 'text-red-200');
+                }
+            }
+
+            if (isCorrect) {
+                playSound('correct');
+                score += 10;
+                document.getElementById('score-display').innerText = score;
+                showExplanation(true, "¡Respuesta Correcta!", q.explanation);
+            } else {
+                playSound('wrong');
+                lives--;
+                updateLivesDisplay();
+                showExplanation(false, "Respuesta Incorrecta", q.explanation);
+                if (lives <= 0) {
+                    setTimeout(endGame, 3000);
+                    return;
+                }
+            }
+        }
+
+        function showExplanation(isCorrect, titleText, explanationText, correctIndex = null) {
+            const expBox = document.getElementById('explanation-box');
+            const expHeader = document.getElementById('explanation-header');
+            const expText = document.getElementById('explanation-text');
+
+            if (isCorrect) {
+                expHeader.className = "flex items-center space-x-2 mb-2 font-bold text-sm text-emerald-400";
+                expHeader.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>${titleText}</span>`;
+            } else {
+                expHeader.className = "flex items-center space-x-2 mb-2 font-bold text-sm text-rose-400";
+                expHeader.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg><span>${titleText}</span>`;
+            }
+
+            expText.innerText = explanationText;
+            expBox.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length && lives > 0) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('game-status-bar').classList.remove('flex');
+            document.getElementById('game-status-bar').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = score;
+            
+            const medalIcon = document.getElementById('result-medal-icon');
+            const medalTitle = document.getElementById('medal-title');
+            const resultMsg = document.getElementById('result-message');
+
+            if (score === 50) {
+                medalIcon.innerText = "🏆";
+                medalTitle.innerText = "Maestro del Agua y Clima";
+                resultMsg.innerText = "¡Puntaje perfecto! Demuestras dominio absoluto de la hidrología y el cambio climático.";
+            } else if (score >= 30) {
+                medalIcon.innerText = "🥇";
+                medalTitle.innerText = "Defensor Ambiental";
+                resultMsg.innerText = "¡Gran trabajo! Tienes bases sólidas sobre el impacto climático en los ciclos naturales.";
+            } else if (score >= 10) {
+                medalIcon.innerText = "🥈";
+                medalTitle.innerText = "Explorador Ecológico";
+                resultMsg.innerText = "Buen intento. Repasa los conceptos de transpiración y escorrentía para afianzar tus conocimientos.";
+            } else {
+                medalIcon.innerText = "🌱";
+                medalTitle.innerText = "Aprendiz de Ciencias";
+                resultMsg.innerText = "Sigue estudiando el ciclo del agua. ¡Cada reto es una oportunidad para aprender más!";
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

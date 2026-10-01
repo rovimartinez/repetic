@@ -1,0 +1,2351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lección interactiva sobre el ciclo del agua para grado quinto.">
+  <title>El viaje del agua | Lección interactiva</title>
+
+  <!-- Tipografía -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       VARIABLES Y CONFIGURACIÓN GENERAL
+    ========================================================= */
+    :root {
+      --azul: #2878b5;
+      --azul-claro: #e8f5fc;
+      --azul-medio: #59b7df;
+      --turquesa: #36b7a5;
+      --verde: #55a95d;
+      --verde-claro: #eaf7eb;
+      --amarillo: #f6c84c;
+      --amarillo-claro: #fff7d9;
+      --naranja: #f39a4a;
+      --rojo: #df6262;
+      --rojo-claro: #fff0f0;
+      --morado: #8169b5;
+      --texto: #263746;
+      --texto-suave: #637585;
+      --fondo: #f5f9fc;
+      --blanco: #ffffff;
+      --borde: #dce8ef;
+      --sombra: 0 8px 24px rgba(39, 86, 116, 0.10);
+      --radio: 18px;
+      --sidebar: 285px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Nunito", sans-serif;
+      color: var(--texto);
+      background: var(--fondo);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    /* =========================================================
+       ENCABEZADO
+    ========================================================= */
+    header {
+      background: var(--blanco);
+      border-bottom: 1px solid var(--borde);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      background: var(--azul-claro);
+      display: grid;
+      place-items: center;
+      font-size: 27px;
+    }
+
+    .brand h1 {
+      font-family: "Quicksand", sans-serif;
+      font-size: 1.25rem;
+      color: var(--azul);
+      font-weight: 700;
+    }
+
+    .brand p {
+      color: var(--texto-suave);
+      font-size: 0.82rem;
+    }
+
+    .progress-area {
+      width: min(360px, 40vw);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      margin-bottom: 5px;
+      color: var(--texto-suave);
+    }
+
+    .progress-bar {
+      height: 9px;
+      background: #e6eef3;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    #globalProgress {
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, var(--azul), var(--turquesa));
+      border-radius: inherit;
+      transition: width 0.5s ease;
+    }
+
+    /* =========================================================
+       CONTENEDOR PRINCIPAL
+    ========================================================= */
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: calc(100vh - 80px);
+      display: grid;
+      grid-template-columns: var(--sidebar) 1fr;
+    }
+
+    /* =========================================================
+       SIDEBAR
+    ========================================================= */
+    aside {
+      background: var(--blanco);
+      border-right: 1px solid var(--borde);
+      padding: 25px 18px;
+    }
+
+    .sidebar-title {
+      font-size: 0.78rem;
+      color: var(--texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 5px 12px 12px;
+      font-weight: 800;
+    }
+
+    .nav-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 12px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      color: var(--texto);
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: 0.2s ease;
+      font-weight: 700;
+    }
+
+    .nav-item:hover {
+      background: var(--azul-claro);
+      transform: translateX(2px);
+    }
+
+    .nav-item.active {
+      background: var(--azul-claro);
+      color: var(--azul);
+    }
+
+    .nav-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: #f1f6f9;
+      font-size: 19px;
+      flex-shrink: 0;
+    }
+
+    .nav-item.active .nav-icon {
+      background: var(--blanco);
+    }
+
+    .nav-text small {
+      display: block;
+      font-size: 0.69rem;
+      color: var(--texto-suave);
+      font-weight: 600;
+    }
+
+    .student-status {
+      margin: 25px 5px 0;
+      background: linear-gradient(135deg, #eef9fb, #f4f9ee);
+      border: 1px solid #d8ebe5;
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .student-status h3 {
+      font-size: 0.9rem;
+      margin-bottom: 7px;
+    }
+
+    .level-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--blanco);
+      color: var(--turquesa);
+      font-size: 0.73rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .score {
+      font-size: 0.82rem;
+      color: var(--texto-suave);
+    }
+
+    /* =========================================================
+       ÁREA DE CONTENIDO
+    ========================================================= */
+    main {
+      padding: 30px;
+      min-width: 0;
+    }
+
+    .lesson-section {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .lesson-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-header {
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      color: var(--turquesa);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .section-header h2 {
+      font-family: "Quicksand", sans-serif;
+      font-size: clamp(1.7rem, 3vw, 2.35rem);
+      color: #203c4d;
+      margin-bottom: 5px;
+    }
+
+    .section-header p {
+      color: var(--texto-suave);
+      max-width: 760px;
+    }
+
+    /* =========================================================
+       COMPONENTE 1: CONTENIDO
+    ========================================================= */
+    .content-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 20px;
+    }
+
+    .topic-list {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      padding: 12px;
+      height: fit-content;
+      box-shadow: var(--sombra);
+    }
+
+    .topic-btn {
+      border: 0;
+      background: transparent;
+      width: 100%;
+      padding: 12px;
+      text-align: left;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--texto);
+      transition: 0.2s;
+    }
+
+    .topic-btn:hover,
+    .topic-btn.selected {
+      background: var(--azul-claro);
+      color: var(--azul);
+    }
+
+    .topic-number {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #edf3f7;
+      font-size: 0.75rem;
+      margin-right: 6px;
+    }
+
+    .topic-btn.selected .topic-number {
+      background: var(--azul);
+      color: white;
+    }
+
+    .viewer {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      box-shadow: var(--sombra);
+      overflow: hidden;
+    }
+
+    .viewer-visual {
+      min-height: 245px;
+      background: linear-gradient(145deg, #e9f7fc, #f4fbf5);
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 30px;
+    }
+
+    .water-scene {
+      font-size: clamp(70px, 10vw, 115px);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .viewer-content {
+      padding: 27px;
+    }
+
+    .viewer-content h3 {
+      font-family: "Quicksand", sans-serif;
+      color: var(--azul);
+      font-size: 1.65rem;
+      margin-bottom: 10px;
+    }
+
+    .viewer-content p {
+      color: var(--texto-suave);
+      margin-bottom: 17px;
+    }
+
+    .info-box {
+      background: var(--azul-claro);
+      border-left: 4px solid var(--azul);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .info-box strong {
+      color: var(--azul);
+    }
+
+    .cycle-diagram {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .cycle-step {
+      padding: 10px 14px;
+      background: white;
+      border-radius: 30px;
+      border: 1px solid var(--borde);
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+
+    .arrow {
+      color: var(--turquesa);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    /* =========================================================
+       BOTONES
+    ========================================================= */
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      color: white;
+      background: var(--azul);
+      box-shadow: 0 5px 12px rgba(40, 120, 181, 0.2);
+    }
+
+    .btn-secondary {
+      color: var(--azul);
+      background: var(--azul-claro);
+    }
+
+    .btn-success {
+      color: white;
+      background: var(--verde);
+    }
+
+    .btn-danger {
+      color: white;
+      background: var(--rojo);
+    }
+
+    .navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 18px;
+      gap: 10px;
+    }
+
+    /* =========================================================
+       COMPONENTE 2: TARJETAS
+    ========================================================= */
+    .flashcards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+      gap: 20px;
+    }
+
+    .flashcard {
+      min-height: 270px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 270px;
+      transition: transform 0.65s;
+      transform-style: preserve-3d;
+    }
+
+    .flashcard.flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      padding: 25px;
+      box-shadow: var(--sombra);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .card-front {
+      background: white;
+    }
+
+    .card-back {
+      background: var(--verde-claro);
+      transform: rotateY(180deg);
+    }
+
+    .card-emoji {
+      font-size: 45px;
+      margin-bottom: 13px;
+    }
+
+    .card-face h3 {
+      font-family: "Quicksand", sans-serif;
+      margin-bottom: 9px;
+    }
+
+    .card-front p {
+      color: var(--texto-suave);
+    }
+
+    .card-back p {
+      color: #315b39;
+    }
+
+    .hint {
+      font-size: 0.72rem;
+      color: var(--texto-suave);
+      margin-top: 18px;
+    }
+
+    /* =========================================================
+       COMPONENTE 3: ORDENAMIENTO
+    ========================================================= */
+    .ordering-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .order-panel {
+      background: white;
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      padding: 20px;
+      box-shadow: var(--sombra);
+    }
+
+    .order-panel h3 {
+      font-family: "Quicksand", sans-serif;
+      margin-bottom: 15px;
+    }
+
+    .sequence-container {
+      min-height: 310px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .sequence-item {
+      background: var(--azul-claro);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 12px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    .sequence-item:hover {
+      border-color: var(--azul-medio);
+    }
+
+    .sequence-item.dragging {
+      opacity: 0.45;
+    }
+
+    .drag-number {
+      width: 29px;
+      height: 29px;
+      background: white;
+      color: var(--azul);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .drop-zone {
+      border: 2px dashed #b8cbd6;
+      border-radius: 13px;
+      padding: 13px;
+      text-align: center;
+      color: var(--texto-suave);
+      margin-bottom: 10px;
+    }
+
+    .sequence-item.correct {
+      background: var(--verde-claro);
+      border-color: var(--verde);
+    }
+
+    .sequence-item.incorrect {
+      background: var(--rojo-claro);
+      border-color: var(--rojo);
+    }
+
+    .ordering-feedback {
+      margin-top: 15px;
+      padding: 13px;
+      border-radius: 12px;
+      display: none;
+      font-weight: 700;
+    }
+
+    .ordering-feedback.show {
+      display: block;
+    }
+
+    .feedback-success {
+      background: var(--verde-claro);
+      color: #397441;
+    }
+
+    .feedback-error {
+      background: var(--rojo-claro);
+      color: #a44343;
+    }
+
+    /* =========================================================
+       COMPONENTE 4: QUIZ
+    ========================================================= */
+    .quiz-card {
+      background: white;
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      padding: clamp(20px, 4vw, 34px);
+      box-shadow: var(--sombra);
+      max-width: 850px;
+      margin: auto;
+    }
+
+    .quiz-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 10px;
+    }
+
+    .difficulty {
+      background: var(--amarillo-claro);
+      color: #99741a;
+      padding: 5px 11px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .question-count {
+      color: var(--texto-suave);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .quiz-card h3 {
+      font-family: "Quicksand", sans-serif;
+      font-size: 1.35rem;
+      margin-bottom: 20px;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      border: 2px solid var(--borde);
+      background: white;
+      border-radius: 13px;
+      padding: 13px 15px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--texto);
+      transition: 0.2s;
+    }
+
+    .option:hover:not(:disabled) {
+      border-color: var(--azul-medio);
+      background: var(--azul-claro);
+    }
+
+    .option:disabled {
+      cursor: default;
+    }
+
+    .option.correct {
+      border-color: var(--verde);
+      background: var(--verde-claro);
+      color: #397441;
+    }
+
+    .option.wrong {
+      border-color: var(--rojo);
+      background: var(--rojo-claro);
+      color: #a44343;
+    }
+
+    .explanation {
+      display: none;
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 13px;
+      background: #f2f7fa;
+      border-left: 4px solid var(--azul);
+    }
+
+    .explanation.show {
+      display: block;
+    }
+
+    .explanation strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--azul);
+    }
+
+    .quiz-controls {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    /* =========================================================
+       COMPONENTE 5: PROGRESO Y ADAPTACIÓN
+    ========================================================= */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      padding: 20px;
+      box-shadow: var(--sombra);
+      text-align: center;
+    }
+
+    .stat-icon {
+      font-size: 27px;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-family: "Quicksand", sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--azul);
+    }
+
+    .stat-label {
+      color: var(--texto-suave);
+      font-size: 0.77rem;
+    }
+
+    .adaptive-card {
+      background: white;
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      padding: 25px;
+      box-shadow: var(--sombra);
+      margin-bottom: 18px;
+    }
+
+    .adaptive-card h3 {
+      font-family: "Quicksand", sans-serif;
+      margin-bottom: 8px;
+    }
+
+    .level-track {
+      display: flex;
+      gap: 6px;
+      margin: 18px 0;
+    }
+
+    .level {
+      flex: 1;
+      text-align: center;
+      padding: 9px 4px;
+      background: #eef3f6;
+      border-radius: 9px;
+      font-size: 0.72rem;
+      color: var(--texto-suave);
+      font-weight: 800;
+    }
+
+    .level.current {
+      background: var(--azul);
+      color: white;
+    }
+
+    .recommendation {
+      background: linear-gradient(135deg, #eef9fc, #f1faef);
+      border-radius: 14px;
+      padding: 17px;
+      border: 1px solid #d9ece6;
+    }
+
+    /* =========================================================
+       COMPLETADO
+    ========================================================= */
+    .completion {
+      text-align: center;
+      background: white;
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      padding: 35px;
+      box-shadow: var(--sombra);
+    }
+
+    .completion-icon {
+      font-size: 65px;
+      margin-bottom: 10px;
+    }
+
+    .completion h2 {
+      font-family: "Quicksand", sans-serif;
+      color: var(--azul);
+      margin-bottom: 8px;
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+    footer {
+      background: white;
+      border-top: 1px solid var(--borde);
+      text-align: center;
+      padding: 18px;
+      color: var(--texto-suave);
+      font-size: 0.82rem;
+    }
+
+    footer strong {
+      color: var(--azul);
+    }
+
+    /* =========================================================
+       RESPONSIVIDAD
+    ========================================================= */
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        border-right: 0;
+        border-bottom: 1px solid var(--borde);
+        padding: 10px;
+      }
+
+      .sidebar-title,
+      .student-status {
+        display: none;
+      }
+
+      .nav-menu {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+      }
+
+      .nav-item {
+        justify-content: center;
+        padding: 8px 4px;
+        margin: 0;
+      }
+
+      .nav-text {
+        display: none;
+      }
+
+      .nav-icon {
+        width: 42px;
+        height: 42px;
+      }
+
+      main {
+        padding: 22px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      header {
+        padding: 11px 15px;
+      }
+
+      .brand h1 {
+        font-size: 1rem;
+      }
+
+      .brand p {
+        display: none;
+      }
+
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 22px;
+      }
+
+      .progress-area {
+        width: 38%;
+      }
+
+      .content-layout,
+      .ordering-area {
+        grid-template-columns: 1fr;
+      }
+
+      .topic-list {
+        display: flex;
+        overflow-x: auto;
+        gap: 5px;
+        padding: 8px;
+      }
+
+      .topic-btn {
+        min-width: 125px;
+      }
+
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      main {
+        padding: 17px;
+      }
+
+      .viewer-visual {
+        min-height: 190px;
+      }
+
+      .cycle-diagram {
+        gap: 4px;
+      }
+
+      .arrow {
+        font-size: 16px;
+      }
+
+      .cycle-step {
+        padding: 7px 9px;
+        font-size: 0.72rem;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .nav-menu {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .nav-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 17px;
+      }
+
+      .section-header h2 {
+        font-size: 1.55rem;
+      }
+
+      .flashcards {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================================================
+       ENCABEZADO
+  ========================================================== -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">💧</div>
+        <div>
+          <h1>El viaje del agua</h1>
+          <p>Lección interactiva · Grado quinto</p>
+        </div>
+      </div>
+
+      <div class="progress-area">
+        <div class="progress-label">
+          <span>Progreso de la lección</span>
+          <strong id="progressText">20%</strong>
+        </div>
+        <div class="progress-bar">
+          <div id="globalProgress"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app">
+
+    <!-- =======================================================
+         SIDEBAR
+    ======================================================== -->
+    <aside>
+      <div class="sidebar-title">Ruta de aprendizaje</div>
+
+      <nav class="nav-menu" aria-label="Secciones de la lección">
+
+        <button class="nav-item active" data-section="contenido">
+          <span class="nav-icon">🌎</span>
+          <span class="nav-text">
+            1. Explora
+            <small>Aprende el ciclo</small>
+          </span>
+        </button>
+
+        <button class="nav-item" data-section="repaso">
+          <span class="nav-icon">🧠</span>
+          <span class="nav-text">
+            2. Recuerda
+            <small>Tarjetas</small>
+          </span>
+        </button>
+
+        <button class="nav-item" data-section="practica">
+          <span class="nav-icon">🔢</span>
+          <span class="nav-text">
+            3. Practica
+            <small>Ordena</small>
+          </span>
+        </button>
+
+        <button class="nav-item" data-section="evaluacion">
+          <span class="nav-icon">🎯</span>
+          <span class="nav-text">
+            4. Comprueba
+            <small>Quiz</small>
+          </span>
+        </button>
+
+        <button class="nav-item" data-section="progreso">
+          <span class="nav-icon">🚀</span>
+          <span class="nav-text">
+            5. Avanza
+            <small>Tu progreso</small>
+          </span>
+        </button>
+
+      </nav>
+
+      <div class="student-status">
+        <span class="level-badge" id="sidebarLevel">Nivel 1 · Explorador</span>
+        <h3>¡Sigue aprendiendo!</h3>
+        <p class="score">
+          Aciertos: <strong id="sidebarScore">0</strong>
+        </p>
+      </div>
+    </aside>
+
+    <!-- =======================================================
+         CONTENIDO CENTRAL
+    ======================================================== -->
+    <main>
+
+      <!-- =====================================================
+           1. PRESENTACIÓN DEL CONTENIDO
+      ====================================================== -->
+      <section id="contenido" class="lesson-section active">
+
+        <div class="section-header">
+          <div class="eyebrow">Componente 1 · Presentación</div>
+          <h2>El agua está siempre viajando</h2>
+          <p>
+            El agua de nuestro planeta cambia de lugar y de estado continuamente.
+            Descubre cómo funciona este maravilloso ciclo.
+          </p>
+        </div>
+
+        <div class="content-layout">
+
+          <div class="topic-list">
+            <button class="topic-btn selected" data-topic="0">
+              <span class="topic-number">1</span> Evaporación
+            </button>
+
+            <button class="topic-btn" data-topic="1">
+              <span class="topic-number">2</span> Condensación
+            </button>
+
+            <button class="topic-btn" data-topic="2">
+              <span class="topic-number">3</span> Precipitación
+            </button>
+
+            <button class="topic-btn" data-topic="3">
+              <span class="topic-number">4</span> Recolección
+            </button>
+
+            <button class="topic-btn" data-topic="4">
+              <span class="topic-number">5</span> El ciclo continúa
+            </button>
+          </div>
+
+          <article class="viewer">
+
+            <div class="viewer-visual">
+              <div class="water-scene" id="topicEmoji">☀️💧</div>
+            </div>
+
+            <div class="viewer-content">
+              <h3 id="topicTitle">Evaporación</h3>
+              <p id="topicDescription">
+                El Sol calienta el agua de mares, ríos, lagos y otros lugares.
+                Parte del agua líquida se transforma en vapor de agua y asciende
+                hacia la atmósfera.
+              </p>
+
+              <div class="info-box" id="topicInfo">
+                <strong>💡 Recuerda:</strong>
+                La evaporación es un cambio de estado: el agua pasa de líquido a gas.
+              </div>
+
+              <div class="cycle-diagram">
+                <span class="cycle-step">🌊 Agua líquida</span>
+                <span class="arrow">→</span>
+                <span class="cycle-step">☀️ Calor</span>
+                <span class="arrow">→</span>
+                <span class="cycle-step">💨 Vapor</span>
+              </div>
+            </div>
+
+          </article>
+
+        </div>
+
+        <div class="navigation-buttons">
+          <span></span>
+          <button class="btn btn-primary" onclick="goToSection('repaso')">
+            Continuar al repaso →
+          </button>
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+           2. MEMORIZACIÓN Y REPASO ACTIVO
+      ====================================================== -->
+      <section id="repaso" class="lesson-section">
+
+        <div class="section-header">
+          <div class="eyebrow">Componente 2 · Repaso activo</div>
+          <h2>¿Cuánto recuerdas?</h2>
+          <p>
+            Haz clic en cada tarjeta para descubrir la respuesta. Intenta
+            responder mentalmente antes de revelarla.
+          </p>
+        </div>
+
+        <div class="flashcards">
+
+          <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+              <div class="card-face card-front">
+                <div class="card-emoji">☀️</div>
+                <h3>Pregunta 1</h3>
+                <p>¿Qué provoca principalmente la evaporación?</p>
+                <span class="hint">Haz clic para revelar</span>
+              </div>
+
+              <div class="card-face card-back">
+                <div class="card-emoji">🔥</div>
+                <h3>Respuesta</h3>
+                <p>
+                  La energía del Sol calienta el agua y permite que parte de ella
+                  pase de líquido a vapor.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+              <div class="card-face card-front">
+                <div class="card-emoji">☁️</div>
+                <h3>Pregunta 2</h3>
+                <p>¿Qué ocurre durante la condensación?</p>
+                <span class="hint">Haz clic para revelar</span>
+              </div>
+
+              <div class="card-face card-back">
+                <div class="card-emoji">💧</div>
+                <h3>Respuesta</h3>
+                <p>
+                  El vapor de agua se enfría y se transforma en pequeñas gotas
+                  de agua que forman las nubes.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+              <div class="card-face card-front">
+                <div class="card-emoji">🌧️</div>
+                <h3>Pregunta 3</h3>
+                <p>¿Qué es la precipitación?</p>
+                <span class="hint">Haz clic para revelar</span>
+              </div>
+
+              <div class="card-face card-back">
+                <div class="card-emoji">☔</div>
+                <h3>Respuesta</h3>
+                <p>
+                  Es la caída del agua desde las nubes hacia la superficie,
+                  por ejemplo en forma de lluvia, nieve o granizo.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+              <div class="card-face card-front">
+                <div class="card-emoji">🌊</div>
+                <h3>Pregunta 4</h3>
+                <p>¿Dónde puede acumularse el agua?</p>
+                <span class="hint">Haz clic para revelar</span>
+              </div>
+
+              <div class="card-face card-back">
+                <div class="card-emoji">🏞️</div>
+                <h3>Respuesta</h3>
+                <p>
+                  Puede acumularse en océanos, ríos, lagos, glaciares, suelo
+                  y también bajo la superficie terrestre.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="navigation-buttons">
+          <button class="btn btn-secondary" onclick="goToSection('contenido')">
+            ← Volver
+          </button>
+
+          <button class="btn btn-primary" onclick="goToSection('practica')">
+            Practicar →
+          </button>
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+           3. PRÁCTICA Y EJERCITACIÓN
+      ====================================================== -->
+      <section id="practica" class="lesson-section">
+
+        <div class="section-header">
+          <div class="eyebrow">Componente 3 · Práctica</div>
+          <h2>Construye el ciclo</h2>
+          <p>
+            Ordena las etapas del ciclo del agua. Puedes arrastrar cada tarjeta
+            hasta cambiar su posición.
+          </p>
+        </div>
+
+        <div class="ordering-area">
+
+          <div class="order-panel">
+            <h3>🔀 Etapas para ordenar</h3>
+
+            <div id="sequenceContainer" class="sequence-container">
+              <!-- JavaScript genera las tarjetas -->
+            </div>
+          </div>
+
+          <div class="order-panel">
+            <h3>📝 Tu secuencia</h3>
+
+            <div class="drop-zone">
+              Arrastra las tarjetas aquí o reorganízalas en el panel izquierdo.
+            </div>
+
+            <div id="orderPreview"></div>
+
+            <div id="orderingFeedback" class="ordering-feedback"></div>
+
+            <div style="margin-top: 15px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="checkOrder()">
+                Comprobar
+              </button>
+
+              <button class="btn btn-secondary" onclick="shuffleOrder()">
+                Mezclar
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="navigation-buttons">
+          <button class="btn btn-secondary" onclick="goToSection('repaso')">
+            ← Repaso
+          </button>
+
+          <button class="btn btn-primary" onclick="goToSection('evaluacion')">
+            Ir al quiz →
+          </button>
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+           4. EVALUACIÓN FORMATIVA
+      ====================================================== -->
+      <section id="evaluacion" class="lesson-section">
+
+        <div class="section-header">
+          <div class="eyebrow">Componente 4 · Evaluación formativa</div>
+          <h2>Demuestra lo que aprendiste</h2>
+          <p>
+            Responde las preguntas. Recibirás retroalimentación inmediata y,
+            según tus respuestas, el nivel de dificultad se adaptará.
+          </p>
+        </div>
+
+        <div class="quiz-card">
+
+          <div class="quiz-meta">
+            <span class="difficulty" id="difficultyBadge">
+              🌱 Nivel 1 · Explorador
+            </span>
+
+            <span class="question-count" id="questionCount">
+              Pregunta 1 de 5
+            </span>
+          </div>
+
+          <h3 id="questionText">
+            ¿Qué sucede con el agua cuando el Sol la calienta?
+          </h3>
+
+          <div class="options" id="optionsContainer">
+            <!-- Opciones generadas por JS -->
+          </div>
+
+          <div id="explanation" class="explanation">
+            <strong id="feedbackTitle">💡 Retroalimentación</strong>
+            <span id="feedbackText"></span>
+          </div>
+
+          <div class="quiz-controls">
+            <button
+              id="nextQuestion"
+              class="btn btn-primary"
+              onclick="nextQuestion()"
+              style="display:none;">
+              Siguiente →
+            </button>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+           5. ACOMPAÑAMIENTO Y PROGRESO
+      ====================================================== -->
+      <section id="progreso" class="lesson-section">
+
+        <div class="section-header">
+          <div class="eyebrow">Componente 5 · Acompañamiento</div>
+          <h2>Tu progreso</h2>
+          <p>
+            Tu recorrido se adapta según tus respuestas. Cada acierto te permite
+            avanzar hacia preguntas que requieren mayor razonamiento.
+          </p>
+        </div>
+
+        <div class="dashboard">
+
+          <div class="stat">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="totalScore">0</div>
+            <div class="stat-label">Aciertos</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value" id="accuracy">0%</div>
+            <div class="stat-label">Precisión</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value" id="currentLevel">1</div>
+            <div class="stat-label">Nivel actual</div>
+          </div>
+
+        </div>
+
+        <div class="adaptive-card">
+          <h3>🚀 Ruta adaptativa</h3>
+
+          <p id="adaptiveMessage">
+            Comienza resolviendo preguntas básicas. Si acumulas aciertos,
+            aparecerán situaciones que requieren mayor comprensión.
+          </p>
+
+          <div class="level-track">
+            <div class="level current" id="level1">Nivel 1<br>Explorar</div>
+            <div class="level" id="level2">Nivel 2<br>Comprender</div>
+            <div class="level" id="level3">Nivel 3<br>Relacionar</div>
+            <div class="level" id="level4">Nivel 4<br>Razonar</div>
+          </div>
+
+          <div class="recommendation" id="recommendation">
+            <strong>💡 Recomendación:</strong>
+            <span>
+              Repasa las etapas del ciclo y observa qué cambio experimenta
+              el agua en cada una.
+            </span>
+          </div>
+        </div>
+
+        <div class="completion">
+          <div class="completion-icon">🌎💧</div>
+          <h2>El agua no desaparece: cambia y continúa su viaje</h2>
+          <p>
+            El ciclo del agua conecta la atmósfera, la superficie terrestre
+            y los seres vivos. Ahora puedes explicar cómo el agua cambia
+            durante ese recorrido.
+          </p>
+
+          <button
+            class="btn btn-primary"
+            style="margin-top:18px;"
+            onclick="goToSection('contenido')">
+            🔄 Repasar la lección
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =========================================================
+       PIE DE PÁGINA
+  ========================================================== -->
+  <footer>
+    <strong>Luis Paz</strong> • Udenar • @luisepaz • 2026
+  </footer>
+
+
+  <script>
+    /* =========================================================
+       ESTADO GENERAL DEL ESTUDIANTE
+    ========================================================= */
+
+    const state = {
+      score: 0,
+      attempts: 0,
+      level: 1,
+      completedSections: new Set(["contenido"]),
+      quizIndex: 0,
+      answered: false,
+      orderCorrect: false
+    };
+
+    /* =========================================================
+       AUDIO CON WEB AUDIO API
+       No necesita archivos externos.
+    ========================================================= */
+
+    let audioContext = null;
+
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
+      return audioContext;
+    }
+
+    function playTone(frequency, duration, type = "sine") {
+      try {
+        const ctx = getAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.value = frequency;
+
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+          0.12,
+          ctx.currentTime + 0.02
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          ctx.currentTime + duration
+        );
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + duration);
+      } catch (error) {
+        // El audio se omite si el navegador no lo permite.
+      }
+    }
+
+    function playSuccess() {
+      playTone(523.25, 0.13);
+      setTimeout(() => playTone(659.25, 0.18), 100);
+    }
+
+    function playError() {
+      playTone(220, 0.20, "triangle");
+    }
+
+    /* =========================================================
+       NAVEGACIÓN ENTRE COMPONENTES
+    ========================================================= */
+
+    const navItems = document.querySelectorAll(".nav-item");
+
+    navItems.forEach(item => {
+      item.addEventListener("click", () => {
+        goToSection(item.dataset.section);
+      });
+    });
+
+    function goToSection(sectionId) {
+
+      document.querySelectorAll(".lesson-section").forEach(section => {
+        section.classList.remove("active");
+      });
+
+      document.getElementById(sectionId).classList.add("active");
+
+      navItems.forEach(item => {
+        item.classList.toggle(
+          "active",
+          item.dataset.section === sectionId
+        );
+      });
+
+      state.completedSections.add(sectionId);
+
+      updateGlobalProgress();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    function updateGlobalProgress() {
+      const sections = [
+        "contenido",
+        "repaso",
+        "practica",
+        "evaluacion",
+        "progreso"
+      ];
+
+      const percentage = Math.round(
+        (state.completedSections.size / sections.length) * 100
+      );
+
+      document.getElementById("globalProgress").style.width =
+        percentage + "%";
+
+      document.getElementById("progressText").textContent =
+        percentage + "%";
+    }
+
+    /* =========================================================
+       PRESENTACIÓN DEL CONTENIDO
+    ========================================================= */
+
+    const topics = [
+      {
+        title: "Evaporación",
+        emoji: "☀️💧",
+        description:
+          "El Sol calienta el agua de mares, ríos, lagos y otros lugares. Parte del agua líquida se transforma en vapor de agua y asciende hacia la atmósfera.",
+        info:
+          "La evaporación es un cambio de estado: el agua pasa de líquido a gas.",
+        diagram: ["🌊 Agua líquida", "☀️ Calor", "💨 Vapor"]
+      },
+      {
+        title: "Condensación",
+        emoji: "💨☁️",
+        description:
+          "Cuando el vapor de agua asciende y encuentra aire más frío, pierde calor y se transforma nuevamente en pequeñas gotas de agua.",
+        info:
+          "La condensación transforma el vapor en pequeñas gotas que pueden formar las nubes.",
+        diagram: ["💨 Vapor", "❄️ Enfriamiento", "☁️ Gotas"]
+      },
+      {
+        title: "Precipitación",
+        emoji: "☁️🌧️",
+        description:
+          "Las gotas de agua de las nubes pueden unirse y hacerse más grandes. Cuando tienen suficiente peso, caen hacia la superficie terrestre.",
+        info:
+          "La precipitación puede presentarse como lluvia, nieve o granizo.",
+        diagram: ["☁️ Nubes", "💧 Gotas", "🌧️ Lluvia"]
+      },
+      {
+        title: "Recolección",
+        emoji: "🌧️🌊",
+        description:
+          "El agua que cae puede llegar a ríos, lagos, mares y océanos. Otra parte penetra en el suelo o queda almacenada como hielo.",
+        info:
+          "El agua puede almacenarse temporalmente en muchos lugares antes de continuar el ciclo.",
+        diagram: ["🌧️ Lluvia", "🏞️ Suelo", "🌊 Lagos y mares"]
+      },
+      {
+        title: "El ciclo continúa",
+        emoji: "🌎💧",
+        description:
+          "El agua vuelve a calentarse, evaporarse y recorrer nuevamente las distintas etapas. Por eso hablamos de un ciclo.",
+        info:
+          "El ciclo del agua es continuo: no tiene un principio o un final único.",
+        diagram: ["☀️ Evaporación", "☁️ Condensación", "🌧️ Precipitación"]
+      }
+    ];
+
+    document.querySelectorAll(".topic-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        const index = Number(button.dataset.topic);
+        showTopic(index);
+      });
+    });
+
+    function showTopic(index) {
+
+      document.querySelectorAll(".topic-btn").forEach(button => {
+        button.classList.toggle(
+          "selected",
+          Number(button.dataset.topic) === index
+        );
+      });
+
+      const topic = topics[index];
+
+      document.getElementById("topicEmoji").textContent = topic.emoji;
+      document.getElementById("topicTitle").textContent = topic.title;
+      document.getElementById("topicDescription").textContent =
+        topic.description;
+
+      document.getElementById("topicInfo").innerHTML =
+        "<strong>💡 Recuerda:</strong> " + topic.info;
+
+      const diagram = document.querySelector(".cycle-diagram");
+
+      diagram.innerHTML = topic.diagram.map((item, i) => {
+        return `
+          <span class="cycle-step">${item}</span>
+          ${i < topic.diagram.length - 1
+            ? '<span class="arrow">→</span>'
+            : ''}
+        `;
+      }).join("");
+    }
+
+    /* =========================================================
+       ACTIVIDAD DE ORDENAMIENTO
+    ========================================================= */
+
+    const sequenceData = [
+      {
+        id: "evaporacion",
+        text: "Evaporación: el agua recibe calor del Sol."
+      },
+      {
+        id: "condensacion",
+        text: "Condensación: el vapor se enfría y forma gotas."
+      },
+      {
+        id: "precipitacion",
+        text: "Precipitación: el agua cae desde las nubes."
+      },
+      {
+        id: "recoleccion",
+        text: "Recolección: el agua llega a ríos, lagos, mares o suelo."
+      }
+    ];
+
+    let currentOrder = [...sequenceData];
+
+    function renderSequence() {
+
+      const container =
+        document.getElementById("sequenceContainer");
+
+      container.innerHTML = "";
+
+      currentOrder.forEach((item, index) => {
+
+        const element = document.createElement("div");
+
+        element.className = "sequence-item";
+        element.draggable = true;
+        element.dataset.id = item.id;
+
+        element.innerHTML = `
+          <span class="drag-number">${index + 1}</span>
+          <span>${item.text}</span>
+        `;
+
+        element.addEventListener("dragstart", dragStart);
+        element.addEventListener("dragover", dragOver);
+        element.addEventListener("drop", dropItem);
+        element.addEventListener("dragend", dragEnd);
+
+        container.appendChild(element);
+      });
+
+      renderOrderPreview();
+    }
+
+    let draggedId = null;
+
+    function dragStart(event) {
+      draggedId = event.currentTarget.dataset.id;
+      event.currentTarget.classList.add("dragging");
+    }
+
+    function dragOver(event) {
+      event.preventDefault();
+    }
+
+    function dropItem(event) {
+
+      event.preventDefault();
+
+      const targetId =
+        event.currentTarget.dataset.id;
+
+      if (!draggedId || draggedId === targetId) {
+        return;
+      }
+
+      const fromIndex =
+        currentOrder.findIndex(item => item.id === draggedId);
+
+      const toIndex =
+        currentOrder.findIndex(item => item.id === targetId);
+
+      const moved = currentOrder.splice(fromIndex, 1)[0];
+
+      currentOrder.splice(toIndex, 0, moved);
+
+      renderSequence();
+    }
+
+    function dragEnd(event) {
+      event.currentTarget.classList.remove("dragging");
+    }
+
+    function renderOrderPreview() {
+
+      const preview =
+        document.getElementById("orderPreview");
+
+      preview.innerHTML = currentOrder.map((item, index) => `
+        <div style="
+          padding:10px;
+          margin-bottom:7px;
+          border-radius:10px;
+          background:#f5f9fb;
+          font-size:.83rem;
+          font-weight:700;">
+          ${index + 1}. ${item.text.split(":")[0]}
+        </div>
+      `).join("");
+    }
+
+    function shuffleOrder() {
+
+      do {
+        currentOrder.sort(() => Math.random() - 0.5);
+      } while (
+        currentOrder.map(item => item.id).join(",") ===
+        sequenceData.map(item => item.id).join(",")
+      );
+
+      document.getElementById("orderingFeedback")
+        .className = "ordering-feedback";
+
+      renderSequence();
+    }
+
+    function checkOrder() {
+
+      const correct =
+        currentOrder.every(
+          (item, index) =>
+            item.id === sequenceData[index].id
+        );
+
+      const feedback =
+        document.getElementById("orderingFeedback");
+
+      feedback.classList.add("show");
+
+      if (correct) {
+
+        state.orderCorrect = true;
+        state.score++;
+
+        feedback.className =
+          "ordering-feedback show feedback-success";
+
+        feedback.innerHTML =
+          "🎉 ¡Excelente! Has ordenado correctamente las etapas. " +
+          "El agua puede repetir este recorrido una y otra vez.";
+
+        playSuccess();
+        updateStats();
+
+      } else {
+
+        feedback.className =
+          "ordering-feedback show feedback-error";
+
+        feedback.innerHTML =
+          "🔎 Aún no. Piensa qué sucede primero: " +
+          "el Sol calienta el agua antes de que se formen las nubes.";
+
+        playError();
+      }
+    }
+
+    renderSequence();
+
+    /* =========================================================
+       BANCO DE PREGUNTAS ADAPTATIVAS
+    ========================================================= */
+
+    const quizQuestions = {
+
+      1: [
+        {
+          q: "¿Qué sucede con el agua cuando el Sol la calienta?",
+          options: [
+            "Se convierte en vapor",
+            "Se convierte directamente en hielo",
+            "Desaparece para siempre",
+            "Se convierte en una nube sólida"
+          ],
+          answer: 0,
+          explanation:
+            "El calor del Sol puede hacer que el agua líquida se transforme en vapor. Este proceso se llama evaporación."
+        },
+        {
+          q: "¿Qué proceso ayuda a formar las nubes?",
+          options: [
+            "Precipitación",
+            "Condensación",
+            "Recolección",
+            "Congelación del suelo"
+          ],
+          answer: 1,
+          explanation:
+            "Durante la condensación, el vapor se enfría y forma pequeñas gotas de agua que pueden reunirse para formar nubes."
+        },
+        {
+          q: "¿Cuál es un ejemplo de precipitación?",
+          options: [
+            "El agua de un río calentándose",
+            "El vapor subiendo",
+            "La lluvia cayendo de una nube",
+            "El agua almacenada en un lago"
+          ],
+          answer: 2,
+          explanation:
+            "La lluvia es una forma de precipitación porque el agua cae desde la atmósfera hacia la superficie terrestre."
+        },
+        {
+          q: "¿Cuál de estos lugares puede almacenar agua?",
+          options: [
+            "Un lago",
+            "Una nube solamente",
+            "El Sol",
+            "El aire caliente solamente"
+          ],
+          answer: 0,
+          explanation:
+            "Los lagos, ríos, océanos, glaciares y el suelo pueden almacenar agua durante diferentes momentos del ciclo."
+        },
+        {
+          q: "¿Por qué se llama ciclo del agua?",
+          options: [
+            "Porque el agua solo se mueve en círculos perfectos",
+            "Porque el agua puede repetir continuamente sus transformaciones y recorridos",
+            "Porque siempre llueve",
+            "Porque toda el agua está dentro de una nube"
+          ],
+          answer: 1,
+          explanation:
+            "Se llama ciclo porque el agua continúa circulando y cambiando entre la superficie terrestre y la atmósfera."
+        }
+      ],
+
+      2: [
+        {
+          q: "Una camiseta mojada se seca al Sol. ¿Qué proceso explica principalmente lo que ocurre?",
+          options: [
+            "Condensación",
+            "Evaporación",
+            "Precipitación",
+            "Recolección"
+          ],
+          answer: 1,
+          explanation:
+            "El agua de la camiseta recibe energía térmica y pasa gradualmente al estado gaseoso. Eso es evaporación."
+        },
+        {
+          q: "¿Qué relación existe entre evaporación y condensación?",
+          options: [
+            "Ambas convierten siempre el agua en hielo",
+            "La evaporación transforma líquido en vapor y la condensación transforma vapor en gotas",
+            "Ambas hacen que el agua desaparezca",
+            "No tienen relación en el ciclo del agua"
+          ],
+          answer: 1,
+          explanation:
+            "Son procesos opuestos en cuanto al cambio de estado: el agua pasa de líquido a gas durante la evaporación y de gas a líquido durante la condensación."
+        },
+        {
+          q: "¿Qué podría ocurrir después de que una nube acumule muchas gotas de agua?",
+          options: [
+            "Las gotas pueden caer como precipitación",
+            "Las gotas necesariamente se convierten en vapor",
+            "La nube desaparece sin liberar agua",
+            "El agua se convierte en roca"
+          ],
+          answer: 0,
+          explanation:
+            "Cuando las gotas aumentan de tamaño y peso, pueden caer hacia la superficie como lluvia u otra forma de precipitación."
+        }
+      ],
+
+      3: [
+        {
+          q: "Un estudiante observa que un charco desaparece después de varias horas soleadas. ¿Cuál explicación relaciona mejor la observación con el ciclo del agua?",
+          options: [
+            "El agua se destruyó por completo",
+            "El agua pudo evaporarse y pasar a la atmósfera",
+            "El agua se convirtió en suelo",
+            "El agua se convirtió en luz"
+          ],
+          answer: 1,
+          explanation:
+            "El charco puede perder agua por evaporación. El agua no desaparece de la naturaleza: cambia de lugar y de estado."
+        },
+        {
+          q: "Si el aire contiene vapor de agua y se enfría, ¿qué proceso puede producirse?",
+          options: [
+            "Condensación",
+            "Evaporación",
+            "Precipitación inmediatamente en todos los casos",
+            "Recolección"
+          ],
+          answer: 0,
+          explanation:
+            "Al enfriarse el vapor, puede condensarse y formar pequeñas gotas de agua."
+        },
+        {
+          q: "¿Cuál secuencia representa mejor una parte del ciclo del agua?",
+          options: [
+            "Evaporación → condensación → precipitación",
+            "Precipitación → Sol → desaparición",
+            "Condensación → destrucción → evaporación",
+            "Recolección → desaparición → lluvia"
+          ],
+          answer: 0,
+          explanation:
+            "El agua puede evaporarse, condensarse en la atmósfera y posteriormente regresar a la superficie mediante la precipitación."
+        }
+      ],
+
+      4: [
+        {
+          q: "En una región hace varios días mucho calor y hay poca lluvia. ¿Qué proceso podría aumentar si existe suficiente agua disponible?",
+          options: [
+            "Evaporación",
+            "Condensación exclusivamente",
+            "Precipitación necesariamente",
+            "Congelación"
+          ],
+          answer: 0,
+          explanation:
+            "Una mayor disponibilidad de energía solar favorece la evaporación. Sin embargo, la cantidad de lluvia posterior depende de otros factores atmosféricos."
+        },
+        {
+          q: "Una nube se forma cuando el vapor de agua se enfría. ¿Qué idea explica mejor este fenómeno?",
+          options: [
+            "La materia desaparece",
+            "El agua cambia de estado y puede formar pequeñas gotas",
+            "El agua deja de formar parte del ciclo",
+            "El vapor se convierte en tierra"
+          ],
+          answer: 1,
+          explanation:
+            "La condensación es un cambio de estado. El vapor pierde energía térmica y puede convertirse en pequeñas gotas líquidas."
+        },
+        {
+          q: "¿Cuál afirmación explica mejor por qué el ciclo del agua es importante?",
+          options: [
+            "Permite que el agua circule y se distribuya entre diferentes reservorios",
+            "Hace que toda el agua sea potable automáticamente",
+            "Impide que el agua cambie de estado",
+            "Hace que nunca haya sequías"
+          ],
+          answer: 0,
+          explanation:
+            "El ciclo permite la circulación continua del agua entre la atmósfera, la superficie y otros reservorios. No garantiza por sí mismo que toda el agua sea potable ni elimina las sequías."
+        }
+      ]
+    };
+
+    function getCurrentQuestions() {
+      return quizQuestions[state.level] || quizQuestions[1];
+    }
+
+    function loadQuestion() {
+
+      const questions = getCurrentQuestions();
+
+      if (state.quizIndex >= questions.length) {
+        state.quizIndex = 0;
+      }
+
+      const question = questions[state.quizIndex];
+
+      state.answered = false;
+
+      document.getElementById("questionText").textContent =
+        question.q;
+
+      document.getElementById("questionCount").textContent =
+        `Pregunta ${state.quizIndex + 1} de ${questions.length}`;
+
+      document.getElementById("difficultyBadge").textContent =
+        getLevelName();
+
+      const optionsContainer =
+        document.getElementById("optionsContainer");
+
+      optionsContainer.innerHTML = "";
+
+      question.options.forEach((option, index) => {
+
+        const button = document.createElement("button");
+
+        button.className = "option";
+        button.textContent = option;
+
+        button.addEventListener("click", () => {
+          answerQuestion(index);
+        });
+
+        optionsContainer.appendChild(button);
+      });
+
+      document.getElementById("explanation")
+        .classList.remove("show");
+
+      document.getElementById("nextQuestion").style.display =
+        "none";
+    }
+
+    function answerQuestion(selectedIndex) {
+
+      if (state.answered) {
+        return;
+      }
+
+      state.answered = true;
+      state.attempts++;
+
+      const questions = getCurrentQuestions();
+      const question = questions[state.quizIndex];
+
+      const options =
+        document.querySelectorAll(".option");
+
+      options.forEach(option => {
+        option.disabled = true;
+      });
+
+      const isCorrect =
+        selectedIndex === question.answer;
+
+      if (isCorrect) {
+
+        options[selectedIndex].classList.add("correct");
+
+        state.score++;
+
+        document.getElementById("feedbackTitle").textContent =
+          "🎉 ¡Muy bien!";
+
+        playSuccess();
+
+        adjustDifficulty(true);
+
+      } else {
+
+        options[selectedIndex].classList.add("wrong");
+        options[question.answer].classList.add("correct");
+
+        document.getElementById("feedbackTitle").textContent =
+          "💡 Vamos a aprender de este intento";
+
+        playError();
+
+        adjustDifficulty(false);
+      }
+
+      document.getElementById("feedbackText").textContent =
+        question.explanation;
+
+      document.getElementById("explanation")
+        .classList.add("show");
+
+      document.getElementById("nextQuestion").style.display =
+        "inline-block";
+
+      updateStats();
+    }
+
+    function nextQuestion() {
+
+      state.quizIndex++;
+
+      const questions = getCurrentQuestions();
+
+      if (state.quizIndex >= questions.length) {
+        state.quizIndex = 0;
+      }
+
+      loadQuestion();
+    }
+
+    /* =========================================================
+       LÓGICA ADAPTATIVA
+       Cada 2 aciertos consecutivos/recientes aumenta el nivel.
+       Un error reduce el nivel únicamente si existe un nivel inferior.
+    ========================================================= */
+
+    let recentCorrect = 0;
+
+    function adjustDifficulty(correct) {
+
+      if (correct) {
+        recentCorrect++;
+
+        if (recentCorrect >= 2 && state.level < 4) {
+          state.level++;
+          recentCorrect = 0;
+
+          updateAdaptiveMessage(
+            "¡Has demostrado dominio! Ahora encontrarás situaciones que requieren relacionar diferentes etapas del ciclo."
+          );
+        }
+      } else {
+
+        recentCorrect = 0;
+
+        if (state.level > 1) {
+          state.level--;
+
+          updateAdaptiveMessage(
+            "La dificultad se ha ajustado para ayudarte a consolidar los conceptos antes de avanzar nuevamente."
+          );
+        }
+      }
+
+      updateLevelUI();
+    }
+
+    function getLevelName() {
+
+      const names = {
+        1: "🌱 Nivel 1 · Explorador",
+        2: "🌿 Nivel 2 · Comprendedor",
+        3: "🌳 Nivel 3 · Relacionador",
+        4: "🧠 Nivel 4 · Razonador"
+      };
+
+      return names[state.level];
+    }
+
+    function updateLevelUI() {
+
+      document.getElementById("sidebarLevel").textContent =
+        getLevelName().replace("🌱 ", "")
+          .replace("🌿 ", "")
+          .replace("🌳 ", "")
+          .replace("🧠 ", "");
+
+      document.getElementById("currentLevel").textContent =
+        state.level;
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById("level" + i)
+          .classList.toggle(
+            "current",
+            i === state.level
+          );
+      }
+
+      document.getElementById("difficultyBadge").textContent =
+        getLevelName();
+
+      updateRecommendation();
+    }
+
+    function updateAdaptiveMessage(message) {
+
+      document.getElementById("adaptiveMessage").textContent =
+        message;
+    }
+
+    function updateRecommendation() {
+
+      const recommendations = {
+        1:
+          "Repasa las etapas del ciclo y los cambios de estado del agua.",
+        2:
+          "Intenta explicar con tus propias palabras qué relación existe entre evaporación y condensación.",
+        3:
+          "Relaciona las condiciones del ambiente con los procesos del ciclo.",
+        4:
+          "Explica situaciones del mundo real utilizando varias etapas del ciclo del agua."
+      };
+
+      document.getElementById("recommendation").innerHTML =
+        "<strong>💡 Recomendación:</strong> " +
+        recommendations[state.level];
+    }
+
+    /* =========================================================
+       ESTADÍSTICAS
+    ========================================================= */
+
+    function updateStats() {
+
+      document.getElementById("totalScore").textContent =
+        state.score;
+
+      document.getElementById("sidebarScore").textContent =
+        state.score;
+
+      const accuracy =
+        state.attempts > 0
+          ? Math.round((state.score / state.attempts) * 100)
+          : 0;
+
+      document.getElementById("accuracy").textContent =
+        accuracy + "%";
+
+      updateLevelUI();
+    }
+
+    /* =========================================================
+       INICIALIZACIÓN
+    ========================================================= */
+
+    loadQuestion();
+    updateStats();
+    updateGlobalProgress();
+
+    /* =========================================================
+       ACCESIBILIDAD: PERMITE ACTIVAR BOTONES CON ENTER/ESPACIO
+       (Los botones nativos ya cuentan con esta funcionalidad;
+       se añade soporte al contenido arrastrable para teclado.)
+    ========================================================= */
+
+    document.addEventListener("keydown", event => {
+
+      if (
+        event.key === "Escape" &&
+        document.querySelector(".lesson-section.active")
+      ) {
+        document.activeElement?.blur();
+      }
+    });
+  </script>
+
+</body>
+</html>

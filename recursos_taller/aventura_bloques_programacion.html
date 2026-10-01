@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aventura con Bloques: Secuencia y Repetición en Programación</title>
+  
+  <!-- Tipografía moderna, legible y didáctica para 5.° Grado -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-main: #F4F7FC;
+      --card-bg: #FFFFFF;
+      --primary: #4F46E5;
+      --primary-light: #EEF2FF;
+      --primary-dark: #3730A3;
+      --secondary: #06B6D4;
+      --accent: #F59E0B;
+      --accent-light: #FEF3C7;
+      --success: #10B981;
+      --success-light: #D1FAE5;
+      --error: #EF4444;
+      --error-light: #FEE2E2;
+      --text-main: #1E293B;
+      --text-muted: #64748B;
+      --border-color: #CBD5E1;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 4px 8px -2px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 12px 20px -4px rgba(15, 23, 42, 0.08);
+      --shadow-hover: 0 20px 30px -8px rgba(79, 70, 229, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4, .brand, .badge {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    /* BARRA DE SEGUIMIENTO Y PROGRESO */
+    .progress-tracker {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid var(--border-color);
+      padding: 12px 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .tracker-content {
+      max-width: 950px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .tracker-label {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-bar-bg {
+      flex: 1;
+      height: 16px;
+      background: #E2E8F0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      border-radius: 20px;
+      transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-text {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 80px;
+      text-align: right;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .main-container {
+      max-width: 950px;
+      margin: 35px auto;
+      padding: 0 24px;
+      flex: 1;
+      width: 100%;
+    }
+
+    header.lesson-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .lesson-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-light);
+      color: #92400E;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 30px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      border: 1px solid #FDE68A;
+    }
+
+    header.lesson-header h1 {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+
+    header.lesson-header p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* COMPONENTE 1: PESTAÑAS DIDÁCTICAS */
+    .tabs-section {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 45px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tabs-nav {
+      display: flex;
+      background: #F8FAFC;
+      border-bottom: 2px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 18px 20px;
+      background: transparent;
+      border: none;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+      border-bottom: 4px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary);
+      background: #EEF2FF;
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      background: var(--card-bg);
+      border-bottom-color: var(--primary);
+      font-weight: 700;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 35px 30px;
+      animation: fadeIn 0.35s ease-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .tab-content h3 {
+      font-size: 1.5rem;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .tab-content p {
+      margin-bottom: 16px;
+      color: #334155;
+      font-size: 1.05rem;
+    }
+
+    .concept-box {
+      background: #F8FAFC;
+      border-left: 5px solid var(--primary);
+      padding: 18px 22px;
+      border-radius: var(--radius-sm);
+      margin: 18px 0;
+    }
+
+    .step-list {
+      list-style: none;
+      margin: 15px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #FFFFFF;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      font-size: 0.95rem;
+    }
+
+    .step-number {
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+      border-radius: 50%;
+      min-width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+
+    /* ESTILOS COMUNES DE BLOQUES DE PROGRAMACIÓN (SCRATCH / MAKECODE) */
+    .code-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .visual-board {
+      background: #F8FAFC;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .visual-board-header {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .board-long .visual-board-header { color: #DC2626; }
+    .board-loop .visual-board-header { color: #059669; }
+
+    .blocks-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    /* Bloque base interactivo y visual */
+    .scratch-block {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 9px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: #FFFFFF;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.16);
+      position: relative;
+      user-select: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    /* Muesca superior simulada (Puzzle Notch) */
+    .scratch-block::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: 18px;
+      width: 14px;
+      height: 4px;
+      background: inherit;
+      border-radius: 0 0 4px 4px;
+      filter: brightness(0.9);
+    }
+
+    /* Colores por categoría de programación */
+    .scratch-block.motion,
+    .scratch-block.turn {
+      background: #4C97FF;
+      border: 1px solid #3373CC;
+    }
+
+    .scratch-block.sound {
+      background: #CF63CF;
+      border: 1px solid #A84AA8;
+    }
+
+    .scratch-block.pen {
+      background: #0FBD8C;
+      border: 1px solid #0B8E69;
+    }
+
+    .scratch-block.control-simple {
+      background: #FFAB19;
+      border: 1px solid #CF8200;
+    }
+
+    /* Campos de entrada editables/valores */
+    .block-input {
+      background: #FFFFFF;
+      color: #1E293B;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .block-input.color-sample {
+      padding: 2px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .color-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #2563EB;
+      display: inline-block;
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+
+    /* Bloque en forma de C para Repetición (Bucles) */
+    .loop-c-block {
+      background: #FFAB19;
+      border: 1px solid #CF8200;
+      border-radius: 10px;
+      padding: 10px 14px 8px 14px;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.16);
+      display: inline-flex;
+      flex-direction: column;
+      color: #FFFFFF;
+      position: relative;
+    }
+
+    .loop-c-block::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: 18px;
+      width: 14px;
+      height: 4px;
+      background: #FFAB19;
+      border-radius: 0 0 4px 4px;
+      filter: brightness(0.9);
+    }
+
+    .loop-header {
+      font-weight: 800;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+
+    .loop-body-slot {
+      border-left: 14px solid #E69500;
+      padding-left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin: 2px 0 4px 4px;
+      min-height: 22px;
+    }
+
+    .loop-body-placeholder {
+      border: 2px dashed rgba(255, 255, 255, 0.6);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #FFFBEB;
+      text-align: center;
+      background: rgba(0,0,0,0.06);
+    }
+
+    .loop-footer {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #FFF3D6;
+      text-align: right;
+      letter-spacing: 0.5px;
+    }
+
+    .board-caption {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* COMPONENTE 2: FLASHCARDS 3D */
+    .section-title {
+      font-size: 1.75rem;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-size: 1.05rem;
+    }
+
+    .flashcards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 22px;
+      margin-bottom: 50px;
+      perspective: 1200px;
+    }
+
+    .flashcard {
+      background: transparent;
+      height: 250px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .flashcard.flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--border-color);
+    }
+
+    .card-front {
+      background: var(--card-bg);
+      color: var(--text-main);
+    }
+
+    .card-front .icon {
+      font-size: 3.2rem;
+      margin-bottom: 12px;
+    }
+
+    .card-front h3 {
+      font-size: 1.25rem;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+
+    .card-front .hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      background: var(--bg-main);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .card-back {
+      background: linear-gradient(145deg, #EEF2FF, #E0E7FF);
+      color: var(--text-main);
+      transform: rotateY(180deg);
+      border-color: var(--primary);
+      text-align: left;
+    }
+
+    .card-back h4 {
+      color: var(--primary);
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+
+    .card-back p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #334155;
+    }
+
+    /* COMPONENTE 3: PRÁCTICA & EJERCITACIÓN (DRAG & DROP CON BLOQUES REALES) */
+    .dnd-section {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 35px 30px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 50px;
+    }
+
+    .drag-items-pool {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: #F8FAFC;
+      border: 2px dashed #94A3B8;
+      padding: 22px;
+      border-radius: var(--radius-md);
+      margin-bottom: 28px;
+      min-height: 120px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .draggable-block-wrapper {
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      display: inline-block;
+    }
+
+    .draggable-block-wrapper:hover {
+      transform: translateY(-3px) scale(1.02);
+      filter: brightness(1.05);
+    }
+
+    .draggable-block-wrapper:active {
+      cursor: grabbing;
+      opacity: 0.7;
+      transform: scale(0.96);
+    }
+
+    .draggable-block-wrapper.locked {
+      cursor: default;
+      transform: none;
+      filter: none;
+    }
+
+    .drop-zones-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .drop-zone {
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      background: #FAFAFA;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s ease;
+    }
+
+    .drop-zone.hovered {
+      background: #F0FDF4;
+      border-color: var(--success);
+      transform: scale(1.01);
+    }
+
+    .drop-zone-header {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .drop-zone-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .zone-secuencia .drop-zone-header { color: #2563EB; }
+    .zone-repeticion .drop-zone-header { color: #D97706; }
+
+    .drop-zone-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    /* COMPONENTE 4: EVALUACIÓN FORMATIVA */
+    .quiz-section {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 35px 30px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 50px;
+    }
+
+    .quiz-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 22px;
+    }
+
+    .quiz-question {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: var(--text-main);
+    }
+
+    .quiz-options {
+      display: flex;
+      gap: 14px;
+    }
+
+    .quiz-btn {
+      padding: 10px 28px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.05rem;
+      border: 2px solid var(--border-color);
+      background: #FFFFFF;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .quiz-btn:hover:not(:disabled) {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .quiz-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.75;
+    }
+
+    .quiz-btn.selected-correct {
+      background: var(--success);
+      color: #FFFFFF;
+      border-color: var(--success);
+    }
+
+    .quiz-btn.selected-incorrect {
+      background: var(--error);
+      color: #FFFFFF;
+      border-color: var(--error);
+    }
+
+    .feedback-box {
+      margin-top: 16px;
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .feedback-box.correct {
+      display: block;
+      background: var(--success-light);
+      color: #065F46;
+      border-left: 5px solid var(--success);
+    }
+
+    .feedback-box.incorrect {
+      display: block;
+      background: var(--error-light);
+      color: #991B1B;
+      border-left: 5px solid var(--error);
+    }
+
+    /* COMPONENTE 5: PANTALLA FINAL & RECOMPENSAS */
+    .congrats-modal {
+      display: none;
+      background: var(--card-bg);
+      border: 2px solid #FCD34D;
+      border-radius: var(--radius-lg);
+      padding: 45px 30px;
+      text-align: center;
+      margin-bottom: 50px;
+      box-shadow: var(--shadow-hover);
+      animation: bounceIn 0.6s ease;
+    }
+
+    .congrats-modal.active {
+      display: block;
+    }
+
+    .medal-icon {
+      font-size: 5.5rem;
+      margin-bottom: 15px;
+      animation: gentleFloat 2.5s infinite ease-in-out;
+    }
+
+    .congrats-modal h2 {
+      font-size: 2.2rem;
+      color: #92400E;
+      margin-bottom: 12px;
+    }
+
+    .badge-summary {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 25px 0;
+      flex-wrap: wrap;
+    }
+
+    .mini-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reset-btn {
+      margin-top: 20px;
+      padding: 14px 34px;
+      background: var(--primary);
+      color: #FFFFFF;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.15rem;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .reset-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* FOOTER OBLIGATORIO */
+    footer.app-footer {
+      background: #FFFFFF;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      padding: 26px 20px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    footer.app-footer strong {
+      color: var(--text-main);
+    }
+
+    /* ANIMACIONES */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounceIn {
+      0% { opacity: 0; transform: scale(0.85); }
+      60% { transform: scale(1.03); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 768px) {
+      .drop-zones-grid, .code-comparison {
+        grid-template-columns: 1fr;
+      }
+      .tabs-nav {
+        flex-direction: column;
+      }
+      header.lesson-header h1 {
+        font-size: 1.9rem;
+      }
+      .quiz-options {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA DE SEGUIMIENTO Y PROGRESO -->
+  <aside class="progress-tracker" aria-label="Progreso general de la lección">
+    <div class="tracker-content">
+      <span class="tracker-label"><span>🎯</span> Misión de Aprendizaje</span>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+      <span class="progress-text" id="progressText">0%</span>
+    </div>
+  </aside>
+
+  <main class="main-container">
+    <!-- ENCABEZADO PEDAGÓGICO -->
+    <header class="lesson-header">
+      <span class="lesson-badge">🚀 Grado Quinto • Pensamiento Computacional</span>
+      <h1>Aprende a Programar con Secuencias y Repeticiones</h1>
+      <p>Entiende cómo las computadoras resuelven problemas, organizan instrucciones paso a paso y ahorran esfuerzo usando bucles inteligentes.</p>
+    </header>
+
+    <!-- 1. PRESENTACIÓN DEL CONTENIDO (TABS TEMÁTICAS) -->
+    <section class="tabs-section" aria-labelledby="tabs-title">
+      <h2 id="tabs-title" style="display:none;">Contenido Didáctico</h2>
+      <div class="tabs-nav" role="tablist">
+        <button class="tab-btn active" onclick="switchTab(0)" role="tab" id="tab0-btn">🧩 1. ¿Cómo piensa la computadora?</button>
+        <button class="tab-btn" onclick="switchTab(1)" role="tab" id="tab1-btn">➡️ 2. Bloques de Secuencia</button>
+        <button class="tab-btn" onclick="switchTab(2)" role="tab" id="tab2-btn">🔄 3. Bloques de Repetición (Bucles)</button>
+      </div>
+
+      <!-- Tab 1 -->
+      <div class="tab-content active" id="tabContent0" role="tabpanel">
+        <h3>El Lenguaje Visual de los Bloques</h3>
+        <p>Aprender a programar por bloques (como en <strong>Scratch</strong> o <strong>MakeCode</strong>) es similar a conectar piezas de rompecabezas: cada bloque encaja únicamente si tiene sentido lógico. Las computadoras son veloces y precisas, pero <strong>no pueden pensar por sí mismas</strong> ni deducir lo que olvidaste decirles.</p>
+        
+        <div class="concept-box">
+          <h4>📌 Los 3 Principios Fundamentales del Pensamiento Computacional:</h4>
+          <ul style="margin-left: 20px; margin-top: 8px;">
+            <li><strong>Claridad Absoluta:</strong> Una instrucción ambigua causará un error (conocido como <em>bug</em>).</li>
+            <li><strong>Orden Riguroso:</strong> Las acciones se ejecutan exactamente de arriba hacia abajo.</li>
+            <li><strong>Reutilización:</strong> Diseñar soluciones limpias sin repetir comandos innecesariamente.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tab 2 -->
+      <div class="tab-content" id="tabContent1" role="tabpanel">
+        <h3>Secuencia: La Cadena Inalterable de Pasos</h3>
+        <p>Una <strong>secuencia</strong> es la estructura más elemental de un algoritmo: una serie continua de pasos organizados donde cada uno espera a que el anterior finalice por completo para comenzar.</p>
+        
+        <p>¿Qué ocurre si desordenamos una secuencia en la vida diaria? Analicemos este caso práctico:</p>
+        
+        <ul class="step-list">
+          <li>
+            <span class="step-number">1</span>
+            <div><strong>Paso 1:</strong> Abrir la puerta del refrigerador y tomar la fruta.</div>
+          </li>
+          <li>
+            <span class="step-number">2</span>
+            <div><strong>Paso 2:</strong> Lavar la fruta con agua limpia en el lavaplatos.</div>
+          </li>
+          <li>
+            <span class="step-number">3</span>
+            <div><strong>Paso 3:</strong> Pelar y comer la fruta.</div>
+          </li>
+        </ul>
+
+        <div class="concept-box" style="border-left-color: var(--secondary);">
+          <strong>🚨 ¿Por qué importa el orden?</strong> Si ejecutas el <em>Paso 3</em> antes del <em>Paso 2</em>, comerías una fruta sin lavar. En la pantalla, si ordenas a tu personaje <code>Decir '¡Gol!'</code> antes de <code>Patear el balón</code>, la animación parecerá un error cómico.
+        </div>
+      </div>
+
+      <!-- Tab 3: COMPARATIVA CON BLOQUES VISUALES ESTILO SCRATCH -->
+      <div class="tab-content" id="tabContent2" role="tabpanel">
+        <h3>Repetición (Bucles): La Estrategia del Buen Programador</h3>
+        <p>Imagina que estás dibujando un cuadrado con tu personaje. Cada lado requiere <strong>avanzar y girar 90 grados</strong>. ¿Deberías escribir la misma instrucción 4 veces o indicarle al programa que lo repita automáticamente?</p>
+        
+        <div class="code-comparison">
+          <!-- Tarjeta 1: Solo Secuencia -->
+          <div class="visual-board board-long">
+            <div class="visual-board-header">
+              <span>❌</span> Solo Secuencia (Código Largo)
+            </div>
+
+            <div class="blocks-stack">
+              <div class="scratch-block motion">
+                <span>🏃</span> mover <span class="block-input">10</span> pasos
+              </div>
+              <div class="scratch-block turn">
+                <span>↪️</span> girar <span class="block-input">90</span> grados
+              </div>
+              <div class="scratch-block motion">
+                <span>🏃</span> mover <span class="block-input">10</span> pasos
+              </div>
+              <div class="scratch-block turn">
+                <span>↪️</span> girar <span class="block-input">90</span> grados
+              </div>
+              <div class="scratch-block motion">
+                <span>🏃</span> mover <span class="block-input">10</span> pasos
+              </div>
+              <div class="scratch-block turn">
+                <span>↪️</span> girar <span class="block-input">90</span> grados
+              </div>
+              <div class="scratch-block motion">
+                <span>🏃</span> mover <span class="block-input">10</span> pasos
+              </div>
+              <div class="scratch-block turn">
+                <span>↪️</span> girar <span class="block-input">90</span> grados
+              </div>
+            </div>
+
+            <div class="board-caption">
+              ⚠️ Requiere 8 bloques apilados para formar un solo cuadrado.
+            </div>
+          </div>
+
+          <!-- Tarjeta 2: Con Bucle -->
+          <div class="visual-board board-loop">
+            <div class="visual-board-header">
+              <span>✅</span> Con Bucle (Código Óptimo)
+            </div>
+
+            <div class="blocks-stack" style="justify-content: flex-start;">
+              <!-- Bucle en C -->
+              <div class="loop-c-block">
+                <div class="loop-header">
+                  <span>🔁</span> repetir <span class="block-input">4</span> veces
+                </div>
+
+                <div class="loop-body-slot">
+                  <div class="scratch-block motion">
+                    <span>🏃</span> mover <span class="block-input">10</span> pasos
+                  </div>
+                  <div class="scratch-block turn">
+                    <span>↪️</span> girar <span class="block-input">90</span> grados
+                  </div>
+                </div>
+
+                <div class="loop-footer">FIN DEL BUCLE</div>
+              </div>
+            </div>
+
+            <div class="board-caption" style="color: #059669;">
+              🌟 ¡Ahorras 6 bloques! Más rápido de leer y sin equivocarte al contar.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. MEMORIZACIÓN & REPASO ACTIVO (FLASHCARDS 3D) -->
+    <section aria-labelledby="flashcards-heading">
+      <h2 id="flashcards-heading" class="section-title">💡 Tarjetas 3D de Retención Activa</h2>
+      <p class="section-desc">Pasa el cursor o haz clic sobre cada tarjeta para girarla y fijar los conceptos esenciales.</p>
+      
+      <div class="flashcards-grid">
+        <div class="flashcard" onclick="flipCard(this, 'card1')" tabindex="0" role="button" aria-label="Girar tarjeta sobre Algoritmo">
+          <div class="flashcard-inner">
+            <div class="card-front">
+              <span class="icon">📜</span>
+              <h3>Algoritmo</h3>
+              <span class="hint">Toca para descubrir</span>
+            </div>
+            <div class="card-back">
+              <h4>El plan maestro</h4>
+              <p>Es una lista finita, detallada y ordenada de instrucciones diseñadas para resolver un problema o alcanzar una meta clara.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flashcard" onclick="flipCard(this, 'card2')" tabindex="0" role="button" aria-label="Girar tarjeta sobre Secuencia">
+          <div class="flashcard-inner">
+            <div class="card-front">
+              <span class="icon">👣</span>
+              <h3>Secuencia</h3>
+              <span class="hint">Toca para descubrir</span>
+            </div>
+            <div class="card-back">
+              <h4>Paso a paso</h4>
+              <p>Cadena lógica donde las acciones se ejecutan una después de otra. Cambiar de posición los bloques transforma el resultado final.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flashcard" onclick="flipCard(this, 'card3')" tabindex="0" role="button" aria-label="Girar tarjeta sobre Bucle">
+          <div class="flashcard-inner">
+            <div class="card-front">
+              <span class="icon">🔁</span>
+              <h3>Bucle / Iteración</h3>
+              <span class="hint">Toca para descubrir</span>
+            </div>
+            <div class="card-back">
+              <h4>Trabajo inteligente</h4>
+              <p>Estructura de control que repite un bloque las veces que tú decidas. Permite crear patrones, animaciones y ahorrar memoria.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. PRÁCTICA & EJERCITACIÓN (DRAG & DROP CON BLOQUES REALES) -->
+    <section class="dnd-section" aria-labelledby="dnd-heading">
+      <h2 id="dnd-heading" class="section-title">🎮 Laboratorio de Clasificación de Bloques</h2>
+      <p class="section-desc">Arrastra cada bloque real de programación a su categoría correcta: ¿es una <strong>Acción en Secuencia</strong> o una <strong>Estructura de Repetición</strong>?</p>
+
+      <div class="drag-items-pool" id="itemsPool" ondrop="drop(event)" ondragover="allowDrop(event)">
+        
+        <!-- Bloque 1: Movimiento (Secuencia) -->
+        <div class="draggable-block-wrapper" draggable="true" ondragstart="drag(event)" id="drag1" data-target="secuencia">
+          <div class="scratch-block motion">
+            <span>🏃</span> avanzar <span class="block-input">10</span> pasos
+          </div>
+        </div>
+
+        <!-- Bloque 2: Repetir N veces (Repetición) -->
+        <div class="draggable-block-wrapper" draggable="true" ondragstart="drag(event)" id="drag2" data-target="repeticion">
+          <div class="loop-c-block">
+            <div class="loop-header">
+              <span>🔁</span> repetir <span class="block-input">4</span> veces
+            </div>
+            <div class="loop-body-slot">
+              <div class="loop-body-placeholder">arrastrar acciones aquí</div>
+            </div>
+            <div class="loop-footer">fin</div>
+          </div>
+        </div>
+
+        <!-- Bloque 3: Sonido (Secuencia) -->
+        <div class="draggable-block-wrapper" draggable="true" ondragstart="drag(event)" id="drag3" data-target="secuencia">
+          <div class="scratch-block sound">
+            <span>🎵</span> tocar nota <span class="block-input">Do</span> por <span class="block-input">0.5</span> s
+          </div>
+        </div>
+
+        <!-- Bloque 4: Repetir por siempre (Repetición) -->
+        <div class="draggable-block-wrapper" draggable="true" ondragstart="drag(event)" id="drag4" data-target="repeticion">
+          <div class="loop-c-block">
+            <div class="loop-header">
+              <span>♾️</span> por siempre
+            </div>
+            <div class="loop-body-slot">
+              <div class="loop-body-placeholder">ejecutar en bucle</div>
+            </div>
+            <div class="loop-footer">fin</div>
+          </div>
+        </div>
+
+        <!-- Bloque 5: Lápiz (Secuencia) -->
+        <div class="draggable-block-wrapper" draggable="true" ondragstart="drag(event)" id="drag5" data-target="secuencia">
+          <div class="scratch-block pen">
+            <span>🎨</span> fijar lápiz a <span class="block-input color-sample"><span class="color-dot"></span> azul</span>
+          </div>
+        </div>
+
+        <!-- Bloque 6: Repetir hasta que... (Repetición) -->
+        <div class="draggable-block-wrapper" draggable="true" ondragstart="drag(event)" id="drag6" data-target="repeticion">
+          <div class="loop-c-block">
+            <div class="loop-header">
+              <span>⏳</span> repetir hasta que <span class="block-input">¿toca el borde?</span>
+            </div>
+            <div class="loop-body-slot">
+              <div class="loop-body-placeholder">iterar hasta condición</div>
+            </div>
+            <div class="loop-footer">fin</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="drop-zones-grid">
+        <div class="drop-zone zone-secuencia" ondrop="drop(event, 'secuencia')" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)">
+          <div class="drop-zone-header">➡️ Acciones en Secuencia</div>
+          <div class="drop-zone-desc">Bloques individuales que ejecutan una acción directa y puntual uno tras otro.</div>
+          <div class="drop-zone-content" id="zone-secuencia"></div>
+        </div>
+
+        <div class="drop-zone zone-repeticion" ondrop="drop(event, 'repeticion')" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)">
+          <div class="drop-zone-header">🔄 Estructuras de Repetición</div>
+          <div class="drop-zone-desc">Bloques en forma de "C" que encierran y reiteran otras instrucciones varias veces.</div>
+          <div class="drop-zone-content" id="zone-repeticion"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. EVALUACIÓN FORMATIVA (V/F) -->
+    <section class="quiz-section" aria-labelledby="quiz-heading">
+      <h2 id="quiz-heading" class="section-title">🧠 Desafío de Comprensión Formativa</h2>
+      <p class="section-desc">Analiza los dilemas pedagógicos y responde Verdadero o Falso. Cada respuesta incluye retroalimentación explicativa.</p>
+
+      <div class="quiz-card" id="q1">
+        <p class="quiz-question">1. Si alteras el orden de los bloques en una secuencia, el programa siempre continuará funcionando exactamente con el mismo resultado.</p>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="answerQuiz('q1', false, this)">Verdadero</button>
+          <button class="quiz-btn" onclick="answerQuiz('q1', true, this)">Falso</button>
+        </div>
+        <div class="feedback-box" id="feedback-q1"></div>
+      </div>
+
+      <div class="quiz-card" id="q2">
+        <p class="quiz-question">2. El bloque "Repetir por siempre" es útil para verificar constantemente colisiones en un videojuego o mantener la música de fondo sonando.</p>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="answerQuiz('q2', true, this)">Verdadero</button>
+          <button class="quiz-btn" onclick="answerQuiz('q2', false, this)">Falso</button>
+        </div>
+        <div class="feedback-box" id="feedback-q2"></div>
+      </div>
+
+      <div class="quiz-card" id="q3">
+        <p class="quiz-question">3. Un bloque de repetición necesita que coloques dentro de él las acciones que deseas reiterar.</p>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="answerQuiz('q3', true, this)">Verdadero</button>
+          <button class="quiz-btn" onclick="answerQuiz('q3', false, this)">Falso</button>
+        </div>
+        <div class="feedback-box" id="feedback-q3"></div>
+      </div>
+    </section>
+
+    <!-- 5. PANTALLA FINAL & RECOMPENSAS -->
+    <section class="congrats-modal" id="congratsModal" aria-live="polite">
+      <div class="medal-icon">🏆</div>
+      <h2>¡Felicitaciones, Maestro de la Lógica!</h2>
+      <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 650px; margin: 10px auto;">
+        Completaste exitosamente todos los retos conceptuales y prácticos sobre secuencias y bucles de repetición.
+      </p>
+
+      <div class="badge-summary">
+        <div class="mini-badge">🏅 Pensamiento Secuencial</div>
+        <div class="mini-badge">⚡ Bucles Optimizados</div>
+        <div class="mini-badge">🎯 Arquitecto de Algoritmos</div>
+      </div>
+
+      <button class="reset-btn" onclick="resetLesson()">🔄 Reiniciar Lección y Repasar de Nuevo</button>
+    </section>
+  </main>
+
+  <!-- PIE DE PÁGINA (FOOTER) OBLIGATORIO -->
+  <footer class="app-footer">
+    <p><strong>Ronny Martinez</strong> • UNIMAG • @usuario / correo@institucion.edu.co • 2026</p>
+  </footer>
+
+  <script>
+    /* =========================================================
+       1. SISTEMA DE AUDIO VIRTUAL (Web Audio API sintética)
+       ========================================================= */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const now = audioCtx.currentTime;
+
+      if (type === 'success') {
+        // Tono brillante y agradable (Arpegio rápido)
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.12, now + (idx * 0.07));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.07) + 0.2);
+          osc.start(now + (idx * 0.07));
+          osc.stop(now + (idx * 0.07) + 0.22);
+        });
+      } else if (type === 'error') {
+        // Tono grave disonante para error
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(140, now + 0.25);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.26);
+      } else if (type === 'fanfare') {
+        // Celebración final
+        const fanfareNotes = [523.25, 659.25, 783.99, 1046.50];
+        fanfareNotes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + (i * 0.12));
+          gain.gain.setValueAtTime(0.15, now + (i * 0.12));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.12) + 0.6);
+          osc.start(now + (i * 0.12));
+          osc.stop(now + (i * 0.12) + 0.65);
+        });
+      }
+    }
+
+    /* =========================================================
+       2. GESTOR DE PROGRESO Y RECOMPENSAS
+       ========================================================= */
+    const totalGoals = 13; // 3 tabs + 3 flashcards + 6 items dnd + 1 bloque quiz
+    const completedGoals = new Set();
+
+    function registerProgress(goalKey) {
+      if (!completedGoals.has(goalKey)) {
+        completedGoals.add(goalKey);
+        updateProgressUI();
+      }
+    }
+
+    function updateProgressUI() {
+      const percent = Math.min(100, Math.round((completedGoals.size / totalGoals) * 100));
+      document.getElementById('progressBar').style.width = percent + '%';
+      document.getElementById('progressText').textContent = percent + '%';
+
+      if (percent >= 100) {
+        showCelebration();
+      }
+    }
+
+    function showCelebration() {
+      playTone('fanfare');
+      const modal = document.getElementById('congratsModal');
+      modal.classList.add('active');
+      modal.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* =========================================================
+       3. COMPONENTE 1: TABS INFORMATIVAS
+       ========================================================= */
+    function switchTab(index) {
+      const buttons = document.querySelectorAll('.tab-btn');
+      const contents = document.querySelectorAll('.tab-content');
+
+      buttons.forEach((btn, i) => btn.classList.toggle('active', i === index));
+      contents.forEach((cnt, i) => cnt.classList.toggle('active', i === index));
+
+      registerProgress(`tab_${index}`);
+    }
+    registerProgress('tab_0');
+
+    /* =========================================================
+       4. COMPONENTE 2: FLASHCARDS 3D
+       ========================================================= */
+    function flipCard(cardEl, cardId) {
+      cardEl.classList.toggle('flipped');
+      if (cardEl.classList.contains('flipped')) {
+        playTone('success');
+        registerProgress(cardId);
+      }
+    }
+
+    /* =========================================================
+       5. COMPONENTE 3: PRÁCTICA DRAG AND DROP
+       ========================================================= */
+    function allowDrop(ev) {
+      ev.preventDefault();
+      const zone = ev.currentTarget;
+      if (zone.classList.contains('drop-zone')) {
+        zone.classList.add('hovered');
+      }
+    }
+
+    function leaveDrop(ev) {
+      const zone = ev.currentTarget;
+      zone.classList.remove('hovered');
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text/plain", ev.currentTarget.id);
+    }
+
+    function drop(ev, expectedCategory) {
+      ev.preventDefault();
+      const zone = ev.currentTarget;
+      zone.classList.remove('hovered');
+
+      const itemId = ev.dataTransfer.getData("text/plain");
+      const draggedElement = document.getElementById(itemId);
+      if (!draggedElement) return;
+
+      const itemCategory = draggedElement.getAttribute('data-target');
+
+      if (expectedCategory) {
+        if (itemCategory === expectedCategory) {
+          playTone('success');
+          document.getElementById(`zone-${expectedCategory}`).appendChild(draggedElement);
+          draggedElement.draggable = false;
+          draggedElement.classList.add('locked');
+          registerProgress(`item_${itemId}`);
+          checkRemainingItems();
+        } else {
+          playTone('error');
+          shakeElement(draggedElement);
+        }
+      } else {
+        document.getElementById('itemsPool').appendChild(draggedElement);
+      }
+    }
+
+    function shakeElement(elem) {
+      elem.style.transform = 'translateX(-10px)';
+      setTimeout(() => elem.style.transform = 'translateX(10px)', 80);
+      setTimeout(() => elem.style.transform = 'translateX(-6px)', 160);
+      setTimeout(() => elem.style.transform = 'translateX(6px)', 240);
+      setTimeout(() => elem.style.transform = 'translateX(0)', 300);
+    }
+
+    function checkRemainingItems() {
+      const remaining = document.getElementById('itemsPool').children.length;
+      if (remaining === 0) {
+        registerProgress('all_dnd_completed');
+      }
+    }
+
+    /* =========================================================
+       6. COMPONENTE 4: EVALUACIÓN REFLEXIVA (V/F)
+       ========================================================= */
+    const pedagogicalFeedback = {
+      q1: {
+        correct: "¡Excelente reflexión! Falso: En una secuencia, cambiar el orden altera totalmente el resultado. Por ejemplo, no es lo mismo 'abrir paraguas y salir a la lluvia' que 'salir a la lluvia y abrir paraguas'.",
+        incorrect: "¡Atención! Es Falso. Una computadora ejecuta línea por línea en estricto orden. Si cambias de lugar los bloques, la secuencia producirá un comportamiento completamente diferente o fallará."
+      },
+      q2: {
+        correct: "¡Muy bien! Verdadero: Los bucles continuos (como 'Por siempre') permiten que un videojuego escuche tus teclas o detecte colisiones en cada milisegundo de la partida.",
+        incorrect: "Revisa con cuidado: Es Verdadero. 'Por siempre' mantiene activos los sensores del juego (por ejemplo, detectar si la pelota golpea la raqueta) durante toda la ejecución."
+      },
+      q3: {
+        correct: "¡Brillante deducción! Verdadero: Los bloques de repetición funcionan como un contenedor que envuelve las acciones a repetir. Si dejas el bucle vacío, no habrá ninguna tarea que iterar.",
+        incorrect: "Piénsalo un momento: Es Verdadero. Un bucle por sí solo es solo un contenedor; requiere tener bloques anidados en su interior para saber qué acciones debe repetir."
+      }
+    };
+
+    function answerQuiz(questionId, isUserChoiceCorrect, clickedBtn) {
+      const parent = document.getElementById(questionId);
+      const buttons = parent.querySelectorAll('.quiz-btn');
+      const feedbackBox = document.getElementById(`feedback-${questionId}`);
+
+      buttons.forEach(btn => btn.disabled = true);
+
+      if (isUserChoiceCorrect) {
+        playTone('success');
+        clickedBtn.classList.add('selected-correct');
+        feedbackBox.textContent = pedagogicalFeedback[questionId].correct;
+        feedbackBox.className = "feedback-box correct";
+        registerProgress(`quiz_${questionId}`);
+      } else {
+        playTone('error');
+        clickedBtn.classList.add('selected-incorrect');
+        feedbackBox.textContent = pedagogicalFeedback[questionId].incorrect;
+        feedbackBox.className = "feedback-box incorrect";
+      }
+    }
+
+    /* =========================================================
+       7. REINICIO DE ACTIVIDAD
+       ========================================================= */
+    function resetLesson() {
+      completedGoals.clear();
+      updateProgressUI();
+
+      document.getElementById('congratsModal').classList.remove('active');
+      switchTab(0);
+
+      document.querySelectorAll('.flashcard').forEach(card => card.classList.remove('flipped'));
+
+      document.querySelectorAll('.quiz-btn').forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove('selected-correct', 'selected-incorrect');
+      });
+
+      document.querySelectorAll('.feedback-box').forEach(fb => {
+        fb.className = "feedback-box";
+        fb.textContent = "";
+      });
+
+      const pool = document.getElementById('itemsPool');
+      ['drag1', 'drag2', 'drag3', 'drag4', 'drag5', 'drag6'].forEach(id => {
+        const item = document.getElementById(id);
+        item.draggable = true;
+        item.classList.remove('locked');
+        pool.appendChild(item);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

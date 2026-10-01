@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Maravilloso Mundo del Mouse - 1° de Primaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      background-color: #f8fafc;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Radar / Pulsing Hotspots */
+    .hotspot-pulse {
+      animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      transform-origin: center;
+    }
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.9);
+        opacity: 0.9;
+      }
+      70%, 100% {
+        transform: scale(2.2);
+        opacity: 0;
+      }
+    }
+
+    /* Floating subtle effect for SVG mouse */
+    .float-mouse {
+      animation: floatSmooth 4s ease-in-out infinite;
+    }
+    @keyframes floatSmooth {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-7px); }
+    }
+
+    /* Active Highlight on Mouse SVG Parts */
+    .mouse-part {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .mouse-part:hover {
+      filter: brightness(1.08) drop-shadow(0px 4px 10px rgba(0,0,0,0.12));
+    }
+    .part-active-left {
+      fill: #60a5fa !important;
+      filter: drop-shadow(0px 0px 14px #3b82f6) !important;
+    }
+    .part-active-right {
+      fill: #4ade80 !important;
+      filter: drop-shadow(0px 0px 14px #22c55e) !important;
+    }
+    .part-active-wheel {
+      fill: #fb923c !important;
+      filter: drop-shadow(0px 0px 14px #f97316) !important;
+    }
+    .part-active-body {
+      fill: #c084fc !important;
+      filter: drop-shadow(0px 0px 14px #a855f7) !important;
+    }
+
+    /* Confetti Canvas */
+    #confettiCanvas {
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between overflow-x-hidden relative">
+  <canvas id="confettiCanvas"></canvas>
+
+  <header class="w-full bg-white/90 backdrop-blur-md border-b-4 border-indigo-100 py-3 px-4 sm:px-8 flex flex-wrap items-center justify-between shadow-sm sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-md transform rotate-3 hover:rotate-0 transition">
+        🖱️
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-800 leading-tight">
+          ¡Aventura con el Mouse!
+        </h1>
+        <span class="text-xs sm:text-sm font-semibold text-indigo-500 bg-indigo-50 px-2.5 py-0.5 rounded-full inline-block">
+          ⭐ Computación para 1° de Primaria
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-0">
+      <button id="toggleAudioBtn" class="flex items-center gap-1.5 px-3.5 py-2 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-2xl text-sm font-bold transition shadow-sm border border-amber-300">
+        <span id="audioIcon">🔊</span>
+        <span id="audioText" class="hidden sm:inline">Sonido: SÍ</span>
+      </button>
+
+      <button id="modePracticeBtn" class="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl text-sm sm:text-base font-bold shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <span>🎮</span>
+        <span>¡Modo Juego!</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 flex flex-col justify-center">
+    
+    <!-- Game Prompt Banner (Appears during Practice Mode) -->
+    <div id="gameBanner" class="hidden mb-6 p-4 bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 rounded-3xl text-white shadow-lg border-4 border-amber-200 animate-bounce text-center transition-all">
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <span class="text-3xl">🎯</span>
+        <p id="gameQuestionText" class="text-lg sm:text-2xl font-bold text-slate-900 drop-shadow-sm">
+          Pregunta del juego aquí
+        </p>
+        <button id="exitGameBtn" class="bg-white/80 hover:bg-white text-slate-800 px-3 py-1 text-sm font-extrabold rounded-xl shadow ml-auto sm:ml-4">
+          Salir ❌
+        </button>
+      </div>
+    </div>
+
+    <!-- Interactive Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+
+      <!-- Diagram Column (SVG Mouse with Interactive Hotspots) -->
+      <div class="lg:col-span-7 flex flex-col items-center justify-center relative p-4 bg-white/70 backdrop-blur-sm rounded-3xl border-4 border-dashed border-indigo-100 shadow-xl">
+        
+        <!-- Interactive Instruction pill -->
+        <div class="bg-indigo-600 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full shadow-md mb-2 flex items-center gap-2">
+          <span>👆</span>
+          <span>Toca los botones brillantes del ratón o sus piezas</span>
+        </div>
+
+        <!-- SVG Container -->
+        <div class="relative w-full max-w-[380px] sm:max-w-[430px] flex items-center justify-center p-2">
+          <svg id="mouseSvg" class="w-full h-auto drop-shadow-2xl float-mouse select-none" viewBox="0 0 500 680" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="bodyGrad" x1="250" y1="50" x2="250" y2="650" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#F1F5F9" />
+                <stop offset="60%" stop-color="#E2E8F0" />
+                <stop offset="100%" stop-color="#CBD5E1" />
+              </linearGradient>
+              <linearGradient id="btnLeftGrad" x1="140" y1="90" x2="240" y2="280" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#EBF4FF" />
+                <stop offset="100%" stop-color="#BFDBFE" />
+              </linearGradient>
+              <linearGradient id="btnRightGrad" x1="360" y1="90" x2="260" y2="280" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#F0FDF4" />
+                <stop offset="100%" stop-color="#BBF7D0" />
+              </linearGradient>
+              <linearGradient id="wheelGrad" x1="250" y1="120" x2="250" y2="220" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FED7AA" />
+                <stop offset="100%" stop-color="#FB923C" />
+              </linearGradient>
+            </defs>
+
+            <!-- USB Cable (Cartoony) -->
+            <path d="M250 50 C250 20, 250 5, 250 0" stroke="#94A3B8" stroke-width="14" stroke-linecap="round"/>
+            <rect x="238" y="42" width="24" height="20" rx="6" fill="#64748B"/>
+
+            <!-- Main Mouse Base / Body -->
+            <path id="partBody" class="mouse-part" d="M120 270 C120 180, 160 70, 250 70 C340 70, 380 180, 380 270 C380 430, 370 590, 250 590 C130 590, 120 430, 120 270 Z" fill="url(#bodyGrad)" stroke="#475569" stroke-width="8" />
+
+            <!-- Palm Rest Area Accent (Decorative cartoon curve) -->
+            <path d="M165 420 C200 460, 300 460, 335 420" stroke="#94A3B8" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+            <!-- Friendly Smile Detail -->
+            <circle cx="205" cy="460" r="5" fill="#64748B" opacity="0.6"/>
+            <circle cx="295" cy="460" r="5" fill="#64748B" opacity="0.6"/>
+            <path d="M230 475 C240 488, 260 488, 270 475" stroke="#64748B" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"/>
+
+            <!-- Left Button -->
+            <path id="partLeft" class="mouse-part" d="M126 265 C125 210, 135 125, 200 80 C218 68, 235 70, 238 72 L238 275 C190 275, 145 272, 126 265 Z" fill="url(#btnLeftGrad)" stroke="#3B82F6" stroke-width="7"/>
+
+            <!-- Right Button -->
+            <path id="partRight" class="mouse-part" d="M374 265 C375 210, 365 125, 300 80 C282 68, 265 70, 262 72 L262 275 C310 275, 355 272, 374 265 Z" fill="url(#btnRightGrad)" stroke="#10B981" stroke-width="7"/>
+
+            <!-- Scroll Wheel Housing Cutout -->
+            <rect x="232" y="112" width="36" height="116" rx="18" fill="#334155"/>
+
+            <!-- Scroll Wheel / Ruedita -->
+            <rect id="partWheel" class="mouse-part" x="236" y="118" width="28" height="104" rx="14" fill="url(#wheelGrad)" stroke="#EA580C" stroke-width="5"/>
+            <!-- Wheel Tread Marks -->
+            <line x1="240" y1="138" x2="260" y2="138" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+            <line x1="240" y1="156" x2="260" y2="156" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+            <line x1="240" y1="174" x2="260" y2="174" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+            <line x1="240" y1="192" x2="260" y2="192" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+
+            <!-- HOTSPOT 1: Botón Izquierdo (Blue) -->
+            <g id="hotspotLeft" class="cursor-pointer">
+              <circle cx="180" cy="180" r="28" fill="#3B82F6" class="hotspot-pulse"/>
+              <circle cx="180" cy="180" r="22" fill="#2563EB" stroke="#FFFFFF" stroke-width="4" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.3))"/>
+              <text x="180" y="187" text-anchor="middle" fill="#FFFFFF" font-size="20" font-weight="bold" font-family="'Nunito', sans-serif">1</text>
+            </g>
+
+            <!-- HOTSPOT 2: Botón Derecho (Green) -->
+            <g id="hotspotRight" class="cursor-pointer">
+              <circle cx="320" cy="180" r="28" fill="#10B981" class="hotspot-pulse"/>
+              <circle cx="320" cy="180" r="22" fill="#059669" stroke="#FFFFFF" stroke-width="4" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.3))"/>
+              <text x="320" y="187" text-anchor="middle" fill="#FFFFFF" font-size="20" font-weight="bold" font-family="'Nunito', sans-serif">2</text>
+            </g>
+
+            <!-- HOTSPOT 3: Ruedita / Scroll (Orange) -->
+            <g id="hotspotWheel" class="cursor-pointer">
+              <circle cx="250" cy="170" r="26" fill="#F97316" class="hotspot-pulse"/>
+              <circle cx="250" cy="170" r="20" fill="#EA580C" stroke="#FFFFFF" stroke-width="4" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.3))"/>
+              <text x="250" y="177" text-anchor="middle" fill="#FFFFFF" font-size="19" font-weight="bold" font-family="'Nunito', sans-serif">3</text>
+            </g>
+
+            <!-- HOTSPOT 4: Cuerpo / Apoyo (Purple) -->
+            <g id="hotspotBody" class="cursor-pointer">
+              <circle cx="250" cy="380" r="28" fill="#A855F7" class="hotspot-pulse"/>
+              <circle cx="250" cy="380" r="22" fill="#9333EA" stroke="#FFFFFF" stroke-width="4" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.3))"/>
+              <text x="250" y="387" text-anchor="middle" fill="#FFFFFF" font-size="20" font-weight="bold" font-family="'Nunito', sans-serif">4</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Hotspots Legend for First Graders -->
+        <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mt-3">
+          <button onclick="selectHotspot('left')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-800 text-xs sm:text-sm font-extrabold transition">
+            <span class="w-3.5 h-3.5 rounded-full bg-blue-600 inline-block"></span> 1. Clic Izquierdo
+          </button>
+          <button onclick="selectHotspot('right')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs sm:text-sm font-extrabold transition">
+            <span class="w-3.5 h-3.5 rounded-full bg-emerald-600 inline-block"></span> 2. Clic Derecho
+          </button>
+          <button onclick="selectHotspot('wheel')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100 hover:bg-orange-200 text-orange-800 text-xs sm:text-sm font-extrabold transition">
+            <span class="w-3.5 h-3.5 rounded-full bg-orange-600 inline-block"></span> 3. La Ruedita
+          </button>
+          <button onclick="selectHotspot('body')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs sm:text-sm font-extrabold transition">
+            <span class="w-3.5 h-3.5 rounded-full bg-purple-600 inline-block"></span> 4. El Cuerpo
+          </button>
+        </div>
+      </div>
+
+      <!-- Information Panel Column -->
+      <div class="lg:col-span-5 flex flex-col gap-4">
+
+        <!-- Card Container -->
+        <div id="infoCard" class="bg-white rounded-3xl p-6 sm:p-7 shadow-xl border-4 border-indigo-200 transition-all duration-300 relative overflow-hidden">
+          
+          <!-- Background decorative shapes -->
+          <div class="absolute -right-10 -bottom-10 w-36 h-36 rounded-full bg-indigo-50 -z-0"></div>
+          
+          <div class="relative z-10">
+            <!-- Badge & Name -->
+            <div class="flex items-center gap-3 mb-3">
+              <span id="cardIconContainer" class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-sm bg-blue-100 text-blue-600">
+                👆
+              </span>
+              <div>
+                <span id="partTag" class="text-xs uppercase font-extrabold tracking-wider px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                  Botón #1
+                </span>
+                <h2 id="partTitle" class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-1">
+                  Botón Izquierdo
+                </h2>
+              </div>
+            </div>
+
+            <!-- Vital Function (Superpoder) -->
+            <div class="bg-slate-50 border-2 border-slate-200/80 rounded-2xl p-4 my-4">
+              <div class="flex items-center gap-2 text-indigo-700 font-extrabold text-base sm:text-lg mb-1">
+                <span>⚡</span>
+                <h3>¡Su Superpoder Mágico!</h3>
+              </div>
+              <p id="partSuperpower" class="text-slate-700 text-base sm:text-lg leading-relaxed font-semibold">
+                Es el dedo índice de la computadora. Sirve para elegir, tocar botones y abrir tus juegos favoritos con un <strong>"¡Clic!"</strong>.
+              </p>
+            </div>
+
+            <!-- Kid Mission / Practical Example -->
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-4">
+              <div class="flex items-center gap-2 text-amber-800 font-extrabold text-base mb-1">
+                <span>🌟</span>
+                <h4>Misión para ti:</h4>
+              </div>
+              <p id="partMission" class="text-amber-900 text-sm sm:text-base font-semibold">
+                Imagina que entras a ver un video de dibujos. Con este botón tocas la pantalla para ponerle 'Play'. ¡Es el botón que más usamos!
+              </p>
+            </div>
+
+            <!-- Interactive Try-It Zone within Card -->
+            <div class="mt-5 pt-4 border-t-2 border-slate-100 flex flex-col gap-2">
+              <div class="flex justify-between items-center text-xs font-bold text-slate-500">
+                <span>PRUEBA VIRTUAL</span>
+                <span id="tryStatus" class="text-emerald-600">Listo</span>
+              </div>
+              <button id="cardActionButton" class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-extrabold text-lg rounded-2xl shadow-md transition flex items-center justify-center gap-2">
+                <span>👆</span>
+                <span id="btnActionText">¡Haz Clic Izquierdo aquí!</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fun Didactic Fact Card -->
+        <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-5 text-white shadow-lg flex items-center gap-4">
+          <div class="text-4xl bg-white/20 p-2.5 rounded-2xl">
+            🐭
+          </div>
+          <div>
+            <h4 class="font-extrabold text-lg">¿Sabías por qué se llama Ratón?</h4>
+            <p class="text-white/90 text-xs sm:text-sm font-medium mt-0.5">
+              ¡Porque su cable parece una colita larga y tiene el tamaño de un ratoncito veloz que cabe en la palma de tu mano!
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="w-full bg-white border-t border-slate-200 py-3 px-6 text-center text-xs sm:text-sm text-slate-500 font-medium">
+    Diseñado con cariño para el aprendizaje de informática • Primer Grado • ¡Aprender jugando es divertido! 🎨
+  </footer>
+
+  <script>
+    /* Global Application State */
+    const state = {
+      selectedPart: 'left',
+      audioEnabled: true,
+      practiceMode: false,
+      gameQuestionIndex: 0,
+      audioCtx: null
+    };
+
+    /* Parts Data specifically tailored for 1st graders (6-7 years old) */
+    const mousePartsData = {
+      left: {
+        id: 'left',
+        number: '1',
+        name: 'Botón Izquierdo',
+        nickname: 'El Clic de Oro',
+        tagColor: 'bg-blue-100 text-blue-700',
+        badgeBg: 'bg-blue-100 text-blue-600',
+        icon: '👆',
+        cardBorder: 'border-blue-300',
+        actionBtnBg: 'bg-blue-600 hover:bg-blue-700',
+        actionText: '¡Haz Clic Izquierdo aquí!',
+        soundFrequency: 600,
+        soundType: 'sine',
+        superpower: 'Es como tu dedito índice. Sirve para elegir cosas, presionar botones y abrir tus juegos favoritos con un divertido "¡Clic!".',
+        mission: 'Imagina que ves un cofre del tesoro en la pantalla: con este botón haces clic para abrirlo y ganar monedas.',
+        interactiveResponse: '¡CLIC! 🎉 ¡Abriste el cofre mágico!'
+      },
+      right: {
+        id: 'right',
+        number: '2',
+        name: 'Botón Derecho',
+        nickname: 'El Botón de los Trucos',
+        tagColor: 'bg-emerald-100 text-emerald-700',
+        badgeBg: 'bg-emerald-100 text-emerald-600',
+        icon: '🪄',
+        cardBorder: 'border-emerald-300',
+        actionBtnBg: 'bg-emerald-600 hover:bg-emerald-700',
+        actionText: '¡Haz Clic Derecho para ver secretos!',
+        soundFrequency: 450,
+        soundType: 'triangle',
+        superpower: '¡Es el botón de la magia secreta! Cuando lo tocas, aparece un menú sorpresa con opciones y trucos especiales como copiar o cambiar de color.',
+        mission: 'Haz como los detectives: presiona este botón sobre una imagen para ver sus datos secretos escondidos.',
+        interactiveResponse: '¡MAGIA! 📜 ¡Apareció la lista secreta!'
+      },
+      wheel: {
+        id: 'wheel',
+        number: '3',
+        name: 'La Ruedita (Scroll)',
+        nickname: 'El Ascensor Veloz',
+        tagColor: 'bg-orange-100 text-orange-700',
+        badgeBg: 'bg-orange-100 text-orange-600',
+        icon: '🎡',
+        cardBorder: 'border-orange-300',
+        actionBtnBg: 'bg-orange-500 hover:bg-orange-600',
+        actionText: '¡Gira la ruedita mágica!',
+        soundFrequency: 750,
+        soundType: 'sawtooth',
+        superpower: '¡Gira como la rueda de una bicicleta! Sirve como un ascensor para subir y bajar por las páginas web y tus cuentos digitales sin cansarte.',
+        mission: 'Cuando lees un cuento muy largo en la pantalla, ruedas hacia abajo para seguir leyendo lo que viene después.',
+        interactiveResponse: '¡SWOOSH! 🎢 ¡El ascensor bajó y subió!'
+      },
+      body: {
+        id: 'body',
+        number: '4',
+        name: 'Cuerpo del Ratón',
+        nickname: 'La Camita de tu Mano',
+        tagColor: 'bg-purple-100 text-purple-700',
+        badgeBg: 'bg-purple-100 text-purple-600',
+        icon: '✋',
+        cardBorder: 'border-purple-300',
+        actionBtnBg: 'bg-purple-600 hover:bg-purple-700',
+        actionText: '¡Acomoda tu manita aquí!',
+        soundFrequency: 350,
+        soundType: 'sine',
+        superpower: 'Es donde descansa tu manita calientita. Tiene una forma suave y redonda para que no te canses mientras juegas y dibujas.',
+        mission: 'Pon tu palma suavemente sobre el ratón sin apretarlo fuerte, ¡como si acariciaras un hámster dormilón!',
+        interactiveResponse: '¡CÓMODO! 🛋️ ¡Tu manita está lista para crear!'
+      }
+    };
+
+    /* Interactive Practice Mode Questions */
+    const practiceQuestions = [
+      {
+        question: '¿Cuál botón usas para dar un "CLIC" y abrir tu juego favorito?',
+        targetPart: 'left',
+        hint: '¡Pista: es el botón azul número 1!'
+      },
+      {
+        question: '¿Cuál es la ruedita mágica que parece un ascensor para subir y bajar páginas?',
+        targetPart: 'wheel',
+        hint: '¡Pista: está en el medio y es de color naranja!'
+      },
+      {
+        question: '¿Cuál botón tocas para abrir el menú de trucos y opciones secretas?',
+        targetPart: 'right',
+        hint: '¡Pista: es el botón verde número 2!'
+      },
+      {
+        question: '¿Dónde descansa toda la palma de tu manita para mover el mouse?',
+        targetPart: 'body',
+        hint: '¡Pista: es la parte grande y morada número 4!'
+      }
+    ];
+
+    function playBeep(freq = 440, type = 'sine', duration = 0.15) {
+      if (!state.audioEnabled) return;
+      try {
+        if (!state.audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          state.audioCtx = new AudioContext();
+        }
+        if (state.audioCtx.state === 'suspended') {
+          state.audioCtx.resume();
+        }
+        const osc = state.audioCtx.createOscillator();
+        const gain = state.audioCtx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, state.audioCtx.currentTime);
+        
+        // Soft envelope to avoid harsh popping
+        gain.gain.setValueAtTime(0.01, state.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.2, state.audioCtx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, state.audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(state.audioCtx.destination);
+
+        osc.start();
+        osc.stop(state.audioCtx.currentTime + duration);
+      } catch (e) {
+        console.warn('Audio non-blocking note:', e);
+      }
+    }
+
+    function playCelebrationSound() {
+      if (!state.audioEnabled) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, idx) => {
+        setTimeout(() => {
+          playBeep(freq, 'triangle', 0.22);
+        }, idx * 90);
+      });
+    }
+
+    function selectHotspot(partKey, isFromPractice = false) {
+      const data = mousePartsData[partKey];
+      if (!data) return;
+
+      // Handle Practice Mode Verification
+      if (state.practiceMode && !isFromPractice) {
+        checkPracticeAnswer(partKey);
+        return;
+      }
+
+      state.selectedPart = partKey;
+      playBeep(data.soundFrequency, data.soundType, 0.18);
+
+      // SVG parts highlighting
+      const parts = {
+        left: document.getElementById('partLeft'),
+        right: document.getElementById('partRight'),
+        wheel: document.getElementById('partWheel'),
+        body: document.getElementById('partBody')
+      };
+
+      // Reset classes
+      parts.left.classList.remove('part-active-left');
+      parts.right.classList.remove('part-active-right');
+      parts.wheel.classList.remove('part-active-wheel');
+      parts.body.classList.remove('part-active-body');
+
+      // Add corresponding active class
+      if (partKey === 'left') parts.left.classList.add('part-active-left');
+      if (partKey === 'right') parts.right.classList.add('part-active-right');
+      if (partKey === 'wheel') parts.wheel.classList.add('part-active-wheel');
+      if (partKey === 'body') parts.body.classList.add('part-active-body');
+
+      // Update Info Card
+      const infoCard = document.getElementById('infoCard');
+      const cardIconContainer = document.getElementById('cardIconContainer');
+      const partTag = document.getElementById('partTag');
+      const partTitle = document.getElementById('partTitle');
+      const partSuperpower = document.getElementById('partSuperpower');
+      const partMission = document.getElementById('partMission');
+      const cardActionButton = document.getElementById('cardActionButton');
+      const btnActionText = document.getElementById('btnActionText');
+      const tryStatus = document.getElementById('tryStatus');
+
+      // Animate card smoothly
+      infoCard.className = `bg-white rounded-3xl p-6 sm:p-7 shadow-xl border-4 ${data.cardBorder} transition-all duration-300 relative overflow-hidden transform scale-[1.01]`;
+      setTimeout(() => infoCard.classList.remove('scale-[1.01]'), 200);
+
+      cardIconContainer.textContent = data.icon;
+      cardIconContainer.className = `w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-sm ${data.badgeBg}`;
+      
+      partTag.textContent = `PARTE #${data.number}: ${data.nickname}`;
+      partTag.className = `text-xs uppercase font-extrabold tracking-wider px-2.5 py-1 rounded-full ${data.tagColor}`;
+
+      partTitle.textContent = data.name;
+      partSuperpower.innerHTML = data.superpower;
+      partMission.innerHTML = data.mission;
+
+      btnActionText.textContent = data.actionText;
+      cardActionButton.className = `w-full py-3.5 px-4 ${data.actionBtnBg} active:scale-95 text-white font-extrabold text-lg rounded-2xl shadow-md transition flex items-center justify-center gap-2`;
+
+      tryStatus.textContent = "¡Toca para probar!";
+      tryStatus.className = "text-indigo-600 font-extrabold";
+    }
+
+    function startPracticeMode() {
+      state.practiceMode = true;
+      state.gameQuestionIndex = 0;
+      document.getElementById('gameBanner').classList.remove('hidden');
+      updatePracticeQuestion();
+    }
+
+    function exitPracticeMode() {
+      state.practiceMode = false;
+      document.getElementById('gameBanner').classList.add('hidden');
+      selectHotspot('left');
+    }
+
+    function updatePracticeQuestion() {
+      const q = practiceQuestions[state.gameQuestionIndex];
+      const banner = document.getElementById('gameQuestionText');
+      banner.innerHTML = `<span class="bg-white/30 px-2 py-0.5 rounded-lg mr-2 font-black">#${state.gameQuestionIndex + 1}</span> ${q.question}`;
+    }
+
+    function checkPracticeAnswer(selectedPartKey) {
+      const currentQ = practiceQuestions[state.gameQuestionIndex];
+      if (selectedPartKey === currentQ.targetPart) {
+        // Correct answer!
+        playCelebrationSound();
+        triggerConfetti();
+
+        // Update card to celebrate
+        selectHotspot(selectedPartKey, true);
+        const tryStatus = document.getElementById('tryStatus');
+        tryStatus.textContent = "⭐ ¡CORRECTO! ¡ERES UN GENIO! ⭐";
+        tryStatus.className = "text-emerald-600 font-black animate-pulse";
+
+        // Advance question or win
+        setTimeout(() => {
+          state.gameQuestionIndex++;
+          if (state.gameQuestionIndex < practiceQuestions.length) {
+            updatePracticeQuestion();
+          } else {
+            // Completed all questions
+            const banner = document.getElementById('gameQuestionText');
+            banner.innerHTML = "🏆 ¡FELICITACIONES! ¡Eres un Maestro del Mouse de 1° de Primaria! 🌟";
+            triggerConfetti();
+            setTimeout(() => {
+              exitPracticeMode();
+            }, 4000);
+          }
+        }, 1500);
+
+      } else {
+        // Soft kid-friendly retry sound
+        playBeep(220, 'sawtooth', 0.25);
+        const tryStatus = document.getElementById('tryStatus');
+        tryStatus.textContent = `¡Casi! ${currentQ.hint}`;
+        tryStatus.className = "text-amber-600 font-bold";
+      }
+    }
+
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const ctx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+
+    function resizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfetti() {
+      const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+      for (let i = 0; i < 60; i++) {
+        confettiParticles.push({
+          x: window.innerWidth / 2 + (Math.random() * 200 - 100),
+          y: window.innerHeight / 3,
+          r: Math.random() * 7 + 4,
+          dx: (Math.random() - 0.5) * 12,
+          dy: Math.random() * -10 - 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.random() * 10,
+          tiltAngleIncremental: Math.random() * 0.08 + 0.04
+        });
+      }
+      if (!confettiAnimationRunning) {
+        runConfettiAnimation();
+      }
+    }
+
+    let confettiAnimationRunning = false;
+    function runConfettiAnimation() {
+      confettiAnimationRunning = true;
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+      confettiParticles.forEach((p, index) => {
+        p.tilt += p.tiltAngleIncremental;
+        p.y += (Math.cos(p.tilt) + 3 + p.r / 3);
+        p.x += p.dx * 0.98;
+        p.dy += 0.2;
+        p.y += p.dy * 0.3;
+
+        ctx.beginPath();
+        ctx.lineWidth = p.r;
+        ctx.strokeStyle = p.color;
+        ctx.moveTo(p.x + p.tilt, p.y);
+        ctx.lineTo(p.x, p.y + p.tilt + p.r);
+        ctx.stroke();
+
+        // Cleanup offscreen
+        if (p.y > confettiCanvas.height) {
+          confettiParticles.splice(index, 1);
+        }
+      });
+
+      if (confettiParticles.length > 0) {
+        requestAnimationFrame(runConfettiAnimation);
+      } else {
+        confettiAnimationRunning = false;
+        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Setup Hotspot clicks
+      document.getElementById('hotspotLeft').addEventListener('click', () => selectHotspot('left'));
+      document.getElementById('partLeft').addEventListener('click', () => selectHotspot('left'));
+
+      document.getElementById('hotspotRight').addEventListener('click', () => selectHotspot('right'));
+      document.getElementById('partRight').addEventListener('click', () => selectHotspot('right'));
+
+      document.getElementById('hotspotWheel').addEventListener('click', () => selectHotspot('wheel'));
+      document.getElementById('partWheel').addEventListener('click', () => selectHotspot('wheel'));
+
+      document.getElementById('hotspotBody').addEventListener('click', () => selectHotspot('body'));
+      document.getElementById('partBody').addEventListener('click', () => selectHotspot('body'));
+
+      // Audio Toggle Button
+      const toggleAudioBtn = document.getElementById('toggleAudioBtn');
+      const audioIcon = document.getElementById('audioIcon');
+      const audioText = document.getElementById('audioText');
+      toggleAudioBtn.addEventListener('click', () => {
+        state.audioEnabled = !state.audioEnabled;
+        if (state.audioEnabled) {
+          audioIcon.textContent = '🔊';
+          audioText.textContent = 'Sonido: SÍ';
+          playBeep(520, 'sine', 0.1);
+        } else {
+          audioIcon.textContent = '🔇';
+          audioText.textContent = 'Sonido: NO';
+        }
+      });
+
+      // Practice Mode Buttons
+      document.getElementById('modePracticeBtn').addEventListener('click', () => {
+        if (!state.practiceMode) {
+          startPracticeMode();
+        } else {
+          exitPracticeMode();
+        }
+      });
+      document.getElementById('exitGameBtn').addEventListener('click', exitPracticeMode);
+
+      // Card Interactive Action Button
+      const cardActionButton = document.getElementById('cardActionButton');
+      cardActionButton.addEventListener('click', () => {
+        const currentData = mousePartsData[state.selectedPart];
+        playCelebrationSound();
+        triggerConfetti();
+
+        const tryStatus = document.getElementById('tryStatus');
+        tryStatus.textContent = currentData.interactiveResponse;
+        tryStatus.className = "text-purple-600 font-black animate-bounce";
+
+        setTimeout(() => {
+          tryStatus.textContent = "¡Muy bien hecho!";
+          tryStatus.className = "text-emerald-600 font-extrabold";
+        }, 2200);
+      });
+
+      // Default initial selection
+      selectHotspot('left');
+    });
+  </script>
+</body>
+</html>

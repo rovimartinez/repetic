@@ -2458,6 +2458,243 @@
       opacity: 1;
     }
 
+    /* ==========================================================================
+       GALERÍA DE RECURSOS DEL TALLER (ESTUDIANTES & DOCENTE)
+       ========================================================================== */
+    .gallery-filter-bar {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: #ffffff;
+      padding: 0.85rem 1.25rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .gallery-search-input-wrap {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .gallery-search-input-wrap i {
+      position: absolute;
+      left: 12px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .gallery-search-input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      border-radius: 8px;
+      border: 1.5px solid #cbd5e1;
+      font-family: inherit;
+      font-size: 0.88rem;
+      background: #f8fafc;
+      transition: all 0.2s ease;
+    }
+
+    .gallery-search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .gallery-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.09);
+      border-color: var(--primary);
+    }
+
+    /* Marca de agua grande de fondo para las tarjetas de la galería */
+    .gallery-card-watermark {
+      position: absolute;
+      right: -24px;
+      bottom: -30px;
+      font-size: 13.5rem;
+      opacity: 0.095;
+      pointer-events: none;
+      z-index: 0;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+    }
+
+    .gallery-card:hover .gallery-card-watermark {
+      transform: scale(1.15) rotate(-6deg);
+      opacity: 0.18;
+    }
+
+    .gallery-card > div,
+    .gallery-actions {
+      position: relative;
+      z-index: 1;
+    }
+
+    .gallery-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 0.85rem;
+    }
+
+    .gallery-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 9px;
+      border-radius: 6px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .gallery-card-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin-bottom: 0.45rem;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .gallery-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      flex: 1;
+    }
+
+    .gallery-meta-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      margin-bottom: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .gallery-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #334155;
+    }
+
+    .gallery-meta-item strong {
+      color: #0f172a;
+    }
+
+    .gallery-meta-item i {
+      width: 16px;
+      text-align: center;
+      color: var(--primary);
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .gallery-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .gallery-btn-play {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      background: var(--primary);
+      color: #ffffff;
+      padding: 0.6rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .gallery-btn-play:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .gallery-btn-ext {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .gallery-btn-ext:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+
+    .gallery-empty-state {
+      display: none;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: #ffffff;
+      border: 2px dashed #cbd5e1;
+      border-radius: var(--radius-md);
+      color: #64748b;
+      margin-top: 1.5rem;
+    }
+
     /* Modal de Ejemplo de Recurso */
     .resource-modal-overlay {
       position: fixed;
@@ -3372,8 +3609,27 @@
         <li class="nav-item"><button class="nav-btn" onclick="goToStep(5)"><i class="fa-solid fa-toolbox"></i> <span>5.
               Caja de Herramientas</span></button></li>
         <li class="nav-item"><button class="nav-btn" onclick="goToStep(6)"><i class="fa-solid fa-share-nodes"></i>
-            <span>6.
-              Compartir & Entrega</span></button></li>
+            <span>6. Compartir & Entrega</span></button></li>
+      </ul>
+
+      <div class="nav-label" style="color: #38bdf8; display: flex; align-items: center; gap: 6px; margin-top: 0.6rem; margin-bottom: 0.5rem;">
+        <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 0.75rem;"></i> Creaciones en el Taller
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <button class="nav-btn" onclick="goToStep(7)">
+            <i class="fa-solid fa-user-graduate" style="color: #38bdf8;"></i>
+            <span>7. Recursos Estudiantes</span>
+            <span class="nav-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 700;">8</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-btn" onclick="goToStep(8)">
+            <i class="fa-solid fa-chalkboard-user" style="color: #a78bfa;"></i>
+            <span>8. Recursos Docente</span>
+            <span class="nav-badge" style="background: rgba(167, 139, 250, 0.2); color: #a78bfa; font-weight: 700;">8</span>
+          </button>
+        </li>
       </ul>
 
       <!-- RELOJ EN GRANDE ARRIBA DEL SEPARADOR / ARRIBA DE UNIVERSIDAD DEL MAGDALENA -->
@@ -4364,6 +4620,558 @@
           </ul>
         </section>
 
+        <!-- SECCIÓN 7: RECURSOS CREADOS POR ESTUDIANTES / PARTICIPANTES -->
+        <section class="section-card" id="sec-7">
+          <div class="section-header">
+            <div class="section-title-wrapper">
+              <div class="section-num" style="background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);">07</div>
+              <div>
+                <h2 class="section-title">Recursos Creados por Participantes & Estudiantes</h2>
+              </div>
+            </div>
+            <span class="section-time-badge" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
+              <i class="fa-solid fa-graduation-cap"></i> Creaciones del Taller
+            </span>
+          </div>
+
+          <!-- BARRA DE BÚSQUEDA Y FILTRADO EN VIVO -->
+          <div class="gallery-filter-bar">
+            <div class="gallery-search-input-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="filter-estudiantes" class="gallery-search-input" placeholder="Buscar por tema, estudiante o universidad..." oninput="filterGallery('filter-estudiantes', 'grid-estudiantes')">
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">
+              <i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> 8 recursos disponibles
+            </div>
+          </div>
+
+          <!-- GRID DE TARJETAS DE ESTUDIANTES -->
+          <div class="gallery-grid" id="grid-estudiantes">
+
+            <!-- 1. Ciberseguridad Divertida - Brayann Parada (UPTC) -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-shield-halved gallery-card-watermark" style="color: #0284c7;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #e0f2fe; color: #0369a1;">Juego Interactivo</span>
+                </div>
+                <h4 class="gallery-card-title">CiberGuardianes: Aventura de Ciberseguridad</h4>
+                <p class="gallery-card-desc">Juego didáctico para segundo de primaria enfocado en contraseñas seguras, protección de datos y el escudo secreto de internet.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span><strong>Estudiante:</strong> Brayann Parada</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> UPTC</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_estudiantes/ciberseguridad_brayann_parada_uptc.html', 'CiberGuardianes: Aventura de Ciberseguridad', 'Brayann Parada • UPTC')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_estudiantes/ciberseguridad_brayann_parada_uptc.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 2. El Viaje del Agua - Luis Paz (Universidad de Nariño) -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-droplet gallery-card-watermark" style="color: #4f46e5;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #e0e7ff; color: #4338ca;">Lección Interactiva</span>
+                </div>
+                <h4 class="gallery-card-title">El Viaje del Agua (Ciclo del Agua)</h4>
+                <p class="gallery-card-desc">Lección interactiva multimedia con explicaciones guiadas, animaciones y actividades sobre las fases del ciclo hidrológico.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span><strong>Estudiante:</strong> Luis Paz</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad de Nariño</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_estudiantes/ciclo_agua_luis_paz_udenar.html', 'El Viaje del Agua - Lección Interactiva', 'Luis Paz • Universidad de Nariño')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_estudiantes/ciclo_agua_luis_paz_udenar.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 3. Evolución de la Tecnología - Brayann Parada (UPTC) -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-timeline gallery-card-watermark" style="color: #7c3aed;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #f3e8ff; color: #6b21a8;">Línea de Tiempo</span>
+                </div>
+                <h4 class="gallery-card-title">La Aventura del Tiempo Tecnológico</h4>
+                <p class="gallery-card-desc">Línea temporal dinámica para 3° de primaria que recorre desde las primeras herramientas y la rueda hasta la era moderna.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span><strong>Estudiante:</strong> Brayann Parada</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> UPTC</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_estudiantes/linea_tiempo_tecnologia_brayann_parada_uptc.html', 'La Aventura del Tiempo Tecnológico', 'Brayann Parada • UPTC')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_estudiantes/linea_tiempo_tecnologia_brayann_parada_uptc.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 4. Feria de Física - Plataforma de Simulaciones -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-atom gallery-card-watermark" style="color: #059669;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #dcfce7; color: #166534;">Simuladores Web</span>
+                </div>
+                <h4 class="gallery-card-title">Feria Interactiva de Física</h4>
+                <p class="gallery-card-desc">Suite completa de física interactiva: óptica geométrica, ondas sonoras, gravedad e interferencia de ondas en tiempo real.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span><strong>Autores:</strong> Cristian y Jhohana</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-flask"></i>
+                    <span><strong>Proyecto:</strong> Feria de Ciencia y Tecnología</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_estudiantes/FeriaFisica/index.html', 'Feria Interactiva de Física', 'Cristian y Jhohana • Feria de Ciencia y Tecnología')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_estudiantes/FeriaFisica/index.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 5. Lección de Fracciones - Marcos Vides Mora -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-pizza-slice gallery-card-watermark" style="color: #d97706;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #fef3c7; color: #b45309;">Lección de Matemáticas</span>
+                </div>
+                <h4 class="gallery-card-title">Aventura con Fracciones Cotidianas</h4>
+                <p class="gallery-card-desc">Lección guiada para aprender fracciones con ejemplos de la vida real (porciones de pizza, recetas y reparto equitativo).</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span><strong>Estudiante:</strong> Marcos Vides Mora</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-school"></i>
+                    <span><strong>Institución:</strong> I.E. 19 de Marzo</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_estudiantes/leccion_fracciones_marcos_vides_19marzo.html', 'Aventura con Fracciones en la Vida Cotidiana', 'Marcos Vides Mora • I.E. 19 de Marzo')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_estudiantes/leccion_fracciones_marcos_vides_19marzo.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 6. Medicina Tradicional China -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-yin-yang gallery-card-watermark" style="color: #db2777;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #fce7f3; color: #9d174d;">Diagrama Hotspots</span>
+                </div>
+                <h4 class="gallery-card-title">Medicina Tradicional China (Órganos Zang)</h4>
+                <p class="gallery-card-desc">Diagrama interactivo con hotspots pulsantes sobre anatomía energética, órganos Zang y la teoría de los cinco elementos.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span><strong>Participante:</strong> Taller REPETIC</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Nivel:</strong> Educación Media & Superior</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_estudiantes/diagrama_medicina_tradicional_china.html', 'Medicina Tradicional China: Órganos Zang', 'Taller REPETIC')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_estudiantes/diagrama_medicina_tradicional_china.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 7. Trivia Ciclo del Agua - María Pérez -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-leaf gallery-card-watermark" style="color: #0d9488;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #ccfbf1; color: #0f766e;">Trivia Gamificada</span>
+                </div>
+                <h4 class="gallery-card-title">EcoReto: Ciclo del Agua y Cambio Climático</h4>
+                <p class="gallery-card-desc">Trivia con vidas, puntuación y retroalimentación didáctica diseñada para estudiantes de 9° grado en ciencias naturales.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span><strong>Estudiante / Docente:</strong> María Pérez</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_estudiantes/trivia_ciclo_agua_maria_perez_unimagdalena.html', 'EcoReto: El Ciclo del Agua y Cambio Climático', 'María Pérez • Universidad del Magdalena')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_estudiantes/trivia_ciclo_agua_maria_perez_unimagdalena.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 8. Trivia de Fracciones - Carlos Mendoza -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-calculator gallery-card-watermark" style="color: #ea580c;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #ffedd5; color: #c2410c;">Trivia de Primaria</span>
+                </div>
+                <h4 class="gallery-card-title">Misión Fracciones: 4° Primaria</h4>
+                <p class="gallery-card-desc">Cuestionario interactivo gamificado con preguntas paso a paso para afianzar el razonamiento fraccionario.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span><strong>Estudiante / Docente:</strong> Carlos Mendoza</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad Pedagógica Nacional</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_estudiantes/trivia_fracciones_carlos_mendoza_upn.html', 'Misión Fracciones - Trivia 4° Primaria', 'Carlos Mendoza • Univ. Pedagógica Nacional')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_estudiantes/trivia_fracciones_carlos_mendoza_upn.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="grid-estudiantes-empty" class="gallery-empty-state">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 0.5rem; color: #cbd5e1;"></i>
+            <p style="margin: 0; font-weight: 600;">No se encontraron recursos que coincidan con la búsqueda.</p>
+          </div>
+        </section>
+
+        <!-- SECCIÓN 8: RECURSOS CREADOS POR EL DOCENTE EN EL TALLER -->
+        <section class="section-card" id="sec-8">
+          <div class="section-header">
+            <div class="section-title-wrapper">
+              <div class="section-num" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);">08</div>
+              <div>
+                <h2 class="section-title">Recursos Desarrollados por el Docente en el Taller</h2>
+              </div>
+            </div>
+            <span class="section-time-badge" style="background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff;">
+              <i class="fa-solid fa-chalkboard-user"></i> Recursos Facilitador
+            </span>
+          </div>
+
+          <!-- BARRA DE BÚSQUEDA Y FILTRADO EN VIVO -->
+          <div class="gallery-filter-bar">
+            <div class="gallery-search-input-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="filter-docente" class="gallery-search-input" placeholder="Buscar por tema o nombre del recurso..." oninput="filterGallery('filter-docente', 'grid-docente')">
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">
+              <i class="fa-solid fa-folder-tree" style="color: #7c3aed;"></i> 8 recursos del docente
+            </div>
+          </div>
+
+          <!-- GRID DE TARJETAS DEL DOCENTE -->
+          <div class="gallery-grid" id="grid-docente">
+
+            <!-- 1. CiberGuardianes: Seguridad en Línea -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-user-shield gallery-card-watermark" style="color: #0284c7;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #e0f2fe; color: #0369a1;">Gamificación & Seguridad</span>
+                </div>
+                <h4 class="gallery-card-title">CiberGuardianes: Seguridad en Línea</h4>
+                <p class="gallery-card-desc">Misión formativa gamificada sobre navegación segura, privacidad y resolución de desafíos de seguridad en internet.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span><strong>Docente:</strong> Ronny Martinez Reyes</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_taller/ciberguardianes_seguridad_linea.html', 'CiberGuardianes: Seguridad en Línea', 'Ronny Martinez Reyes • UNIMAGDALENA')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_taller/ciberguardianes_seguridad_linea.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 2. Aventura con Bloques: Secuencia y Repetición -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-cubes gallery-card-watermark" style="color: #4f46e5;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #e0e7ff; color: #4338ca;">Pensamiento Computacional</span>
+                </div>
+                <h4 class="gallery-card-title">Aventura con Bloques: Programación</h4>
+                <p class="gallery-card-desc">Lección interactiva de pensamiento computacional para enseñar secuencias, bucles y lógica con bloques visuales.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span><strong>Docente:</strong> Ronny Martinez Reyes</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_taller/aventura_bloques_programacion.html', 'Aventura con Bloques: Programación', 'Ronny Martinez Reyes • UNIMAGDALENA')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_taller/aventura_bloques_programacion.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 3. Aventura con Bloques: Versión Lección Integral -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-code gallery-card-watermark" style="color: #7c3aed;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #f3e8ff; color: #6b21a8;">Lección con 5 Componentes</span>
+                </div>
+                <h4 class="gallery-card-title">Aventura Bloques: Lección Interactiva</h4>
+                <p class="gallery-card-desc">Estructura completa de lección didáctica con 5 componentes: teoría, flashcards, ejercicios prácticos y evaluación.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span><strong>Docente:</strong> Ronny Martinez Reyes</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_taller/aventura_bloques_leccion_interactiva.html', 'Aventura con Bloques: Lección Interactiva', 'Ronny Martinez Reyes • UNIMAGDALENA')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_taller/aventura_bloques_leccion_interactiva.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 4. El Ratón Mágico: Diagrama con Hotspots -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-computer-mouse gallery-card-watermark" style="color: #d97706;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #fef3c7; color: #b45309;">Diagrama con Hotspots</span>
+                </div>
+                <h4 class="gallery-card-title">El Maravilloso Mundo del Mouse</h4>
+                <p class="gallery-card-desc">Diagrama animado e interactivo con puntos pulsantes para enseñar las funciones del mouse a 1° de primaria.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span><strong>Docente:</strong> Ronny Martinez Reyes</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_taller/raton_magico_diagrama_interactivo.html', 'El Maravilloso Mundo del Mouse', 'Ronny Martinez Reyes • UNIMAGDALENA')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_taller/raton_magico_diagrama_interactivo.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 5. Las Partes del Computador -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-desktop gallery-card-watermark" style="color: #059669;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #dcfce7; color: #166534;">Presentación Diapositivas</span>
+                </div>
+                <h4 class="gallery-card-title">Las Partes del Computador</h4>
+                <p class="gallery-card-desc">Presentación interactiva para primer grado que muestra de forma visual y táctil los componentes del ordenador.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span><strong>Docente:</strong> Ronny Martinez Reyes</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_taller/partes_computador_presentacion.html', 'Las Partes del Computador', 'Ronny Martinez Reyes • UNIMAGDALENA')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_taller/partes_computador_presentacion.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 6. Línea de Tiempo: Evolución de la Tecnología -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-clock-rotate-left gallery-card-watermark" style="color: #dc2626;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #fee2e2; color: #991b1b;">Línea de Tiempo</span>
+                </div>
+                <h4 class="gallery-card-title">Aventureros del Tiempo Tecnológico</h4>
+                <p class="gallery-card-desc">Línea temporal interactiva con hitos cronológicos sobre la historia de las invenciones humanas y la tecnología.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span><strong>Docente:</strong> Ronny Martinez Reyes</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_taller/linea_tiempo_evolucion_tecnologia.html', 'Aventureros del Tiempo Tecnológico', 'Ronny Martinez Reyes • UNIMAGDALENA')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_taller/linea_tiempo_evolucion_tecnologia.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 7. Ruleta de Desafíos de Aula -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-arrows-spin gallery-card-watermark" style="color: #db2777;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #fce7f3; color: #9d174d;">Dinámica de Clase</span>
+                </div>
+                <h4 class="gallery-card-title">Ruleta Interactiva de Desafíos</h4>
+                <p class="gallery-card-desc">Ruleta con física de giro y selección aleatoria de dinámicas y preguntas relámpago para dinamizar el aula.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span><strong>Docente:</strong> Ronny Martinez Reyes</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_taller/ruleta_desafios_aula.html', 'Ruleta Interactiva de Desafíos de Aula', 'Ronny Martinez Reyes • UNIMAGDALENA')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_taller/ruleta_desafios_aula.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+            <!-- 8. Simulador de Sensor Ultrasónico HC-SR04 -->
+            <div class="gallery-card">
+              <i class="fa-solid fa-satellite-dish gallery-card-watermark" style="color: #0284c7;"></i>
+              <div>
+                <div class="gallery-card-header">
+                  <span class="gallery-badge" style="background: #e0f2fe; color: #0369a1;">Ejemplo prometido de simulación</span>
+                </div>
+                <h4 class="gallery-card-title">Simulador de Sensor Ultrasónico HC-SR04</h4>
+                <p class="gallery-card-desc">Simulador físico interactivo de propagación de ondas acústicas, diagramas de tiempos (Trigger/Echo) y cálculo de distancia en tiempo real.</p>
+                <div class="gallery-meta-box">
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span><strong>Docente:</strong> Ronny Martinez Reyes</span>
+                  </div>
+                  <div class="gallery-meta-item">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span><strong>Institución:</strong> Universidad del Magdalena</span>
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-actions">
+                <button type="button" class="gallery-btn-play" onclick="openEmbeddedViewer('recursos_taller/Sensor_ultrasonico.html', 'Simulador de Sensor Ultrasónico HC-SR04', 'Ronny Martinez Reyes • UNIMAGDALENA')">
+                  <i class="fa-solid fa-play"></i> Ver
+                </button>
+                <a href="recursos_taller/Sensor_ultrasonico.html" target="_blank" class="gallery-btn-ext" title="Abrir en pestaña nueva">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en pestaña
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="grid-docente-empty" class="gallery-empty-state">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 0.5rem; color: #cbd5e1;"></i>
+            <p style="margin: 0; font-weight: 600;">No se encontraron recursos que coincidan con la búsqueda.</p>
+          </div>
+        </section>
+
       </div>
     </main>
   </div>
@@ -4535,19 +5343,21 @@
   </div>
 
   <script>
-    // CONTROL DE NAVEGACIÓN PASO A PASO (6 MÓDULOS)
+    // CONTROL DE NAVEGACIÓN PASO A PASO (8 MÓDULOS)
     const STEP_TITLES = [
-      "1 de 6 (Objetivos y Metas)",
-      "2 de 6 (Tipos de Recursos)",
-      "3 de 6 (Generador de Prompts)",
-      "4 de 6 (Despliegue Web & QR)",
-      "5 de 6 (Caja de Herramientas)",
-      "6 de 6 (Compartir & Entrega)"
+      "1 de 8 (Objetivos y Metas)",
+      "2 de 8 (Tipos de Recursos)",
+      "3 de 8 (Generador de Prompts)",
+      "4 de 8 (Despliegue Web & QR)",
+      "5 de 8 (Caja de Herramientas)",
+      "6 de 8 (Compartir & Entrega)",
+      "7 de 8 (Recursos de Estudiantes)",
+      "8 de 8 (Recursos del Docente)"
     ];
     let currentStep = 1;
 
     function goToStep(stepNumber) {
-      if (stepNumber < 1 || stepNumber > 6) return;
+      if (stepNumber < 1 || stepNumber > 8) return;
       currentStep = stepNumber;
 
       // 1. Mostrar únicamente la sección seleccionada
@@ -4570,7 +5380,7 @@
       const stepLabel = document.getElementById('step-indicator-label');
       if (stepLabel) stepLabel.innerText = STEP_TITLES[stepNumber - 1];
       const heroStepEl = document.getElementById('hero-step');
-      if (heroStepEl) heroStepEl.innerText = `Paso ${stepNumber} de 6`;
+      if (heroStepEl) heroStepEl.innerText = `Paso ${stepNumber} de 8`;
 
       // 5. Reset scroll hacia arriba de la vista de contenido
       const mainScroll = document.getElementById('main-scroll');
@@ -5042,6 +5852,9 @@ REQUERIMIENTOS TÉCNICOS:
 
       currentActiveResourceKey = type;
       currentActiveResourceFile = res.file;
+      const btnPrompt = document.querySelector('.btn-prompt-example');
+      if (btnPrompt) btnPrompt.style.display = 'inline-flex';
+
       document.getElementById('modal-title').innerHTML = res.title;
       document.getElementById('modal-body').innerHTML = `
         <div style="flex: 1; width: 100%; height: 100%; position: relative; background: #ffffff;">
@@ -5050,6 +5863,63 @@ REQUERIMIENTOS TÉCNICOS:
       `;
 
       document.getElementById('resource-modal').classList.add('active');
+    }
+
+    function openEmbeddedViewer(fileUrl, titleText, authorText, promptKey = null) {
+      currentActiveResourceKey = promptKey || '';
+      currentActiveResourceFile = fileUrl;
+      
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+      const btnPrompt = document.querySelector('.btn-prompt-example');
+      
+      if (btnPrompt) {
+        if (promptKey && RESOURCE_PROMPTS[promptKey]) {
+          btnPrompt.style.display = 'inline-flex';
+        } else {
+          btnPrompt.style.display = 'none';
+        }
+      }
+      
+      if (modalTitle) {
+        modalTitle.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 1.05rem; font-weight: 800; color: #fff;">${titleText}</span>
+            ${authorText ? `<span style="font-size: 0.78rem; font-weight: 600; color: #38bdf8;"><i class="fa-solid fa-graduation-cap"></i> ${authorText}</span>` : ''}
+          </div>
+        `;
+      }
+      
+      if (modalBody) {
+        modalBody.innerHTML = `
+          <div style="flex: 1; width: 100%; height: 100%; position: relative; background: #ffffff;">
+            <iframe src="${fileUrl}" style="width: 100%; height: 100%; border: none; display: block;" title="${titleText}"></iframe>
+          </div>
+        `;
+      }
+      
+      document.getElementById('resource-modal')?.classList.add('active');
+    }
+
+    function filterGallery(inputId, gridId) {
+      const q = document.getElementById(inputId)?.value.toLowerCase().trim() || '';
+      const grid = document.getElementById(gridId);
+      if (!grid) return;
+      const cards = grid.querySelectorAll('.gallery-card');
+      let visibleCount = 0;
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(q)) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      const emptyEl = document.getElementById(gridId + '-empty');
+      if (emptyEl) {
+        emptyEl.style.display = visibleCount === 0 ? 'block' : 'none';
+      }
     }
 
     function openResourceExternal() {
